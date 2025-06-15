@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowKunevDev.Data", "FlowKu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowKunevDev.Data.Models", "FlowKunevDev.Data.Models\FlowKunevDev.Data.Models.csproj", "{9E58CE81-36A1-4EBD-A36E-F7EC0332E246}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowKunevDev.Common", "FlowKunevDev.Common\FlowKunevDev.Common.csproj", "{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{9E58CE81-36A1-4EBD-A36E-F7EC0332E246}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E58CE81-36A1-4EBD-A36E-F7EC0332E246}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E58CE81-36A1-4EBD-A36E-F7EC0332E246}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

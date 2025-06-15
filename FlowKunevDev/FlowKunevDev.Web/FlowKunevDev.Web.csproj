@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FlowKunevDev.Data.Models\FlowKunevDev.Data.Models.csproj" />
     <ProjectReference Include="..\FlowKunevDev.Data\FlowKunevDev.Data.csproj" />
   </ItemGroup>
 

@@ -15,4 +15,9 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FlowKunevDev.Common\FlowKunevDev.Common.csproj" />
+    <ProjectReference Include="..\FlowKunevDev.Data.Models\FlowKunevDev.Data.Models.csproj" />
+  </ItemGroup>
+
 </Project>
