@@ -2,6 +2,8 @@
 using FlowKunevDev.Data.Seeding;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace FlowKunevDev.Data
 {
