@@ -2,7 +2,7 @@ using System.Diagnostics;
 using FlowKunevDev.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FlowKunevDev.Controllers
+namespace FlowKunevDev.Web.Controllers
 {
     public class HomeController : Controller
     {
