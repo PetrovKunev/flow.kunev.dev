@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowKunevDev.Data.Models", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowKunevDev.Common", "FlowKunevDev.Common\FlowKunevDev.Common.csproj", "{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowKunevDev.Services", "FlowKunevDev.Services\FlowKunevDev.Services.csproj", "{AF1D93B9-E112-485E-B600-13445622A396}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D2105F4-FEB2-47C2-A6CA-F29B0F1C6DC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF1D93B9-E112-485E-B600-13445622A396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF1D93B9-E112-485E-B600-13445622A396}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF1D93B9-E112-485E-B600-13445622A396}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF1D93B9-E112-485E-B600-13445622A396}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FlowKunevDev.Common\FlowKunevDev.Common.csproj" />
+    <ProjectReference Include="..\FlowKunevDev.Data.Models\FlowKunevDev.Data.Models.csproj" />
+    <ProjectReference Include="..\FlowKunevDev.Data\FlowKunevDev.Data.csproj" />
+  </ItemGroup>
+
+</Project>
