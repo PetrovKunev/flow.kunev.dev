@@ -1,0 +1,227 @@
+﻿@model FlowKunevDev.Services.DTOs.AccountDto
+
+@{
+    ViewData["Title"] = "Детайли за Сметка";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>@ViewData["Title"]</h2>
+    <div class="btn-group">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Редактирай
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Назад
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Основна информация -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header text-white d-flex justify-content-between align-items-center"
+                 style="background-color: @Model.Color;">
+                <h5 class="mb-0">@Model.Name</h5>
+                <div>
+                    <span class="badge bg-light text-dark me-2">@Model.Type.ToString()</span>
+                    <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">
+                        @(Model.IsActive ? "Активна" : "Неактивна")
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="text-center mb-3">
+                            <h3 class="text-@(Model.CurrentBalance >= 0 ? "success" : "danger")">
+                                @Model.CurrentBalance.ToString("C") @Model.Currency
+                            </h3>
+                            <p class="text-muted mb-0">Текущ баланс</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center mb-3">
+                            <h4 class="text-info">
+                                @((Model.CurrentBalance - Model.InitialBalance).ToString("C")) @Model.Currency
+                            </h4>
+                            <p class="text-muted mb-0">
+                                Промяна от създаването
+                                @if (Model.CurrentBalance != Model.InitialBalance)
+                                {
+                                    <span class="badge @(Model.CurrentBalance >= Model.InitialBalance ? "bg-success" : "bg-danger")">
+                                        @(((Model.CurrentBalance - Model.InitialBalance) / Math.Max(Math.Abs(Model.InitialBalance), 1) * 100).ToString("F1"))%
+                                    </span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="mb-3">
+                        <strong>Описание:</strong>
+                        <p class="text-muted">@Model.Description</p>
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>Начален баланс:</strong>
+                        <p class="mb-1">@Model.InitialBalance.ToString("C") @Model.Currency</p>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Валута:</strong>
+                        <p class="mb-1">@Model.Currency</p>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Създадена на:</strong>
+                        <p class="mb-1">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистики -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Статистики</h6>
+            </div>
+            <div class="card-body" id="stats-container">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Зареждане...</span>
+                    </div>
+                    <p class="mt-2">Зареждане на статистики...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Лятна информация -->
+    <div class="col-md-4">
+        <!-- Кратка статистика -->
+        <div class="card border-info mb-3">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Кратка информация</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-12 mb-3">
+                        <h4 class="text-primary">@Model.TransactionCount</h4>
+                        <small class="text-muted">Транзакции</small>
+                    </div>
+                    @if (Model.LastTransactionDate.HasValue)
+                    {
+                        <div class="col-12 mb-3">
+                            <h6 class="text-info">@Model.LastTransactionDate.Value.ToString("dd.MM.yyyy")</h6>
+                            <small class="text-muted">Последна транзакция</small>
+                        </div>
+                    }
+                    <div class="col-12">
+                        <h6 class="text-success">@((DateTime.Now - Model.CreatedDate).Days) дни</h6>
+                        <small class="text-muted">Възраст на сметката</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Бързи действия -->
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0">Бързи действия</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="Transactions" asp-action="Create"
+                       asp-route-accountId="@Model.Id" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Нова транзакция
+                    </a>
+                    <a asp-controller="Transactions" asp-action="Index"
+                       asp-route-accountId="@Model.Id" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i> Всички транзакции
+                    </a>
+                    <a asp-controller="AccountTransfers" asp-action="Create"
+                       asp-route-fromAccountId="@Model.Id" class="btn btn-outline-info">
+                        <i class="fas fa-exchange-alt"></i> Трансфер
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="downloadReport()">
+                        <i class="fas fa-download"></i> Изтегли отчет
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadAccountStats();
+        });
+
+        function loadAccountStats() {
+            $.get('@Url.Action("GetStats")', { id: @Model.Id })
+                .done(function(response) {
+                    if (response.success) {
+                        displayStats(response.stats);
+                    } else {
+                        $('#stats-container').html('<div class="alert alert-warning">Не може да се заредят статистиките.</div>');
+                    }
+                })
+                .fail(function() {
+                    $('#stats-container').html('<div class="alert alert-danger">Грешка при зареждането на статистиките.</div>');
+                });
+        }
+
+        function displayStats(stats) {
+            var html = '<div class="row text-center">';
+
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-success">' + formatCurrency(stats.totalIncome) + '</h5>';
+            html += '<small class="text-muted">Общо приходи</small>';
+            html += '</div>';
+
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-danger">' + formatCurrency(stats.totalExpenses) + '</h5>';
+            html += '<small class="text-muted">Общо разходи</small>';
+            html += '</div>';
+
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-info">' + formatCurrency(stats.netChange) + '</h5>';
+            html += '<small class="text-muted">Нетна промяна</small>';
+            html += '</div>';
+
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-warning">' + formatCurrency(stats.averageTransactionAmount) + '</h5>';
+            html += '<small class="text-muted">Средна транзакция</small>';
+            html += '</div>';
+
+            if (stats.lastTransactionDate) {
+                html += '<div class="col-12">';
+                html += '<p class="text-muted mb-0">Последна транзакция: ';
+                html += formatCurrency(stats.lastTransactionAmount) + ' на ';
+                html += new Date(stats.lastTransactionDate).toLocaleDateString('bg-BG');
+                html += '</p>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+
+            $('#stats-container').html(html);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('bg-BG', {
+                style: 'currency',
+                currency: '@Model.Currency'
+            }).format(amount);
+        }
+
+        function downloadReport() {
+            // TODO: Implement report download
+            alert('Функционалността за изтегляне на отчети ще бъде реализирана скоро.');
+        }
+    </script>
+}

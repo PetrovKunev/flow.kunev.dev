@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using FlowKunevDev.Data;
 using FlowKunevDev.Services.Interfaces;
 using FlowKunevDev.Services.Implementations;
+using FlowKunevDev.Web.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // AutoMapper
-//builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddControllersWithViews();
 

@@ -1,0 +1,185 @@
+﻿@model FlowKunevDev.Services.DTOs.CreateAccountDto
+
+@{
+    ViewData["Title"] = "Създаване на Сметка";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">@ViewData["Title"]</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Name" class="form-control" placeholder="Име на сметката" />
+                                <label asp-for="Name">Име на сметката</label>
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="Type" class="form-select">
+                                    <option value="">Изберете тип</option>
+                                    <option value="0">Текуща сметка</option>
+                                    <option value="1">Спестовна сметка</option>
+                                    <option value="2">Кредитна карта</option>
+                                    <option value="3">Инвестиции</option>
+                                    <option value="4">Кеш</option>
+                                </select>
+                                <label asp-for="Type">Тип сметка</label>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea asp-for="Description" class="form-control"
+                                  placeholder="Описание (незадължително)" style="height: 100px"></textarea>
+                        <label asp-for="Description">Описание (незадължително)</label>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="InitialBalance" class="form-control"
+                                       type="number" step="0.01" min="0" placeholder="0.00" />
+                                <label asp-for="InitialBalance">Начален баланс</label>
+                                <span asp-validation-for="InitialBalance" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="BGN">BGN - Български лев</option>
+                                    <option value="EUR">EUR - Евро</option>
+                                    <option value="USD">USD - Американски долар</option>
+                                </select>
+                                <label asp-for="Currency">Валута</label>
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Color" class="form-label">Цвят на сметката</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input asp-for="Color" type="color" class="form-control form-control-color" />
+                                <span asp-validation-for="Color" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #007bff;" data-color="#007bff">
+                                        Син
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #28a745;" data-color="#28a745">
+                                        Зелен
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #dc3545;" data-color="#dc3545">
+                                        Червен
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #ffc107;" data-color="#ffc107">
+                                        Жълт
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #6f42c1;" data-color="#6f42c1">
+                                        Лилав
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #fd7e14;" data-color="#fd7e14">
+                                        Оранжев
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Предварителен преглед -->
+                    <div class="mb-3">
+                        <label class="form-label">Предварителен преглед</label>
+                        <div class="card preview-card" style="max-width: 300px;">
+                            <div class="card-header text-white" id="preview-header">
+                                <span id="preview-name">Име на сметката</span>
+                                <span class="badge bg-light text-dark" id="preview-type">Тип</span>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="text-success" id="preview-balance">0.00 BGN</h5>
+                                <small class="text-muted">Текущ баланс</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-secondary me-md-2">Отказ</a>
+                        <button type="submit" class="btn btn-primary">Създай Сметка</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function() {
+            // Цветни бутони
+            $('.color-preset').click(function() {
+                var color = $(this).data('color');
+                $('#Color').val(color);
+                updatePreview();
+            });
+
+            // Обновяване на предварителния преглед
+            $('#Name, #Type, #InitialBalance, #Currency, #Color').on('input change', updatePreview);
+
+            function updatePreview() {
+                var name = $('#Name').val() || 'Име на сметката';
+                var type = $('#Type option:selected').text() || 'Тип';
+                var balance = $('#InitialBalance').val() || '0.00';
+                var currency = $('#Currency').val() || 'BGN';
+                var color = $('#Color').val() || '#007bff';
+
+                $('#preview-name').text(name);
+                $('#preview-type').text(type);
+                $('#preview-balance').text(parseFloat(balance).toFixed(2) + ' ' + currency);
+                $('#preview-header').css('background-color', color);
+            }
+
+            // Начално обновяване
+            updatePreview();
+        });
+    </script>
+
+    <style>
+        .color-preset {
+            width: 50px;
+            height: 30px;
+            border: 2px solid #dee2e6;
+            color: white;
+            font-size: 0.75rem;
+        }
+
+            .color-preset:hover {
+                border-color: #495057;
+            }
+
+        .preview-card {
+            transition: all 0.3s ease;
+        }
+    </style>
+}

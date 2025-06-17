@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using FlowKunevDev.Data;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
@@ -10,10 +11,12 @@ namespace FlowKunevDev.Services.Implementations
     public class AccountService : IAccountService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public AccountService(ApplicationDbContext context)
+        public AccountService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<AccountDto?> GetByIdAsync(int id, string userId)
@@ -24,31 +27,20 @@ namespace FlowKunevDev.Services.Implementations
 
             if (account == null) return null;
 
-            var currentBalance = await CalculateCurrentBalanceAsync(account.Id);
-            var transactionCount = await _context.Transactions
+            var accountDto = _mapper.Map<AccountDto>(account);
+            accountDto.CurrentBalance = await CalculateCurrentBalanceAsync(account.Id);
+            accountDto.TransactionCount = await _context.Transactions
                 .CountAsync(t => t.AccountId == account.Id);
-            var lastTransactionDate = await _context.Transactions
+            accountDto.LastTransactionDate = await _context.Transactions
                 .Where(t => t.AccountId == account.Id)
                 .OrderByDescending(t => t.Date)
                 .Select(t => t.Date)
                 .FirstOrDefaultAsync();
 
-            return new AccountDto
-            {
-                Id = account.Id,
-                Name = account.Name,
-                Description = account.Description,
-                InitialBalance = account.InitialBalance,
-                CurrentBalance = currentBalance,
-                Type = account.Type,
-                Currency = account.Currency,
-                Color = account.Color,
-                UserId = account.UserId,
-                CreatedDate = account.CreatedDate,
-                IsActive = account.IsActive,
-                TransactionCount = transactionCount,
-                LastTransactionDate = lastTransactionDate == default ? null : lastTransactionDate
-            };
+            if (accountDto.LastTransactionDate == default)
+                accountDto.LastTransactionDate = null;
+
+            return accountDto;
         }
 
         public async Task<IEnumerable<AccountDto>> GetAllAsync(string userId)
@@ -128,38 +120,18 @@ namespace FlowKunevDev.Services.Implementations
                 throw new InvalidOperationException($"Сметка с име '{createDto.Name}' вече съществува.");
             }
 
-            var account = new Account
-            {
-                Name = createDto.Name,
-                Description = createDto.Description,
-                InitialBalance = createDto.InitialBalance,
-                Type = createDto.Type,
-                Currency = createDto.Currency,
-                Color = createDto.Color,
-                UserId = userId,
-                CreatedDate = DateTime.Now,
-                IsActive = true
-            };
+            var account = _mapper.Map<Account>(createDto);
+            account.UserId = userId;
 
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
-            return new AccountDto
-            {
-                Id = account.Id,
-                Name = account.Name,
-                Description = account.Description,
-                InitialBalance = account.InitialBalance,
-                CurrentBalance = account.InitialBalance, // Първоначално баланса е равен на началния
-                Type = account.Type,
-                Currency = account.Currency,
-                Color = account.Color,
-                UserId = account.UserId,
-                CreatedDate = account.CreatedDate,
-                IsActive = account.IsActive,
-                TransactionCount = 0,
-                LastTransactionDate = null
-            };
+            var accountDto = _mapper.Map<AccountDto>(account);
+            accountDto.CurrentBalance = account.InitialBalance; // Първоначално баланса е равен на началния
+            accountDto.TransactionCount = 0;
+            accountDto.LastTransactionDate = null;
+
+            return accountDto;
         }
 
         public async Task<AccountDto?> UpdateAsync(UpdateAccountDto updateDto, string userId)
@@ -176,13 +148,7 @@ namespace FlowKunevDev.Services.Implementations
                 throw new InvalidOperationException($"Сметка с име '{updateDto.Name}' вече съществува.");
             }
 
-            account.Name = updateDto.Name;
-            account.Description = updateDto.Description;
-            account.Type = updateDto.Type;
-            account.Currency = updateDto.Currency;
-            account.Color = updateDto.Color;
-            account.IsActive = updateDto.IsActive;
-
+            _mapper.Map(updateDto, account);
             await _context.SaveChangesAsync();
 
             return await GetByIdAsync(account.Id, userId);
