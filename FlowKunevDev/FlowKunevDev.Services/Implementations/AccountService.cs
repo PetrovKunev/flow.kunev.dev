@@ -350,11 +350,11 @@ namespace FlowKunevDev.Services.Implementations
 
             var incomeSum = await _context.Transactions
                 .Where(t => t.AccountId == accountId && t.Type == TransactionType.Income)
-                .SumAsync(t => t.Amount);
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
             var expenseSum = await _context.Transactions
                 .Where(t => t.AccountId == accountId && t.Type == TransactionType.Expense)
-                .SumAsync(t => t.Amount);
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
             var lastTransaction = await _context.Transactions
                 .Where(t => t.AccountId == accountId)
@@ -372,7 +372,7 @@ namespace FlowKunevDev.Services.Implementations
                 ["netChange"] = incomeSum - expenseSum,
                 ["transactionCount"] = transactionCount,
                 ["averageTransactionAmount"] = avgTransactionAmount,
-                ["lastTransactionDate"] = lastTransaction?.Date,
+                ["lastTransactionDate"] = lastTransaction?.Date ?? (object)DBNull.Value,
                 ["lastTransactionAmount"] = lastTransaction?.Amount ?? 0,
                 ["accountAge"] = DateTime.Now.Subtract(account.CreatedDate).Days
             };
@@ -396,11 +396,11 @@ namespace FlowKunevDev.Services.Implementations
 
             var totalIncome = await _context.Transactions
                 .Where(t => t.UserId == userId && t.Type == TransactionType.Income)
-                .SumAsync(t => t.Amount);
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
             var totalExpenses = await _context.Transactions
                 .Where(t => t.UserId == userId && t.Type == TransactionType.Expense)
-                .SumAsync(t => t.Amount);
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
             var transactionCount = await _context.Transactions
                 .CountAsync(t => t.UserId == userId);
@@ -430,21 +430,21 @@ namespace FlowKunevDev.Services.Implementations
 
             var incomeSum = await _context.Transactions
                 .Where(t => t.AccountId == accountId && t.Type == TransactionType.Income)
-                .SumAsync(t => t.Amount);
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
             var expenseSum = await _context.Transactions
                 .Where(t => t.AccountId == accountId && t.Type == TransactionType.Expense)
-                .SumAsync(t => t.Amount);
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
             // Добавяме входящи трансфери
             var transfersIn = await _context.AccountTransfers
                 .Where(at => at.ToAccountId == accountId)
-                .SumAsync(at => at.Amount);
+                .SumAsync(at => (decimal?)at.Amount) ?? 0;
 
             // Извадяме изходящи трансфери
             var transfersOut = await _context.AccountTransfers
                 .Where(at => at.FromAccountId == accountId)
-                .SumAsync(at => at.Amount);
+                .SumAsync(at => (decimal?)at.Amount) ?? 0;
 
             return account.InitialBalance + incomeSum - expenseSum + transfersIn - transfersOut;
         }
