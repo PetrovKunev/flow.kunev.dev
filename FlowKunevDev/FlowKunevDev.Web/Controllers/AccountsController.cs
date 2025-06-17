@@ -189,19 +189,22 @@ namespace FlowKunevDev.Web.Controllers
 
         // POST: Accounts/ToggleActive/5
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleActive(int id)
         {
             var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrEmpty(userId))
-                return Json(new { success = false, message = "Не сте оторизирани" });
+            var success = await _accountService.ToggleActiveAsync(id, userId!);
 
-            var success = await _accountService.ToggleActiveAsync(id, userId);
             if (success)
             {
-                return Json(new { success = true, message = "Статусът на сметката беше променен успешно!" });
+                TempData["SuccessMessage"] = "Статусът на сметката е променен успешно!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Възникна грешка при промяната на статуса.";
             }
 
-            return Json(new { success = false, message = "Възникна грешка при промяната на статуса" });
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: API endpoint за баланс
@@ -216,16 +219,22 @@ namespace FlowKunevDev.Web.Controllers
             return Json(new { success = true, balance = balance });
         }
 
-        // GET: API endpoint за статистики
+
+        // API метод за получаване на статистики
         [HttpGet]
         public async Task<IActionResult> GetStats(int id)
         {
             var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrEmpty(userId))
-                return Json(new { success = false, message = "Не сте оторизирани" });
 
-            var stats = await _accountService.GetAccountStatsAsync(id, userId);
-            return Json(new { success = true, stats = stats });
+            try
+            {
+                var stats = await _accountService.GetAccountStatsAsync(id, userId!);
+                return Json(new { success = true, stats = stats });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

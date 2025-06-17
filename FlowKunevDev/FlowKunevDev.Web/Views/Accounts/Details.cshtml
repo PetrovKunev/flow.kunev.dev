@@ -21,11 +21,39 @@
     <div class="col-md-8">
         <div class="card mb-4">
             <div class="card-header text-white d-flex justify-content-between align-items-center"
-                 style="background-color: @Model.Color;">
-                <h5 class="mb-0">@Model.Name</h5>
+                 style="background-color: @Model.Color; color: white !important;">
+                <h5 class="mb-0 text-white fw-bold">@Model.Name</h5>
                 <div>
-                    <span class="badge bg-light text-dark me-2">@Model.Type.ToString()</span>
-                    <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">
+                    <span class="badge bg-dark bg-opacity-75 text-white me-2">
+                        @switch (Model.Type)
+                        {
+                            case FlowKunevDev.Common.AccountType.Other:
+                                <text>Друго</text>
+                                break;
+                            case FlowKunevDev.Common.AccountType.Savings:
+                                <text>Спестовна сметка</text>
+                                break;
+                            case FlowKunevDev.Common.AccountType.Current:
+                                <text>Текуща сметка</text>
+                                break;
+                            case FlowKunevDev.Common.AccountType.Salary:
+                                <text>Заплата</text>
+                                break;
+                            case FlowKunevDev.Common.AccountType.CreditCard:
+                                <text>Кредитна карта</text>
+                                break;
+                            case FlowKunevDev.Common.AccountType.Investment:
+                                <text>Инвестиции</text>
+                                break;
+                            case FlowKunevDev.Common.AccountType.Cash:
+                                <text>Кеш</text>
+                                break;
+                            default:
+                                @Model.Type.ToString()
+                                break;
+                        }
+                    </span>
+                    <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary") text-white">
                         @(Model.IsActive ? "Активна" : "Неактивна")
                     </span>
                 </div>
@@ -35,7 +63,7 @@
                     <div class="col-md-6">
                         <div class="text-center mb-3">
                             <h3 class="text-@(Model.CurrentBalance >= 0 ? "success" : "danger")">
-                                @Model.CurrentBalance.ToString("C") @Model.Currency
+                                @Model.CurrentBalance.ToString("F2") @Model.Currency
                             </h3>
                             <p class="text-muted mb-0">Текущ баланс</p>
                         </div>
@@ -43,14 +71,14 @@
                     <div class="col-md-6">
                         <div class="text-center mb-3">
                             <h4 class="text-info">
-                                @((Model.CurrentBalance - Model.InitialBalance).ToString("C")) @Model.Currency
+                                @((Model.CurrentBalance - Model.InitialBalance).ToString("F2")) @Model.Currency
                             </h4>
                             <p class="text-muted mb-0">
                                 Промяна от създаването
                                 @if (Model.CurrentBalance != Model.InitialBalance)
                                 {
                                     <span class="badge @(Model.CurrentBalance >= Model.InitialBalance ? "bg-success" : "bg-danger")">
-                                        @(((Model.CurrentBalance - Model.InitialBalance) / Math.Max(Math.Abs(Model.InitialBalance), 1) * 100).ToString("F1"))%
+                                        @(Model.InitialBalance != 0 ? ((Model.CurrentBalance - Model.InitialBalance) / Math.Abs(Model.InitialBalance) * 100).ToString("F1") + "%" : "N/A")
                                     </span>
                                 }
                             </p>
@@ -69,7 +97,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <strong>Начален баланс:</strong>
-                        <p class="mb-1">@Model.InitialBalance.ToString("C") @Model.Currency</p>
+                        <p class="mb-1">@Model.InitialBalance.ToString("F2") @Model.Currency</p>
                     </div>
                     <div class="col-md-4">
                         <strong>Валута:</strong>
@@ -116,6 +144,13 @@
                     {
                         <div class="col-12 mb-3">
                             <h6 class="text-info">@Model.LastTransactionDate.Value.ToString("dd.MM.yyyy")</h6>
+                            <small class="text-muted">Последна транзакция</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-12 mb-3">
+                            <h6 class="text-muted">Няма транзакции</h6>
                             <small class="text-muted">Последна транзакция</small>
                         </div>
                     }
@@ -171,52 +206,79 @@
                     }
                 })
                 .fail(function() {
-                    $('#stats-container').html('<div class="alert alert-danger">Грешка при зареждането на статистиките.</div>');
+                    // Показваме статични статистики ако AJAX не работи
+                    displayFallbackStats();
                 });
+        }
+
+        function displayFallbackStats() {
+            var html = '<div class="row text-center">';
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-success">0.00 @Model.Currency</h5>';
+            html += '<small class="text-muted">Общо приходи</small>';
+            html += '</div>';
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-danger">0.00 @Model.Currency</h5>';
+            html += '<small class="text-muted">Общо разходи</small>';
+            html += '</div>';
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-info">0.00 @Model.Currency</h5>';
+            html += '<small class="text-muted">Нетна промяна</small>';
+            html += '</div>';
+            html += '<div class="col-md-6 mb-3">';
+            html += '<h5 class="text-warning">0.00 @Model.Currency</h5>';
+            html += '<small class="text-muted">Средна транзакция</small>';
+            html += '</div>';
+            html += '</div>';
+            $('#stats-container').html(html);
         }
 
         function displayStats(stats) {
             var html = '<div class="row text-center">';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-success">' + formatCurrency(stats.totalIncome) + '</h5>';
+            html += '<h5 class="text-success">' + stats.totalIncome.toFixed(2) + ' @Model.Currency</h5>';
             html += '<small class="text-muted">Общо приходи</small>';
             html += '</div>';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-danger">' + formatCurrency(stats.totalExpenses) + '</h5>';
+            html += '<h5 class="text-danger">' + stats.totalExpenses.toFixed(2) + ' @Model.Currency</h5>';
             html += '<small class="text-muted">Общо разходи</small>';
             html += '</div>';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-info">' + formatCurrency(stats.netChange) + '</h5>';
+            html += '<h5 class="text-info">' + stats.netChange.toFixed(2) + ' @Model.Currency</h5>';
             html += '<small class="text-muted">Нетна промяна</small>';
             html += '</div>';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-warning">' + formatCurrency(stats.averageTransactionAmount) + '</h5>';
+            html += '<h5 class="text-warning">' + stats.averageTransactionAmount.toFixed(2) + ' @Model.Currency</h5>';
             html += '<small class="text-muted">Средна транзакция</small>';
             html += '</div>';
 
-            if (stats.lastTransactionDate) {
+            // Проверяваме дали има валидна дата за последна транзакция
+            if (stats.lastTransactionDate &&
+                stats.lastTransactionDate !== "0001-01-01T00:00:00" &&
+                stats.lastTransactionDate !== null &&
+                stats.lastTransactionDate !== "1/1/0001 12:00:00 AM") {
+
+                var date = new Date(stats.lastTransactionDate);
+                if (!isNaN(date.getTime())) {
+                    html += '<div class="col-12">';
+                    html += '<p class="text-muted mb-0">Последна транзакция: ';
+                    html += stats.lastTransactionAmount.toFixed(2) + ' @Model.Currency на ';
+                    html += date.toLocaleDateString('bg-BG');
+                    html += '</p>';
+                    html += '</div>';
+                }
+            } else {
                 html += '<div class="col-12">';
-                html += '<p class="text-muted mb-0">Последна транзакция: ';
-                html += formatCurrency(stats.lastTransactionAmount) + ' на ';
-                html += new Date(stats.lastTransactionDate).toLocaleDateString('bg-BG');
-                html += '</p>';
+                html += '<p class="text-muted mb-0">Няма регистрирани транзакции</p>';
                 html += '</div>';
             }
 
             html += '</div>';
-
             $('#stats-container').html(html);
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('bg-BG', {
-                style: 'currency',
-                currency: '@Model.Currency'
-            }).format(amount);
         }
 
         function downloadReport() {
@@ -224,4 +286,15 @@
             alert('Функционалността за изтегляне на отчети ще бъде реализирана скоро.');
         }
     </script>
+
+    <style>
+        .card-header h5,
+        .card-header .badge {
+            color: white !important;
+        }
+
+        .card-header {
+            color: white !important;
+        }
+    </style>
 }

@@ -27,11 +27,13 @@
                             <div class="form-floating mb-3">
                                 <select asp-for="Type" class="form-select">
                                     <option value="">Изберете тип</option>
-                                    <option value="0">Текуща сметка</option>
-                                    <option value="1">Спестовна сметка</option>
-                                    <option value="2">Кредитна карта</option>
-                                    <option value="3">Инвестиции</option>
-                                    <option value="4">Кеш</option>
+                                    <option value="0">Спестявания</option>
+                                    <option value="1">Заплата</option>
+                                    <option value="2">Текуща сметка</option>
+                                    <option value="3">Кредитна карта</option>
+                                    <option value="4">Инвестиции</option>
+                                    <option value="5">Кеш</option>
+                                    <option value="6">Друго</option>
                                 </select>
                                 <label asp-for="Type">Тип сметка</label>
                                 <span asp-validation-for="Type" class="text-danger"></span>
@@ -79,28 +81,22 @@
                             <div class="col-md-6">
                                 <div class="d-flex gap-2 flex-wrap">
                                     <button type="button" class="btn btn-sm color-preset"
-                                            style="background-color: #007bff;" data-color="#007bff">
-                                        Син
+                                            style="background-color: #007bff; width: 40px; height: 35px;" data-color="#007bff">
                                     </button>
                                     <button type="button" class="btn btn-sm color-preset"
-                                            style="background-color: #28a745;" data-color="#28a745">
-                                        Зелен
+                                            style="background-color: #28a745; width: 40px; height: 35px;" data-color="#28a745">
                                     </button>
                                     <button type="button" class="btn btn-sm color-preset"
-                                            style="background-color: #dc3545;" data-color="#dc3545">
-                                        Червен
+                                            style="background-color: #dc3545; width: 40px; height: 35px;" data-color="#dc3545">
                                     </button>
                                     <button type="button" class="btn btn-sm color-preset"
-                                            style="background-color: #ffc107;" data-color="#ffc107">
-                                        Жълт
+                                            style="background-color: #ffc107; width: 40px; height: 35px;" data-color="#ffc107">
                                     </button>
                                     <button type="button" class="btn btn-sm color-preset"
-                                            style="background-color: #6f42c1;" data-color="#6f42c1">
-                                        Лилав
+                                            style="background-color: #6f42c1; width: 40px; height: 35px;" data-color="#6f42c1">
                                     </button>
                                     <button type="button" class="btn btn-sm color-preset"
-                                            style="background-color: #fd7e14;" data-color="#fd7e14">
-                                        Оранжев
+                                            style="background-color: #fd7e14; width: 40px; height: 35px;" data-color="#fd7e14">
                                     </button>
                                 </div>
                             </div>
@@ -149,13 +145,26 @@
 
             function updatePreview() {
                 var name = $('#Name').val() || 'Име на сметката';
-                var type = $('#Type option:selected').text() || 'Тип';
+                var typeValue = $('#Type').val();
+                var typeText = 'Тип';
+
+                // Правилно мапване на типовете
+                switch(typeValue) {
+                    case '0': typeText = 'Спестявания'; break;
+                    case '1': typeText = 'Заплата'; break;
+                    case '2': typeText = 'Текуща сметка'; break;
+                    case '3': typeText = 'Кредитна карта'; break;
+                    case '4': typeText = 'Инвестиции'; break;
+                    case '5': typeText = 'Кеш'; break;
+                    case '6': typeText = 'Друго'; break;
+                }
+
                 var balance = $('#InitialBalance').val() || '0.00';
                 var currency = $('#Currency').val() || 'BGN';
                 var color = $('#Color').val() || '#007bff';
 
                 $('#preview-name').text(name);
-                $('#preview-type').text(type);
+                $('#preview-type').text(typeText);
                 $('#preview-balance').text(parseFloat(balance).toFixed(2) + ' ' + currency);
                 $('#preview-header').css('background-color', color);
             }
@@ -167,15 +176,13 @@
 
     <style>
         .color-preset {
-            width: 50px;
-            height: 30px;
             border: 2px solid #dee2e6;
-            color: white;
-            font-size: 0.75rem;
+            border-radius: 4px;
         }
 
             .color-preset:hover {
                 border-color: #495057;
+                transform: scale(1.05);
             }
 
         .preview-card {

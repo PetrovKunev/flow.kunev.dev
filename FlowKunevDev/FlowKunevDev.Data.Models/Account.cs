@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FlowKunevDev.Common;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Transactions;
-using FlowKunevDev.Common;
 
 namespace FlowKunevDev.Data.Models
 {
@@ -14,11 +13,11 @@ namespace FlowKunevDev.Data.Models
         [Required(ErrorMessage = "Името на сметката е задължително")]
         [StringLength(100, ErrorMessage = "Името не може да бъде по-дълго от 100 символа")]
         [Display(Name = "Име на сметка")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [StringLength(500, ErrorMessage = "Описанието не може да бъде по-дълго от 500 символа")]
         [Display(Name = "Описание")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required(ErrorMessage = "Началният баланс е задължителен")]
         [Column(TypeName = "decimal(18,2)")]
@@ -31,7 +30,7 @@ namespace FlowKunevDev.Data.Models
         public AccountType Type { get; set; }
 
         [Required(ErrorMessage = "Валутата е задължителна")]
-        [StringLength(3, MinimumLength = 3, ErrorMessage = "Валутата трябва да бъде 3 символа")]
+        [StringLength(3)]
         [Display(Name = "Валута")]
         public string Currency { get; set; } = "BGN";
 
@@ -42,7 +41,7 @@ namespace FlowKunevDev.Data.Models
         [Required]
         [StringLength(450)] // Identity UserId максимална дължина
         [ForeignKey("User")]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         [Required]
         [Display(Name = "Дата на създаване")]

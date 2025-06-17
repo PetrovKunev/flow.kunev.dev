@@ -1,10 +1,5 @@
 ﻿using FlowKunevDev.Common;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlowKunevDev.Services.DTOs
 {
@@ -15,7 +10,7 @@ namespace FlowKunevDev.Services.DTOs
         public string Name { get; set; } = null!;
 
         [StringLength(500, ErrorMessage = "Описанието не може да бъде по-дълго от 500 символа")]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Началният баланс е задължителен")]
         [Range(0, double.MaxValue, ErrorMessage = "Началният баланс не може да бъде отрицателен")]
@@ -25,10 +20,10 @@ namespace FlowKunevDev.Services.DTOs
         public AccountType Type { get; set; }
 
         [Required(ErrorMessage = "Валутата е задължителна")]
-        [StringLength(3, MinimumLength = 3, ErrorMessage = "Валутата трябва да бъде 3 символа")]
+        [RegularExpression("^(BGN|EUR|USD)$", ErrorMessage = "Валутата трябва да бъде BGN, EUR или USD")]
         public string Currency { get; set; } = "BGN";
 
-        [StringLength(7, ErrorMessage = "Цветът трябва да бъде в hex формат")]
+        [RegularExpression("^#[0-9A-Fa-f]{6}$", ErrorMessage = "Цветът трябва да бъде в hex формат")]
         public string Color { get; set; } = "#007bff";
     }
 }

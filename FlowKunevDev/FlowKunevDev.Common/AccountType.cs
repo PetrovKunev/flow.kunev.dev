@@ -5,18 +5,18 @@ namespace FlowKunevDev.Common
     public enum AccountType
     {
         [Display(Name = "Спестявания")]
-        Savings = 1,
+        Savings = 0,
         [Display(Name = "Заплата")]
-        Salary = 2,
+        Salary = 1,
         [Display(Name = "Текуща сметка")]
-        Current = 3,
+        Current = 2,
         [Display(Name = "Кредитна карта")]
-        CreditCard = 4,
+        CreditCard = 3,
         [Display(Name = "Инвестиции")]
-        Investment = 5,
+        Investment = 4,
         [Display(Name = "Кеш")]
-        Cash = 6,
+        Cash = 5,
         [Display(Name = "Друго")]
-        Other = 7
+        Other = 6
     }
 }

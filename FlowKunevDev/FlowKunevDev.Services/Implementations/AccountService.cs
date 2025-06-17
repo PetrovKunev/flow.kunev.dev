@@ -67,7 +67,7 @@ namespace FlowKunevDev.Services.Implementations
                 {
                     Id = account.Id,
                     Name = account.Name,
-                    Description = account.Description,
+                    Description = account.Description ?? string.Empty, // Fix for CS8601
                     InitialBalance = account.InitialBalance,
                     CurrentBalance = currentBalance,
                     Type = account.Type,
@@ -338,7 +338,7 @@ namespace FlowKunevDev.Services.Implementations
                 ["netChange"] = incomeSum - expenseSum,
                 ["transactionCount"] = transactionCount,
                 ["averageTransactionAmount"] = avgTransactionAmount,
-                ["lastTransactionDate"] = lastTransaction?.Date ?? (object)DBNull.Value,
+                ["lastTransactionDate"] = lastTransaction?.Date.ToString("yyyy-MM-ddTHH") ?? (object)DBNull.Value,
                 ["lastTransactionAmount"] = lastTransaction?.Amount ?? 0,
                 ["accountAge"] = DateTime.Now.Subtract(account.CreatedDate).Days
             };
