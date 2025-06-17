@@ -1,0 +1,592 @@
+﻿using Microsoft.EntityFrameworkCore;
+using FlowKunevDev.Data;
+using FlowKunevDev.Data.Models;
+using FlowKunevDev.Services.DTOs;
+using FlowKunevDev.Services.Interfaces;
+using FlowKunevDev.Common;
+using System.Globalization;
+
+namespace FlowKunevDev.Services.Implementations
+{
+    public class TransactionService : ITransactionService
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly ICategoryService _categoryService;
+
+        public TransactionService(ApplicationDbContext context, ICategoryService categoryService)
+        {
+            _context = context;
+            _categoryService = categoryService;
+        }
+
+        public async Task<TransactionDto?> GetByIdAsync(int id, string userId)
+        {
+            var transaction = await _context.Transactions
+                .Include(t => t.Category)
+                .Include(t => t.Account)
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+            if (transaction == null) return null;
+
+            return MapToDto(transaction);
+        }
+
+        public async Task<IEnumerable<TransactionDto>> GetAllAsync(string userId, TransactionFilterDto? filter = null)
+        {
+            var query = BuildFilterQuery(userId, filter);
+
+            var transactions = await query
+                .Include(t => t.Category)
+                .Include(t => t.Account)
+                .OrderByDescending(t => t.Date)
+                .ThenByDescending(t => t.Id)
+                .ToListAsync();
+
+            return transactions.Select(MapToDto);
+        }
+
+        public async Task<(IEnumerable<TransactionDto> Items, int TotalCount)> GetPagedAsync(TransactionFilterDto filter, string userId)
+        {
+            var query = BuildFilterQuery(userId, filter);
+
+            var totalCount = await query.CountAsync();
+
+            var transactions = await query
+                .Include(t => t.Category)
+                .Include(t => t.Account)
+                .OrderByDescending(t => t.Date)
+                .ThenByDescending(t => t.Id)
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToListAsync();
+
+            return (transactions.Select(MapToDto), totalCount);
+        }
+
+        public async Task<TransactionDto> CreateAsync(CreateTransactionDto createDto, string userId)
+        {
+            // Валидации
+            if (!await CanCreateAsync(createDto, userId))
+            {
+                throw new InvalidOperationException("Не може да се създаде транзакцията.");
+            }
+
+            var transaction = new Transaction
+            {
+                Description = createDto.Description,
+                Amount = createDto.Amount,
+                Date = createDto.Date,
+                CategoryId = createDto.CategoryId,
+                AccountId = createDto.AccountId,
+                UserId = userId,
+                Type = createDto.Type,
+                Notes = createDto.Notes,
+                CreatedDate = DateTime.Now
+            };
+
+            _context.Transactions.Add(transaction);
+            await _context.SaveChangesAsync();
+
+            // Зареждаме транзакцията с navigation properties
+            await _context.Entry(transaction)
+                .Reference(t => t.Category)
+                .LoadAsync();
+            await _context.Entry(transaction)
+                .Reference(t => t.Account)
+                .LoadAsync();
+
+            return MapToDto(transaction);
+        }
+
+        public async Task<TransactionDto?> UpdateAsync(UpdateTransactionDto updateDto, string userId)
+        {
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(t => t.Id == updateDto.Id && t.UserId == userId);
+
+            if (transaction == null) return null;
+
+            if (!await CanUpdateAsync(updateDto, userId))
+            {
+                throw new InvalidOperationException("Не може да се обнови транзакцията.");
+            }
+
+            transaction.Description = updateDto.Description;
+            transaction.Amount = updateDto.Amount;
+            transaction.Date = updateDto.Date;
+            transaction.CategoryId = updateDto.CategoryId;
+            transaction.AccountId = updateDto.AccountId;
+            transaction.Type = updateDto.Type;
+            transaction.Notes = updateDto.Notes;
+
+            await _context.SaveChangesAsync();
+
+            return await GetByIdAsync(transaction.Id, userId);
+        }
+
+        public async Task<bool> DeleteAsync(int id, string userId)
+        {
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+            if (transaction == null) return false;
+
+            if (!await CanDeleteAsync(id, userId))
+            {
+                return false;
+            }
+
+            _context.Transactions.Remove(transaction);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<IEnumerable<TransactionSummaryDto>> GetRecentAsync(string userId, int count = 10)
+        {
+            var transactions = await _context.Transactions
+                .Where(t => t.UserId == userId)
+                .Include(t => t.Category)
+                .Include(t => t.Account)
+                .OrderByDescending(t => t.Date)
+                .ThenByDescending(t => t.Id)
+                .Take(count)
+                .ToListAsync();
+
+            return transactions.Select(t => new TransactionSummaryDto
+            {
+                Id = t.Id,
+                Description = t.Description,
+                Amount = t.Amount,
+                Date = t.Date,
+                CategoryName = t.Category.Name,
+                CategoryColor = t.Category.Color,
+                AccountName = t.Account.Name,
+                Type = t.Type
+            });
+        }
+
+        public async Task<IEnumerable<TransactionDto>> GetByAccountAsync(int accountId, string userId, int? limit = null)
+        {
+            IQueryable<Transaction> query = _context.Transactions
+                .Where(t => t.AccountId == accountId && t.UserId == userId)
+                .Include(t => t.Category)
+                .Include(t => t.Account)
+                .OrderByDescending(t => t.Date)
+                .ThenByDescending(t => t.Id);
+
+            if (limit.HasValue)
+                query = query.Take(limit.Value);
+
+            var transactions = await query.ToListAsync();
+            return transactions.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<TransactionDto>> GetByCategoryAsync(int categoryId, string userId, int? limit = null)
+        {
+            IQueryable<Transaction> query = _context.Transactions
+                .Where(t => t.CategoryId == categoryId && t.UserId == userId)
+                .Include(t => t.Category)
+                .Include(t => t.Account)
+                .OrderByDescending(t => t.Date)
+                .ThenByDescending(t => t.Id);
+
+            if (limit.HasValue)
+                query = query.Take(limit.Value);
+
+            var transactions = await query.ToListAsync();
+            return transactions.Select(MapToDto);
+        }
+
+        public async Task<MonthlyTransactionSummaryDto> GetMonthlySummaryAsync(string userId, int year, int month)
+        {
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var transactions = await _context.Transactions
+                .Where(t => t.UserId == userId && t.Date >= startDate && t.Date <= endDate)
+                .Include(t => t.Category)
+                .ToListAsync();
+
+            var totalIncome = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => (decimal?)t.Amount) ?? 0;
+            var totalExpenses = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => (decimal?)t.Amount) ?? 0;
+
+            var categoryBreakdown = transactions
+                .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
+                .Select(g => new CategorySummaryDto
+                {
+                    CategoryId = g.Key.CategoryId,
+                    CategoryName = g.Key.Name,
+                    CategoryColor = g.Key.Color,
+                    Amount = g.Sum(t => t.Amount),
+                    TransactionCount = g.Count(),
+                    Percentage = totalExpenses > 0 ? (g.Sum(t => t.Amount) / totalExpenses) * 100 : 0
+                })
+                .OrderByDescending(c => c.Amount)
+                .ToList();
+
+            return new MonthlyTransactionSummaryDto
+            {
+                Year = year,
+                Month = month,
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month),
+                TotalIncome = totalIncome,
+                TotalExpenses = totalExpenses,
+                NetAmount = totalIncome - totalExpenses,
+                TransactionCount = transactions.Count,
+                CategoryBreakdown = categoryBreakdown
+            };
+        }
+
+        public async Task<IEnumerable<MonthlyTransactionSummaryDto>> GetYearlySummaryAsync(string userId, int year)
+        {
+            var summaries = new List<MonthlyTransactionSummaryDto>();
+
+            for (int month = 1; month <= 12; month++)
+            {
+                var summary = await GetMonthlySummaryAsync(userId, year, month);
+                summaries.Add(summary);
+            }
+
+            return summaries;
+        }
+
+        public async Task<IEnumerable<CategorySummaryDto>> GetCategorySummaryAsync(string userId, DateTime? startDate = null, DateTime? endDate = null, TransactionType? type = null)
+        {
+            var query = _context.Transactions
+                .Where(t => t.UserId == userId);
+
+            if (startDate.HasValue)
+                query = query.Where(t => t.Date >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(t => t.Date <= endDate.Value);
+
+            if (type.HasValue)
+                query = query.Where(t => t.Type == type.Value);
+
+            var transactions = await query
+                .Include(t => t.Category)
+                .ToListAsync();
+
+            var totalAmount = transactions.Sum(t => (decimal?)t.Amount) ?? 0;
+
+            return transactions
+                .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
+                .Select(g => new CategorySummaryDto
+                {
+                    CategoryId = g.Key.CategoryId,
+                    CategoryName = g.Key.Name,
+                    CategoryColor = g.Key.Color,
+                    Amount = g.Sum(t => t.Amount),
+                    TransactionCount = g.Count(),
+                    Percentage = totalAmount > 0 ? (g.Sum(t => t.Amount) / totalAmount) * 100 : 0
+                })
+                .OrderByDescending(c => c.Amount)
+                .ToList();
+        }
+
+        public async Task<Dictionary<string, decimal>> GetMonthlyComparisonAsync(string userId, int months = 6)
+        {
+            var result = new Dictionary<string, decimal>();
+            var currentDate = DateTime.Now;
+
+            for (int i = 0; i < months; i++)
+            {
+                var date = currentDate.AddMonths(-i);
+                var summary = await GetMonthlySummaryAsync(userId, date.Year, date.Month);
+                var key = $"{date.Year}-{date.Month:D2}";
+                result[key] = summary.TotalExpenses;
+            }
+
+            return result.OrderBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public async Task<Dictionary<string, decimal>> GetCategoryTrendsAsync(string userId, int categoryId, int months = 12)
+        {
+            var result = new Dictionary<string, decimal>();
+            var currentDate = DateTime.Now;
+
+            for (int i = 0; i < months; i++)
+            {
+                var date = currentDate.AddMonths(-i);
+                var startDate = new DateTime(date.Year, date.Month, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+
+                var amount = await _context.Transactions
+                    .Where(t => t.UserId == userId && t.CategoryId == categoryId &&
+                               t.Date >= startDate && t.Date <= endDate)
+                    .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
+                var key = $"{date.Year}-{date.Month:D2}";
+                result[key] = amount;
+            }
+
+            return result.OrderBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public async Task<Dictionary<string, object>> GetSpendingAnalysisAsync(string userId, DateTime startDate, DateTime endDate)
+        {
+            var transactions = await _context.Transactions
+                .Where(t => t.UserId == userId && t.Date >= startDate && t.Date <= endDate)
+                .Include(t => t.Category)
+                .ToListAsync();
+
+            var totalIncome = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => (decimal?)t.Amount) ?? 0;
+            var totalExpenses = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => (decimal?)t.Amount) ?? 0;
+            var averageDaily = transactions.Where(t => t.Type == TransactionType.Expense)
+                .Sum(t => (decimal?)t.Amount) ?? 0 / Math.Max(1, (endDate - startDate).Days);
+
+            var topCategories = transactions
+                .Where(t => t.Type == TransactionType.Expense)
+                .GroupBy(t => t.Category.Name)
+                .Select(g => new { Category = g.Key, Amount = g.Sum(t => t.Amount) })
+                .OrderByDescending(x => x.Amount)
+                .Take(5)
+                .ToList();
+
+            return new Dictionary<string, object>
+            {
+                ["totalIncome"] = totalIncome,
+                ["totalExpenses"] = totalExpenses,
+                ["netAmount"] = totalIncome - totalExpenses,
+                ["averageDailySpending"] = averageDaily,
+                ["transactionCount"] = transactions.Count,
+                ["topCategories"] = topCategories,
+                ["savingsRate"] = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0
+            };
+        }
+
+        public async Task<decimal> GetProjectedBalanceAsync(string userId, DateTime targetDate)
+        {
+            // Получаваме текущия общ баланс
+            var accounts = await _context.Accounts
+                .Where(a => a.UserId == userId && a.IsActive)
+                .ToListAsync();
+
+            decimal currentBalance = 0;
+            foreach (var account in accounts)
+            {
+                currentBalance += await CalculateCurrentBalanceAsync(account.Id);
+            }
+
+            // Получаваме планираните транзакции до целевата дата
+            var plannedTransactions = await _context.PlannedTransactions
+                .Where(pt => pt.UserId == userId &&
+                           pt.Status == PlannedTransactionStatus.Planned &&
+                           pt.PlannedDate <= targetDate)
+                .ToListAsync();
+
+            decimal projectedChange = 0;
+            foreach (var planned in plannedTransactions)
+            {
+                projectedChange += planned.Type == TransactionType.Income ?
+                    planned.PlannedAmount : -planned.PlannedAmount;
+            }
+
+            return currentBalance + projectedChange;
+        }
+
+        public async Task<decimal> GetDailyAvailableAmountAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var startDate = fromDate ?? DateTime.Now;
+            var endDate = toDate ?? DateTime.Now.AddMonths(1);
+            var days = Math.Max(1, (endDate - startDate).Days);
+
+            // Получаваме текущия общ баланс
+            var accounts = await _context.Accounts
+                .Where(a => a.UserId == userId && a.IsActive)
+                .ToListAsync();
+
+            decimal totalBalance = 0;
+            foreach (var account in accounts)
+            {
+                totalBalance += await CalculateCurrentBalanceAsync(account.Id);
+            }
+
+            // Получаваме планираните разходи за периода
+            var plannedExpenses = await _context.PlannedTransactions
+                .Where(pt => pt.UserId == userId &&
+                           pt.Status == PlannedTransactionStatus.Planned &&
+                           pt.Type == TransactionType.Expense &&
+                           pt.PlannedDate >= startDate && pt.PlannedDate <= endDate)
+                .SumAsync(pt => (decimal?)pt.PlannedAmount) ?? 0;
+
+            // Изчисляваме наличните средства след планираните разходи
+            var availableAmount = totalBalance - plannedExpenses;
+
+            // Връщаме средно дневно
+            return Math.Max(0, availableAmount / days);
+        }
+
+        public async Task<bool> ExistsAsync(int id, string userId)
+        {
+            return await _context.Transactions
+                .AnyAsync(t => t.Id == id && t.UserId == userId);
+        }
+
+        public async Task<bool> CanCreateAsync(CreateTransactionDto createDto, string userId)
+        {
+            // Проверяваме дали сметката съществува и принадлежи на потребителя
+            var accountExists = await _context.Accounts
+                .AnyAsync(a => a.Id == createDto.AccountId && a.UserId == userId && a.IsActive);
+
+            if (!accountExists) return false;
+
+            // Проверяваме дали категорията е валидна за типа транзакция
+            var isValidCategory = await _categoryService
+                .IsValidForTransactionTypeAsync(createDto.CategoryId, createDto.Type);
+
+            return isValidCategory;
+        }
+
+        public async Task<bool> CanUpdateAsync(UpdateTransactionDto updateDto, string userId)
+        {
+            // Проверяваме дали сметката съществува и принадлежи на потребителя
+            var accountExists = await _context.Accounts
+                .AnyAsync(a => a.Id == updateDto.AccountId && a.UserId == userId && a.IsActive);
+
+            if (!accountExists) return false;
+
+            // Проверяваме дали категорията е валидна за типа транзакция
+            var isValidCategory = await _categoryService
+                .IsValidForTransactionTypeAsync(updateDto.CategoryId, updateDto.Type);
+
+            return isValidCategory;
+        }
+
+        public async Task<bool> CanDeleteAsync(int id, string userId)
+        {
+            // Проверяваме дали транзакцията не е свързана с планирана транзакция
+            var isLinkedToPlanned = await _context.PlannedTransactions
+                .AnyAsync(pt => pt.ExecutedTransactionId == id);
+
+            return !isLinkedToPlanned;
+        }
+
+        public async Task<IEnumerable<TransactionDto>> CreateMultipleAsync(IEnumerable<CreateTransactionDto> createDtos, string userId)
+        {
+            var results = new List<TransactionDto>();
+
+            foreach (var createDto in createDtos)
+            {
+                try
+                {
+                    var result = await CreateAsync(createDto, userId);
+                    results.Add(result);
+                }
+                catch
+                {
+                    // Логираме грешката, но продължаваме с останалите
+                    continue;
+                }
+            }
+
+            return results;
+        }
+
+        public async Task<bool> DeleteMultipleAsync(IEnumerable<int> ids, string userId)
+        {
+            var transactions = await _context.Transactions
+                .Where(t => ids.Contains(t.Id) && t.UserId == userId)
+                .ToListAsync();
+
+            if (!transactions.Any()) return false;
+
+            // Проверяваме дали всички могат да се изтриват
+            foreach (var transaction in transactions)
+            {
+                if (!await CanDeleteAsync(transaction.Id, userId))
+                {
+                    return false;
+                }
+            }
+
+            _context.Transactions.RemoveRange(transactions);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private IQueryable<Transaction> BuildFilterQuery(string userId, TransactionFilterDto? filter)
+        {
+            var query = _context.Transactions.Where(t => t.UserId == userId);
+
+            if (filter == null) return query;
+
+            if (filter.StartDate.HasValue)
+                query = query.Where(t => t.Date >= filter.StartDate.Value);
+
+            if (filter.EndDate.HasValue)
+                query = query.Where(t => t.Date <= filter.EndDate.Value);
+
+            if (filter.CategoryId.HasValue)
+                query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
+
+            if (filter.AccountId.HasValue)
+                query = query.Where(t => t.AccountId == filter.AccountId.Value);
+
+            if (filter.Type.HasValue)
+                query = query.Where(t => t.Type == filter.Type.Value);
+
+            if (filter.MinAmount.HasValue)
+                query = query.Where(t => t.Amount >= filter.MinAmount.Value);
+
+            if (filter.MaxAmount.HasValue)
+                query = query.Where(t => t.Amount <= filter.MaxAmount.Value);
+
+            if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+            {
+                var searchTerm = filter.SearchTerm.ToLower();
+                query = query.Where(t => t.Description.ToLower().Contains(searchTerm) ||
+                                        t.Notes.ToLower().Contains(searchTerm));
+            }
+
+            return query;
+        }
+
+        private static TransactionDto MapToDto(Transaction transaction)
+        {
+            return new TransactionDto
+            {
+                Id = transaction.Id,
+                Description = transaction.Description,
+                Amount = transaction.Amount,
+                Date = transaction.Date,
+                CategoryId = transaction.CategoryId,
+                CategoryName = transaction.Category.Name,
+                CategoryColor = transaction.Category.Color,
+                CategoryIcon = transaction.Category.Icon,
+                AccountId = transaction.AccountId,
+                AccountName = transaction.Account.Name,
+                UserId = transaction.UserId,
+                Type = transaction.Type,
+                Notes = transaction.Notes,
+                CreatedDate = transaction.CreatedDate
+            };
+        }
+
+        private async Task<decimal> CalculateCurrentBalanceAsync(int accountId)
+        {
+            var account = await _context.Accounts.FindAsync(accountId);
+            if (account == null) return 0;
+
+            var incomeSum = await _context.Transactions
+                .Where(t => t.AccountId == accountId && t.Type == TransactionType.Income)
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
+            var expenseSum = await _context.Transactions
+                .Where(t => t.AccountId == accountId && t.Type == TransactionType.Expense)
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
+            var transfersIn = await _context.AccountTransfers
+                .Where(at => at.ToAccountId == accountId)
+                .SumAsync(at => (decimal?)at.Amount) ?? 0;
+
+            var transfersOut = await _context.AccountTransfers
+                .Where(at => at.FromAccountId == accountId)
+                .SumAsync(at => (decimal?)at.Amount) ?? 0;
+
+            return account.InitialBalance + incomeSum - expenseSum + transfersIn - transfersOut;
+        }
+    }
+}
