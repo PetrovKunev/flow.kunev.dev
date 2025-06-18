@@ -1,0 +1,158 @@
+﻿/* Стилове специално за Identity страниците */
+
+/* Общ background за identity страници */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+/* Identity карти */
+.identity-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+    .identity-card .card-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 1.5rem;
+    }
+
+    .identity-card .card-body {
+        padding: 2rem;
+    }
+
+/* Form styling */
+.form-floating {
+    margin-bottom: 1.5rem;
+}
+
+    .form-floating > .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .form-floating > .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+        color: #6c757d;
+    }
+
+/* Checkbox styling */
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.form-check-label {
+    color: #495057;
+    cursor: pointer;
+}
+
+/* Button improvements */
+.btn-lg {
+    padding: 0.875rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+}
+
+.d-grid .btn {
+    min-height: 48px;
+}
+
+/* Link styling */
+.text-decoration-none:hover {
+    text-decoration: underline !important;
+}
+
+/* Validation styling */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.validation-summary-errors {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+    .validation-summary-errors ul {
+        margin-bottom: 0;
+        padding-left: 1.25rem;
+    }
+
+    .validation-summary-errors li {
+        color: #721c24;
+    }
+
+/* Loading states */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .identity-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .identity-card .card-header {
+        padding: 1.25rem;
+    }
+}
+
+/* Animation for form errors */
+.field-validation-error {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Success states */
+.alert-success {
+    background-color: #d1edff;
+    border-color: #bee5eb;
+    color: #0c5460;
+    border-radius: 12px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+    border-radius: 12px;
+}
+
+/* Focus indicators */
+.form-control:focus,
+.btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}

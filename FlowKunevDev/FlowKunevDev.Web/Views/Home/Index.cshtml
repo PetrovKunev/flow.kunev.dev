@@ -17,7 +17,7 @@
                 </p>
                 <div class="d-grid d-md-flex gap-3">
                     <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-warning btn-lg px-4">
-                        <i class="fas fa-rocket me-2"></i>Започнете сега
+                        <i class="fas fa-rocket me-2"></i>Започнете безплатно
                     </a>
                     <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg px-4">
                         <i class="fas fa-sign-in-alt me-2"></i>Вход
@@ -251,10 +251,10 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
-    }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
 
     .feature-icon i {
         transition: transform 0.3s ease;
@@ -281,12 +281,15 @@
     }
 
     @@media (max-width: 768px) {
-        .hero-section h1 {
-            font-size: 2.5rem;
-        }
+        .hero-section h1
 
-        .stat-item h3 {
-            font-size: 2.5rem;
-        }
+    {
+        font-size: 2.5rem;
+    }
+
+    .stat-item h3 {
+        font-size: 2.5rem;
+    }
+
     }
 </style>
