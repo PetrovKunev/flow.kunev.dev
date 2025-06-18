@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Flow</title>
     <link rel="stylesheet" href="~/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/flow-custom.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FlowKunevDev.styles.css" asp-append-version="true" />
     <!-- Font Awesome за икони -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -13,7 +14,6 @@
 <body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark bg-primary mb-3">
-            <!-- Променяме container-fluid на container за центриране -->
             <div class="container">
                 <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
                     <i class="fas fa-chart-line me-2"></i>Flow
@@ -34,21 +34,68 @@
                                 <i class="fas fa-home me-1"></i>Начало
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Accounts" asp-action="Index">
-                                <i class="fas fa-wallet me-1"></i>Сметки
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Transactions" asp-action="Index">
-                                <i class="fas fa-exchange-alt me-1"></i>Транзакции
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Reports" asp-action="Index">
-                                <i class="fas fa-chart-bar me-1"></i>Отчети
-                            </a>
-                        </li>
+
+                        @* Показваме тези навигации само за вписани потребители *@
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Табло
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Accounts" asp-action="Index">
+                                    <i class="fas fa-wallet me-1"></i>Сметки
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Transactions" asp-action="Index">
+                                    <i class="fas fa-exchange-alt me-1"></i>Транзакции
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-chart-bar me-1"></i>Отчети
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reports" asp-action="Monthly">
+                                            <i class="fas fa-calendar-alt me-2"></i>Месечни отчети
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reports" asp-action="Categories">
+                                            <i class="fas fa-tags me-2"></i>По категории
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reports" asp-action="Trends">
+                                            <i class="fas fa-chart-line me-2"></i>Тенденции
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Budgets" asp-action="Index">
+                                            <i class="fas fa-piggy-bank me-2"></i>Бюджети
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            @* За невписани потребители показваме информационни връзки *@
+                            <li class="nav-item">
+                                <a class="nav-link" href="#features">
+                                    <i class="fas fa-star me-1"></i>Възможности
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#how-it-works">
+                                    <i class="fas fa-question-circle me-1"></i>Как работи
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

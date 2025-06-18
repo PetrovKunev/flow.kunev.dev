@@ -12,17 +12,23 @@
                     var userName = User.Identity?.Name ?? "";
                     var displayName = userName.Contains("@") ? userName.Substring(0, userName.IndexOf("@")) : userName;
                 }
-                Здравей @displayName!
+                <span class="d-none d-sm-inline">Здравей</span> @displayName<span class="d-none d-sm-inline">!</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li>
+                    <a class="dropdown-item" asp-controller="Dashboard" asp-action="Index">
+                        <i class="fas fa-tachometer-alt me-2"></i>Табло
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
                     <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
-                        <i class="fas fa-cog me-2"></i>Профил
+                        <i class="fas fa-cog me-2"></i>Настройки на профила
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" asp-controller="Dashboard" asp-action="Index">
-                        <i class="fas fa-tachometer-alt me-2"></i>Табло
+                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+                        <i class="fas fa-key me-2"></i>Смяна на парола
                     </a>
                 </li>
                 <li><hr class="dropdown-divider"></li>
@@ -40,11 +46,11 @@
     {
         <li class="nav-item">
             <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
-                <i class="fas fa-user-plus me-1"></i>Регистрация
+                <i class="fas fa-user-plus me-1"></i><span class="d-none d-sm-inline">Регистрация</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
+            <a class="nav-link btn btn-outline-light btn-sm ms-2" asp-area="Identity" asp-page="/Account/Login">
                 <i class="fas fa-sign-in-alt me-1"></i>Вход
             </a>
         </li>
