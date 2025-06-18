@@ -1,18 +1,23 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@ViewData["Title"] - Flow</title>
     <link rel="stylesheet" href="~/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FlowKunevDev.styles.css" asp-append-version="true" />
+    <!-- Font Awesome за икони -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark bg-primary mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Flow</a>
+            <!-- Променяме container-fluid на container за центриране -->
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-chart-line me-2"></i>Flow
+                </a>
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
@@ -25,32 +30,54 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Начало</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i>Начало
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Accounts" asp-action="Index">Сметки</a>
+                            <a class="nav-link" asp-controller="Accounts" asp-action="Index">
+                                <i class="fas fa-wallet me-1"></i>Сметки
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Transactions" asp-action="Index">Транзакции</a>
+                            <a class="nav-link" asp-controller="Transactions" asp-action="Index">
+                                <i class="fas fa-exchange-alt me-1"></i>Транзакции
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Reports" asp-action="Index">
+                                <i class="fas fa-chart-bar me-1"></i>Отчети
+                            </a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
-
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Основното съдържание със flex-grow-1 за да заема пространството -->
+    <main class="container flex-grow-1" role="main">
+        @RenderBody()
+    </main>
+
+    <!-- Футърът ще се позиционира в дъното -->
+    <footer class="border-top footer text-muted mt-4 py-3">
         <div class="container">
-            &copy; 2025 - <a href="https://kunev.dev" target="_blank">kunev.dev</a> @* - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    &copy; 2025 - <a href="https://kunev.dev" target="_blank" class="text-decoration-none">kunev.dev</a>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Вашите данни са защитени
+                    </small>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
