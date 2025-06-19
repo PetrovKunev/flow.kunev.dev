@@ -48,10 +48,22 @@
                                     <i class="fas fa-wallet me-1"></i>Сметки
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Transactions" asp-action="Index">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="transactionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-exchange-alt me-1"></i>Транзакции
                                 </a>
+                                <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Transactions" asp-action="Index">
+                                            <i class="fas fa-list me-2"></i>Всички
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AccountTransfers" asp-action="Index">
+                                            <i class="fas fa-exchange-alt me-2"></i>Трансфери
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
