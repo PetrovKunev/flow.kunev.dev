@@ -36,7 +36,7 @@ namespace FlowKunevDev.Data.Models
 
         [StringLength(500, ErrorMessage = "Описанието не може да бъде по-дълго от 500 символа")]
         [Display(Name = "Описание")]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [StringLength(1000, ErrorMessage = "Бележките не могат да бъдат по-дълги от 1000 символа")]
         [Display(Name = "Бележки")]

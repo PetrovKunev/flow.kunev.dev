@@ -31,6 +31,6 @@ namespace FlowKunevDev.Services.DTOs
         public TransactionType Type { get; set; }
 
         [StringLength(1000, ErrorMessage = "Бележките не могат да бъдат по-дълги от 1000 символа")]
-        public string? Notes { get; set; } = string.Empty;
+        public string? Notes { get; set; }
     }
 }

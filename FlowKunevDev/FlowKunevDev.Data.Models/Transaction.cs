@@ -55,7 +55,7 @@ namespace FlowKunevDev.Data.Models
 
         [StringLength(1000, ErrorMessage = "Бележките не могат да бъдат по-дълги от 1000 символа")]
         [Display(Name = "Бележки")]
-        public string? Notes { get; set; } = string.Empty;
+        public string? Notes { get; set; }
 
         [Display(Name = "Дата на създаване")]
         public DateTime CreatedDate { get; set; } = DateTime.Now;
