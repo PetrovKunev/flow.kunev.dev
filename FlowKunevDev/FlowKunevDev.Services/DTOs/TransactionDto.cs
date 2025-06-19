@@ -21,7 +21,7 @@ namespace FlowKunevDev.Services.DTOs
         public string AccountName { get; set; } = null!;
         public string UserId { get; set; } = null!;
         public TransactionType Type { get; set; }
-        public string Notes { get; set; } = string.Empty;
+        public string? Notes { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }
