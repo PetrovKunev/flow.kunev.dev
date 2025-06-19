@@ -1,0 +1,288 @@
+﻿@model FlowKunevDev.Services.DTOs.CreateTransactionDto
+
+@{
+    ViewData["Title"] = "Нова Транзакция";
+    var accounts = ViewBag.Accounts as IEnumerable<FlowKunevDev.Services.DTOs.AccountSummaryDto> ?? new List<FlowKunevDev.Services.DTOs.AccountSummaryDto>();
+    var categories = ViewBag.Categories as IEnumerable<FlowKunevDev.Data.Models.Category> ?? new List<FlowKunevDev.Data.Models.Category>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">@ViewData["Title"]</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Тип транзакция -->
+                    <div class="mb-3">
+                        <label asp-for="Type" class="form-label">Тип транзакция</label>
+                        <div class="btn-group w-100" role="group" id="transactionTypeGroup">
+                            <input type="radio" class="btn-check" name="Type" id="incomeType" value="@((int)FlowKunevDev.Common.TransactionType.Income)" @(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "checked" : "") />
+                            <label class="btn btn-outline-success" for="incomeType">
+                                <i class="fas fa-arrow-up me-2"></i>Приход
+                            </label>
+
+                            <input type="radio" class="btn-check" name="Type" id="expenseType" value="@((int)FlowKunevDev.Common.TransactionType.Expense)" @(Model.Type == FlowKunevDev.Common.TransactionType.Expense ? "checked" : "") />
+                            <label class="btn btn-outline-danger" for="expenseType">
+                                <i class="fas fa-arrow-down me-2"></i>Разход
+                            </label>
+                        </div>
+                        <span asp-validation-for="Type" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Description" class="form-control" placeholder="Описание на транзакцията" />
+                                <label asp-for="Description">Описание</label>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                                <label asp-for="Amount">Сума (лв.)</label>
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Date" class="form-control" type="datetime-local" />
+                                <label asp-for="Date">Дата и час</label>
+                                <span asp-validation-for="Date" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="AccountId" class="form-select" id="accountSelect">
+                                    <option value="">Изберете сметка</option>
+                                    @foreach (var account in accounts)
+                                    {
+                                        <option value="@account.Id" data-balance="@account.CurrentBalance" data-currency="@account.Currency" style="background-color: @account.Color; color: white;">
+                                            @account.Name (@account.CurrentBalance.ToString("F2") @account.Currency)
+                                        </option>
+                                    }
+                                </select>
+                                <label asp-for="AccountId">Сметка</label>
+                                <span asp-validation-for="AccountId" class="text-danger"></span>
+                                <div id="accountBalance" class="form-text"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Категория -->
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label">Категория</label>
+                        <select asp-for="CategoryId" class="form-select" id="categorySelect">
+                            <option value="">Изберете категория</option>
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.Id" data-color="@category.Color" data-icon="@category.Icon">
+                                    @category.Name
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+
+                        <!-- Предварителен преглед на избраната категория -->
+                        <div id="categoryPreview" class="mt-2" style="display: none;">
+                            <span id="categoryBadge" class="badge" style="font-size: 0.9rem;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Бележки -->
+                    <div class="form-floating mb-3">
+                        <textarea asp-for="Notes" class="form-control" placeholder="Допълнителни бележки (незадължително)" style="height: 100px"></textarea>
+                        <label asp-for="Notes">Бележки (незадължително)</label>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <!-- Предварителен преглед -->
+                    <div class="mb-3">
+                        <label class="form-label">Предварителен преглед</label>
+                        <div class="card border-light" id="previewCard" style="display: none;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1" id="previewDescription">Описание</h6>
+                                        <small class="text-muted" id="previewDate">Дата</small>
+                                        <br>
+                                        <span class="badge" id="previewCategory">Категория</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <h5 class="mb-0" id="previewAmount">0.00 лв.</h5>
+                                        <small class="text-muted" id="previewAccount">Сметка</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-secondary me-md-2">Отказ</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Създай Транзакция
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function() {
+            // Задаваме днешната дата и час по подразбиране
+            if (!$('#Date').val()) {
+                var now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                $('#Date').val(now.toISOString().slice(0, 16));
+            }
+
+            // Обновяване на категориите при промяна на типа
+            $('input[name="Type"]').change(function() {
+                var selectedType = $(this).val();
+                loadCategoriesForType(selectedType);
+                updatePreview();
+            });
+
+            // Показване на баланса на сметката
+            $('#accountSelect').change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var balance = selectedOption.data('balance');
+                var currency = selectedOption.data('currency');
+
+                if (balance !== undefined) {
+                    $('#accountBalance').html(`<i class="fas fa-info-circle"></i> Текущ баланс: <strong>${balance.toFixed(2)} ${currency}</strong>`);
+                } else {
+                    $('#accountBalance').html('');
+                }
+                updatePreview();
+            });
+
+            // Предварителен преглед на категорията
+            $('#categorySelect').change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var color = selectedOption.data('color');
+                var categoryName = selectedOption.text();
+
+                if (categoryName && categoryName !== 'Изберете категория') {
+                    $('#categoryBadge').text(categoryName).css('background-color', color).css('color', 'white');
+                    $('#categoryPreview').show();
+                } else {
+                    $('#categoryPreview').hide();
+                }
+                updatePreview();
+            });
+
+            // Обновяване на предварителния преглед
+            $('#Description, #Amount, #Date, #Notes').on('input change', updatePreview);
+
+            function loadCategoriesForType(type) {
+                if (!type) return;
+
+                $.get('@Url.Action("GetCategoriesForType")', { type: type })
+                    .done(function(categories) {
+                        var categorySelect = $('#categorySelect');
+                        categorySelect.empty();
+                        categorySelect.append('<option value="">Изберете категория</option>');
+
+                        $.each(categories, function(index, category) {
+                            categorySelect.append(`<option value="${category.id}" data-color="${category.color}" data-icon="${category.icon}">${category.name}</option>`);
+                        });
+
+                        $('#categoryPreview').hide();
+                        updatePreview();
+                    })
+                    .fail(function() {
+                        console.error('Грешка при зареждането на категориите');
+                    });
+            }
+
+            function updatePreview() {
+                var description = $('#Description').val();
+                var amount = parseFloat($('#Amount').val()) || 0;
+                var date = $('#Date').val();
+                var type = $('input[name="Type"]:checked').val();
+                var accountText = $('#accountSelect option:selected').text();
+                var categoryText = $('#categorySelect option:selected').text();
+                var categoryColor = $('#categorySelect option:selected').data('color');
+
+                if (description && amount > 0 && date && type && accountText && categoryText && categoryText !== 'Изберете категория') {
+                    // Показваме предварителния преглед
+                    $('#previewDescription').text(description);
+                    $('#previewDate').text(new Date(date).toLocaleDateString('bg-BG', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }));
+
+                    var amountClass = type == '@((int)FlowKunevDev.Common.TransactionType.Income)' ? 'text-success' : 'text-danger';
+                    var amountPrefix = type == '@((int)FlowKunevDev.Common.TransactionType.Income)' ? '+' : '-';
+                    $('#previewAmount').html(`<span class="${amountClass}">${amountPrefix}${amount.toFixed(2)} лв.</span>`);
+
+                    $('#previewAccount').text(accountText.split('(')[0].trim());
+                    $('#previewCategory').text(categoryText).css('background-color', categoryColor).css('color', 'white');
+
+                    $('#previewCard').show();
+                } else {
+                    $('#previewCard').hide();
+                }
+            }
+
+            // Първоначално зареждане на категориите ако има избран тип
+            var initialType = $('input[name="Type"]:checked').val();
+            if (initialType) {
+                loadCategoriesForType(initialType);
+            }
+
+            // Първоначален предварителен преглед
+            updatePreview();
+        });
+    </script>
+
+    <style>
+        .btn-check:checked + .btn-outline-success {
+            background-color: #198754;
+            border-color: #198754;
+            color: white;
+        }
+
+        .btn-check:checked + .btn-outline-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .form-select option {
+            color: black !important;
+            background-color: white !important;
+        }
+
+        #previewCard {
+            transition: all 0.3s ease;
+        }
+
+        #categoryPreview .badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+    </style>
+}

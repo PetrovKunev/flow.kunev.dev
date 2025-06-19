@@ -1,0 +1,242 @@
+﻿@model FlowKunevDev.Services.DTOs.CreateAccountTransferDto
+
+@{
+    ViewData["Title"] = "Нов трансфер";
+    var accounts = ViewBag.Accounts as IEnumerable<FlowKunevDev.Services.DTOs.AccountSummaryDto>;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">@ViewData["Title"]</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="FromAccountId" class="form-select" id="fromAccount">
+                                    <option value="">Изберете сметка</option>
+                                    @if (accounts != null)
+                                    {
+                                        @foreach (var account in accounts)
+                                        {
+                                            <option value="@account.Id"
+                                                    data-balance="@account.CurrentBalance"
+                                                    data-currency="@account.Currency"
+                                                    data-color="@account.Color">
+                                                @account.Name (@account.CurrentBalance.ToString("F2") @account.Currency)
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                                <label asp-for="FromAccountId">От сметка</label>
+                                <span asp-validation-for="FromAccountId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="ToAccountId" class="form-select" id="toAccount">
+                                    <option value="">Изберете сметка</option>
+                                    @if (accounts != null)
+                                    {
+                                        @foreach (var account in accounts)
+                                        {
+                                            <option value="@account.Id"
+                                                    data-balance="@account.CurrentBalance"
+                                                    data-currency="@account.Currency"
+                                                    data-color="@account.Color">
+                                                @account.Name (@account.CurrentBalance.ToString("F2") @account.Currency)
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                                <label asp-for="ToAccountId">Към сметка</label>
+                                <span asp-validation-for="ToAccountId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Визуален индикатор за трансфера -->
+                    <div class="mb-4" id="transfer-preview" style="display: none;">
+                        <div class="row align-items-center">
+                            <div class="col-md-5">
+                                <div class="card border-warning" id="from-account-preview">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title" id="from-account-name">Изберете сметка</h6>
+                                        <p class="card-text" id="from-account-balance">0.00 лв.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <i class="fas fa-arrow-right fa-2x text-primary"></i>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="card border-success" id="to-account-preview">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title" id="to-account-name">Изберете сметка</h6>
+                                        <p class="card-text" id="to-account-balance">0.00 лв.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                                <label asp-for="Amount">Сума</label>
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                                <div class="form-text" id="balance-warning" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Date" class="form-control" type="datetime-local" />
+                                <label asp-for="Date">Дата и час</label>
+                                <span asp-validation-for="Date" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Description" class="form-control" placeholder="Описание на трансфера" />
+                        <label asp-for="Description">Описание (незадължително)</label>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <textarea asp-for="Notes" class="form-control" placeholder="Бележки" style="height: 100px"></textarea>
+                        <label asp-for="Notes">Бележки (незадължително)</label>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Важно:</h6>
+                        <p class="mb-0">
+                            Трансферът ще извади посочената сума от изходящата сметка и ще я добави към входящата сметка.
+                            Уверете се, че имате достатъчно средства в изходящата сметка.
+                        </p>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-secondary me-md-2">Отказ</a>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fas fa-exchange-alt me-2"></i>Направи трансфер
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function() {
+            // Задаваме стойността на Date input
+            var now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            $('#Date').val(now.toISOString().slice(0, 16));
+
+            // Обновяваме preview при промяна на сметките
+            $('#fromAccount, #toAccount').change(updatePreview);
+            $('#Amount').on('input', checkBalance);
+
+            function updatePreview() {
+                var fromAccountId = $('#fromAccount').val();
+                var toAccountId = $('#toAccount').val();
+
+                if (fromAccountId && toAccountId) {
+                    $('#transfer-preview').show();
+
+                    // От сметка
+                    var fromOption = $('#fromAccount option:selected');
+                    var fromName = fromOption.text().split(' (')[0];
+                    var fromBalance = fromOption.data('balance');
+                    var fromCurrency = fromOption.data('currency');
+                    var fromColor = fromOption.data('color');
+
+                    $('#from-account-name').text(fromName);
+                    $('#from-account-balance').text(fromBalance.toFixed(2) + ' ' + fromCurrency);
+                    $('#from-account-preview').css('border-color', fromColor);
+
+                    // Към сметка
+                    var toOption = $('#toAccount option:selected');
+                    var toName = toOption.text().split(' (')[0];
+                    var toBalance = toOption.data('balance');
+                    var toCurrency = toOption.data('currency');
+                    var toColor = toOption.data('color');
+
+                    $('#to-account-name').text(toName);
+                    $('#to-account-balance').text(toBalance.toFixed(2) + ' ' + toCurrency);
+                    $('#to-account-preview').css('border-color', toColor);
+
+                    // Проверка за еднакви сметки
+                    if (fromAccountId === toAccountId) {
+                        $('#transfer-preview').hide();
+                        alert('Изходящата и входящата сметка не могат да бъдат едни и същи!');
+                        $('#toAccount').val('');
+                    }
+                } else {
+                    $('#transfer-preview').hide();
+                }
+
+                checkBalance();
+            }
+
+            function checkBalance() {
+                var amount = parseFloat($('#Amount').val()) || 0;
+                var fromOption = $('#fromAccount option:selected');
+                var fromBalance = parseFloat(fromOption.data('balance')) || 0;
+
+                if (amount > 0 && fromBalance > 0) {
+                    if (amount > fromBalance) {
+                        $('#balance-warning').show().text('⚠️ Недостатъчни средства! Наличен баланс: ' + fromBalance.toFixed(2) + ' лв.');
+                        $('#balance-warning').addClass('text-danger').removeClass('text-success');
+                        $('#submit-btn').prop('disabled', true);
+                    } else {
+                        var remaining = fromBalance - amount;
+                        $('#balance-warning').show().text('✓ Ще останат: ' + remaining.toFixed(2) + ' лв.');
+                        $('#balance-warning').addClass('text-success').removeClass('text-danger');
+                        $('#submit-btn').prop('disabled', false);
+                    }
+                } else {
+                    $('#balance-warning').hide();
+                    $('#submit-btn').prop('disabled', false);
+                }
+            }
+
+            // Начална проверка
+            updatePreview();
+        });
+    </script>
+
+    <style>
+        .form-floating > .form-select ~ label {
+            opacity: 0.65;
+        }
+
+        .form-floating > .form-select:focus ~ label,
+        .form-floating > .form-select:not(:placeholder-shown) ~ label {
+            opacity: 1;
+        }
+
+        #transfer-preview .card {
+            transition: all 0.3s ease;
+        }
+
+            #transfer-preview .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+    </style>
+}

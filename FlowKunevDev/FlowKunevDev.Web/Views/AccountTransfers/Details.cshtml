@@ -1,0 +1,189 @@
+﻿@model FlowKunevDev.Services.DTOs.AccountTransferDto
+
+@{
+    ViewData["Title"] = "Детайли за трансфер";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>@ViewData["Title"]</h2>
+    <div class="btn-group">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Редактирай
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Назад
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Основна информация за трансфера -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exchange-alt me-2"></i>
+                    Трансфер от @Model.Date.ToString("dd.MM.yyyy HH:mm")
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Визуален трансфер -->
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-5">
+                        <div class="card border-warning">
+                            <div class="card-header text-white" style="background-color: @Model.FromAccountColor;">
+                                <h6 class="mb-0">От сметка</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title">@Model.FromAccountName</h5>
+                                <p class="text-muted mb-0">Изходяща сметка</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <i class="fas fa-arrow-right fa-3x text-primary"></i>
+                        <div class="mt-2">
+                            <span class="badge bg-primary fs-6">@Model.Amount.ToString("F2") лв.</span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card border-success">
+                            <div class="card-header text-white" style="background-color: @Model.ToAccountColor;">
+                                <h6 class="mb-0">Към сметка</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title">@Model.ToAccountName</h5>
+                                <p class="text-muted mb-0">Входяща сметка</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Детайли -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Сума на трансфера:</h6>
+                        <h4 class="text-primary mb-3">@Model.Amount.ToString("F2") лв.</h4>
+
+                        <h6 class="text-muted">Дата и час:</h6>
+                        <p class="mb-3">
+                            @Model.Date.ToString("dddd, dd MMMM yyyy")
+                            <br>
+                            <small class="text-muted">@Model.Date.ToString("HH:mm")</small>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <h6 class="text-muted">Описание:</h6>
+                            <p class="mb-3">@Model.Description</p>
+                        }
+
+                        <h6 class="text-muted">Дата на създаване:</h6>
+                        <p class="mb-3">
+                            <small class="text-muted">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</small>
+                        </p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="mt-3">
+                        <h6 class="text-muted">Бележки:</h6>
+                        <div class="alert alert-light">
+                            @Model.Notes
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Бързи действия -->
+        <div class="card border-success mb-3">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0">Бързи действия</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Редактирай трансфер
+                    </a>
+                    <a asp-controller="Accounts" asp-action="Details" asp-route-id="@Model.FromAccountId" class="btn btn-outline-primary">
+                        <i class="fas fa-eye me-2"></i>Изходяща сметка
+                    </a>
+                    <a asp-controller="Accounts" asp-action="Details" asp-route-id="@Model.ToAccountId" class="btn btn-outline-success">
+                        <i class="fas fa-eye me-2"></i>Входяща сметка
+                    </a>
+                    <hr>
+                    <a asp-action="Create"
+                       asp-route-fromAccountId="@Model.ToAccountId"
+                       asp-route-toAccountId="@Model.FromAccountId"
+                       class="btn btn-outline-info">
+                        <i class="fas fa-undo me-2"></i>Обратен трансфер
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                        <i class="fas fa-trash me-2"></i>Изтрий трансфер
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация -->
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Информация</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Този трансфер прехвърля средства между вашите собствени сметки.
+                        Операцията не засяга общия ви баланс.
+                    </small>
+                </p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Трансферът е извършен на @Model.Date.ToString("dd.MM.yyyy") в @Model.Date.ToString("HH:mm")
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .card {
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
+        .fa-arrow-right {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+
+        }
+    </style>
+}

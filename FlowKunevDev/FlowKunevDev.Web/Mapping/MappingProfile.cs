@@ -60,10 +60,28 @@ namespace FlowKunevDev.Web.Mapping
                 .ForMember(dest => dest.Amount, opt => opt.Ignore())
                 .ForMember(dest => dest.TransactionCount, opt => opt.Ignore())
                 .ForMember(dest => dest.Percentage, opt => opt.Ignore());
+            // AccountTransfer mappings
+            CreateMap<AccountTransfer, AccountTransferDto>()
+                .ForMember(dest => dest.FromAccountName, opt => opt.MapFrom(src => src.FromAccount.Name))
+                .ForMember(dest => dest.FromAccountColor, opt => opt.MapFrom(src => src.FromAccount.Color))
+                .ForMember(dest => dest.ToAccountName, opt => opt.MapFrom(src => src.ToAccount.Name))
+                .ForMember(dest => dest.ToAccountColor, opt => opt.MapFrom(src => src.ToAccount.Color));
+
+            CreateMap<CreateAccountTransferDto, AccountTransfer>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.FromAccount, opt => opt.Ignore())
+                .ForMember(dest => dest.ToAccount, opt => opt.Ignore());
+
+            CreateMap<UpdateAccountTransferDto, AccountTransfer>()
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.FromAccount, opt => opt.Ignore())
+                .ForMember(dest => dest.ToAccount, opt => opt.Ignore());
 
             // Budget mappings (когато ги създадем)
             // PlannedTransaction mappings (когато ги създадем)
-            // AccountTransfer mappings (когато ги създадем)
+            
         }
     }
 }
