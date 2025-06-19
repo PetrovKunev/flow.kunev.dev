@@ -3,6 +3,17 @@
 @{
     ViewData["Title"] = "Табло";
     Layout = "_Layout";
+
+    // Създаваме българските имена на месеците
+    var bulgarianMonths = new string[]
+    {
+        "", "Януари", "Февруари", "Март", "Април", "Май", "Юни",
+        "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември"
+    };
+
+    var currentMonth = bulgarianMonths[DateTime.Now.Month];
+    var currentYear = DateTime.Now.Year;
+    var endOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -64,8 +75,21 @@
         <div class="card border-warning h-100">
             <div class="card-body text-center">
                 <i class="fas fa-piggy-bank fa-2x text-warning mb-2"></i>
-                <h4 class="text-warning mb-1">@Model.DailyAvailableAmount.ToString("F2") лв.</h4>
-                <p class="text-muted mb-0">Дневно за разходи</p>
+                <h4 class="text-warning mb-1" id="daily-available-amount">@Model.DailyAvailableAmount.ToString("F2") лв.</h4>
+                <p class="text-muted mb-0">
+                    <span id="daily-period-text">Дневно до края на месеца</span>
+                    <br>
+                    <small id="remaining-days-text">
+                        @if (ViewBag.DailyBudgetInfo != null)
+                        {
+                            @:(@((FlowKunevDev.Services.DTOs.DailyBudgetInfoDto)ViewBag.DailyBudgetInfo).RemainingDays дни)
+                        }
+                    </small>
+                </p>
+                <!-- Бутон за детайли -->
+                <button type="button" class="btn btn-outline-warning btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#dailyBudgetModal">
+                    <i class="fas fa-info-circle"></i> Детайли
+                </button>
             </div>
         </div>
     </div>
@@ -78,7 +102,7 @@
             <div class="card-header bg-info text-white">
                 <h6 class="mb-0">
                     <i class="fas fa-calendar-alt me-2"></i>
-                    Месечен баланс за @DateTime.Now.ToString("MMMM yyyy")
+                    Месечен баланс за @currentMonth @currentYear
                 </h6>
             </div>
             <div class="card-body">
@@ -128,7 +152,35 @@
                                 <div>
                                     <small class="fw-bold">@account.Name</small>
                                     <br>
-                                    <small class="text-muted">@account.Type</small>
+                                    <small class="text-muted">
+                                        @switch (account.Type)
+                                        {
+                                            case "Savings":
+                                                <text>Спестявания</text>
+                                                break;
+                                            case "Salary":
+                                                <text>Заплата</text>
+                                                break;
+                                            case "Current":
+                                                <text>Текуща сметка</text>
+                                                break;
+                                            case "CreditCard":
+                                                <text>Кредитна карта</text>
+                                                break;
+                                            case "Investment":
+                                                <text>Инвестиции</text>
+                                                break;
+                                            case "Cash":
+                                                <text>Кеш</text>
+                                                break;
+                                            case "Other":
+                                                <text>Друго</text>
+                                                break;
+                                            default:
+                                                @account.Type
+                                                break;
+                                        }
+                                    </small>
                                 </div>
                             </div>
                             <div class="text-end">
@@ -150,7 +202,7 @@
                 {
                     <div class="text-center text-muted py-4">
                         <i class="fas fa-wallet fa-3x mb-3 opacity-50"></i>
-                        <p>Няmate създадени сметки</p>
+                        <p>Нямате създадени сметки</p>
                         <a asp-controller="Accounts" asp-action="Create" class="btn btn-primary btn-sm">
                             Създайте първата си сметка
                         </a>
@@ -194,7 +246,7 @@
                 {
                     <div class="text-center text-muted py-4">
                         <i class="fas fa-exchange-alt fa-3x mb-3 opacity-50"></i>
-                        <p>Няmate транзакции</p>
+                        <p>Нямате транзакции</p>
                         <a asp-controller="Transactions" asp-action="Create" class="btn btn-primary btn-sm">
                             Добавете първата си транзакция
                         </a>
@@ -308,6 +360,133 @@
     </div>
 </div>
 
+<!-- Modal за дневен бюджет -->
+<div class="modal fade" id="dailyBudgetModal" tabindex="-1" aria-labelledby="dailyBudgetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dailyBudgetModalLabel">
+                    <i class="fas fa-calculator me-2"></i>Дневен бюджет - детайли
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Форма за период -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="customFromDate" class="form-label">От дата:</label>
+                        <input type="date" class="form-control" id="customFromDate" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="customToDate" class="form-label">До дата:</label>
+                        <input type="date" class="form-control" id="customToDate" value="@endOfMonth.ToString("yyyy-MM-dd")">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary me-2" onclick="updateDailyBudget()">
+                            <i class="fas fa-sync"></i> Обнови
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary me-2" onclick="setToEndOfMonth()">
+                            До края на месеца
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="setNext30Days()">
+                            Следващи 30 дни
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Резултати -->
+                <div id="budget-details">
+                    @if (ViewBag.DailyBudgetInfo != null)
+                    {
+                        var info = (FlowKunevDev.Services.DTOs.DailyBudgetInfoDto)ViewBag.DailyBudgetInfo;
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-info">Текущ баланс</h6>
+                                        <h4 class="text-primary">@info.TotalBalance.ToString("F2") лв.</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-warning">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-warning">Оставащи дни</h6>
+                                        <h4 class="text-warning">@info.RemainingDays дни</h4>
+                                        <small class="text-muted">@info.StartDate.ToString("dd.MM") - @info.EndDate.ToString("dd.MM")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-danger">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-danger">Планирани разходи</h6>
+                                        <h5 class="text-danger">@info.PlannedExpenses.ToString("F2") лв.</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-success">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-success">Планирани приходи</h6>
+                                        <h5 class="text-success">@info.PlannedIncome.ToString("F2") лв.</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-primary">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-primary">Дневно разполагаеми</h6>
+                                        <h4 class="text-primary">@info.DailyAvailable.ToString("F2") лв.</h4>
+                                        <small class="text-muted">За период</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-secondary">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-secondary">Среден дневен разход</h6>
+                                        <h5 class="text-secondary">@info.AverageDailyExpenses.ToString("F2") лв.</h5>
+                                        <small class="text-muted">Последни 30 дни</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-lightbulb me-2"></i>Препоръка:</h6>
+                            <p class="mb-0">
+                                Препоръчителен дневен бюджет: <strong>@info.RecommendedDailyBudget.ToString("F2") лв.</strong>
+                                @if (info.DailyAvailable > info.AverageDailyExpenses)
+                                {
+                                    <span class="text-success">
+                                        <br><small><i class="fas fa-check-circle"></i> Имате @((info.DailyAvailable - info.AverageDailyExpenses).ToString("F2")) лв. повече от обичайното дневно.</small>
+                                    </span>
+                                }
+                                else if (info.DailyAvailable < info.AverageDailyExpenses)
+                                {
+                                    <span class="text-warning">
+                                        <br><small><i class="fas fa-exclamation-triangle"></i> Имате @((info.AverageDailyExpenses - info.DailyAvailable).ToString("F2")) лв. по-малко от обичайното дневно.</small>
+                                    </span>
+                                }
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         $(document).ready(function() {
@@ -321,6 +500,150 @@
                 }
             );
         });
+
+        function setToEndOfMonth() {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+            $('#customFromDate').val(firstDay.toISOString().split('T')[0]);
+            $('#customToDate').val(lastDay.toISOString().split('T')[0]);
+        }
+
+        function setNext30Days() {
+            const now = new Date();
+            const endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+
+            $('#customFromDate').val(now.toISOString().split('T')[0]);
+            $('#customToDate').val(endDate.toISOString().split('T')[0]);
+        }
+
+        function updateDailyBudget() {
+            const fromDate = $('#customFromDate').val();
+            const toDate = $('#customToDate').val();
+
+            if (!fromDate || !toDate) {
+                alert('Моля въведете валидни дати');
+                return;
+            }
+
+            // Показваме loading
+            $('#budget-details').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Зареждане...</span></div></div>');
+
+            $.get('@Url.Action("GetDailyBudgetInfo")', {
+                fromDate: fromDate,
+                toDate: toDate
+            })
+            .done(function(response) {
+                if (response.success) {
+                    updateBudgetDisplay(response.data);
+                    updateMainDashboard(response.data);
+                } else {
+                    $('#budget-details').html('<div class="alert alert-danger">Грешка: ' + response.message + '</div>');
+                }
+            })
+            .fail(function() {
+                $('#budget-details').html('<div class="alert alert-danger">Възникна грешка при зареждането на данните</div>');
+            });
+        }
+
+        function updateBudgetDisplay(data) {
+            const startDate = new Date(data.startDate);
+            const endDate = new Date(data.endDate);
+
+            const html = `
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <h6 class="text-info">Текущ баланс</h6>
+                                <h4 class="text-primary">${data.totalBalance.toFixed(2)} лв.</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <h6 class="text-warning">Оставащи дни</h6>
+                                <h4 class="text-warning">${data.remainingDays} дни</h4>
+                                <small class="text-muted">${startDate.toLocaleDateString('bg-BG')} - ${endDate.toLocaleDateString('bg-BG')}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <h6 class="text-danger">Планирани разходи</h6>
+                                <h5 class="text-danger">${data.plannedExpenses.toFixed(2)} лв.</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <h6 class="text-success">Планирани приходи</h6>
+                                <h5 class="text-success">${data.plannedIncome.toFixed(2)} лв.</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Дневно разполагаеми</h6>
+                                <h4 class="text-primary">${data.dailyAvailable.toFixed(2)} лв.</h4>
+                                <small class="text-muted">За период</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-secondary">
+                            <div class="card-body text-center">
+                                <h6 class="text-secondary">Среден дневен разход</h6>
+                                <h5 class="text-secondary">${data.averageDailyExpenses.toFixed(2)} лв.</h5>
+                                <small class="text-muted">Последни 30 дни</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Препоръка:</h6>
+                    <p class="mb-0">
+                        Препоръчителен дневен бюджет: <strong>${data.recommendedDailyBudget.toFixed(2)} лв.</strong>
+                        ${data.dailyAvailable > data.averageDailyExpenses ?
+                            `<span class="text-success"><br><small><i class="fas fa-check-circle"></i> Имате ${(data.dailyAvailable - data.averageDailyExpenses).toFixed(2)} лв. повече от обичайното дневно.</small></span>` :
+                            data.dailyAvailable < data.averageDailyExpenses ?
+                            `<span class="text-warning"><br><small><i class="fas fa-exclamation-triangle"></i> Имате ${(data.averageDailyExpenses - data.dailyAvailable).toFixed(2)} лв. по-малко от обичайното дневно.</small></span>` :
+                            ''
+                        }
+                    </p>
+                </div>
+            `;
+
+            $('#budget-details').html(html);
+        }
+
+        function updateMainDashboard(data) {
+            // Обновяваме основната карта на таблото
+            $('#daily-available-amount').text(data.dailyAvailable.toFixed(2) + ' лв.');
+
+            // Обновяваме текста за периода
+            const startDate = new Date(data.startDate);
+            const endDate = new Date(data.endDate);
+            const today = new Date().toDateString();
+            const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toDateString();
+
+            if (startDate.toDateString() === today && endDate.toDateString() === endOfMonth) {
+                $('#daily-period-text').text('Дневно до края на месеца');
+            } else {
+                $('#daily-period-text').text('Дневно за периода');
+            }
+
+            $('#remaining-days-text').text(`(${data.remainingDays} дни)`);
+        }
     </script>
 
     <style>
@@ -340,6 +663,14 @@
         .btn-outline-secondary:hover i {
             transform: scale(1.1);
             transition: transform 0.2s ease;
+        }
+
+        .modal-lg {
+            max-width: 900px;
+        }
+
+        #budget-details .card {
+            border-width: 2px;
         }
     </style>
 }

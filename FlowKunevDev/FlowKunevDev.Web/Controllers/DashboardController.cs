@@ -94,5 +94,25 @@ namespace FlowKunevDev.Web.Controllers
                 return View(new DashboardViewModel());
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDailyBudgetInfo(DateTime? fromDate, DateTime? toDate)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, message = "Unauthorized" });
+            }
+
+            try
+            {
+                var info = await _transactionService.GetDailyBudgetInfoAsync(userId, fromDate, toDate);
+                return Json(new { success = true, data = info });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Възникна грешка при изчислението." });
+            }
+        }
     }
 }
