@@ -22,9 +22,34 @@
         Финансово табло
     </h2>
     <div class="btn-group">
-        <a asp-controller="Transactions" asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Нова транзакция
-        </a>
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-plus"></i> Нова транзакция
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" asp-controller="Transactions" asp-action="Create" asp-route-type="Income">
+                        <i class="fas fa-arrow-up text-success"></i> Приход
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Transactions" asp-action="Create" asp-route-type="Expense">
+                        <i class="fas fa-arrow-down text-danger"></i> Разход
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Create" asp-route-type="Income">
+                        <i class="fas fa-calendar-plus text-success"></i> Планиран приход
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Create" asp-route-type="Expense">
+                        <i class="fas fa-calendar-minus text-danger"></i> Планиран разход
+                    </a>
+                </li>
+            </ul>
+        </div>
         <a asp-controller="Accounts" asp-action="Create" class="btn btn-outline-secondary">
             <i class="fas fa-wallet"></i> Нова сметка
         </a>
@@ -39,34 +64,41 @@
     </div>
 }
 
-<!-- Основни метрики -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Основни метрики с планирани транзакции -->
 <div class="row mb-4">
     <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-primary h-100">
             <div class="card-body text-center">
                 <i class="fas fa-coins fa-2x text-primary mb-2"></i>
                 <h4 class="text-primary mb-1">@Model.TotalBalance.ToString("F2") лв.</h4>
-                <p class="text-muted mb-0">Общ баланс</p>
+                <p class="text-muted mb-0">Текущ баланс</p>
             </div>
         </div>
     </div>
 
     <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card border-success h-100">
+        <div class="card border-info h-100">
             <div class="card-body text-center">
-                <i class="fas fa-arrow-up fa-2x text-success mb-2"></i>
-                <h4 class="text-success mb-1">@Model.MonthlyIncome.ToString("F2") лв.</h4>
-                <p class="text-muted mb-0">Месечни приходи</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card border-danger h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-arrow-down fa-2x text-danger mb-2"></i>
-                <h4 class="text-danger mb-1">@Model.MonthlyExpenses.ToString("F2") лв.</h4>
-                <p class="text-muted mb-0">Месечни разходи</p>
+                <i class="fas fa-balance-scale fa-2x text-info mb-2"></i>
+                <h4 class="text-@(Model.BalanceAfterPlanned >= 0 ? "success" : "warning") mb-1">
+                    @Model.BalanceAfterPlanned.ToString("F2") лв.
+                </h4>
+                <p class="text-muted mb-0">Баланс след планирани</p>
+                @if (Model.TotalPlannedExpenses > 0 || Model.PlannedIncome > 0)
+                {
+                    <small class="text-info">
+                        <i class="fas fa-info-circle"></i>
+                        +@Model.PlannedIncome.ToString("F0") / -@Model.TotalPlannedExpenses.ToString("F0") лв.
+                    </small>
+                }
             </div>
         </div>
     </div>
@@ -74,28 +106,52 @@
     <div class="col-lg-3 col-md-6 mb-3">
         <div class="card border-warning h-100">
             <div class="card-body text-center">
-                <i class="fas fa-piggy-bank fa-2x text-warning mb-2"></i>
+                <i class="fas fa-calculator fa-2x text-warning mb-2"></i>
                 <h4 class="text-warning mb-1" id="daily-available-amount">@Model.DailyAvailableAmount.ToString("F2") лв.</h4>
                 <p class="text-muted mb-0">
-                    <span id="daily-period-text">Дневно до края на месеца</span>
+                    <span id="daily-period-text">Дневно разполагаеми</span>
                     <br>
-                    <small id="remaining-days-text">
-                        @if (ViewBag.DailyBudgetInfo != null)
-                        {
-                            @:(@((FlowKunevDev.Services.DTOs.DailyBudgetInfoDto)ViewBag.DailyBudgetInfo).RemainingDays дни)
-                        }
-                    </small>
+                    <small id="remaining-days-text">(@Model.RemainingDays дни)</small>
                 </p>
-                <!-- Бутон за детайли -->
                 <button type="button" class="btn btn-outline-warning btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#dailyBudgetModal">
                     <i class="fas fa-info-circle"></i> Детайли
                 </button>
             </div>
         </div>
     </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-secondary h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x text-secondary mb-2"></i>
+                <h4 class="text-secondary mb-1">@Model.AverageDailyExpenses.ToString("F2") лв.</h4>
+                <p class="text-muted mb-0">Среден дневен разход</p>
+                @if (Model.DailyAvailableAmount > Model.AverageDailyExpenses)
+                {
+                    <small class="text-success">
+                        <i class="fas fa-thumbs-up"></i>
+                        +@Model.DifferenceFromAverage.ToString("F0") лв. от обичайното
+                    </small>
+                }
+                else if (Model.DailyAvailableAmount < Model.AverageDailyExpenses)
+                {
+                    <small class="text-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        -@Model.DifferenceFromAverage.ToString("F0") лв. от обичайното
+                    </small>
+                }
+                else
+                {
+                    <small class="text-info">
+                        <i class="fas fa-equals"></i> Равно на обичайното
+                    </small>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Месечен баланс -->
+<!-- Месечен баланс с планирани -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card border-info">
@@ -107,25 +163,180 @@
             </div>
             <div class="card-body">
                 <div class="row text-center">
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <h5 class="text-success">+@Model.MonthlyIncome.ToString("F2") лв.</h5>
                         <small class="text-muted">Приходи</small>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <h5 class="text-danger">-@Model.MonthlyExpenses.ToString("F2") лв.</h5>
                         <small class="text-muted">Разходи</small>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <h5 class="text-@(Model.MonthlyBalance >= 0 ? "success" : "danger")">
                             @(Model.MonthlyBalance >= 0 ? "+" : "")@Model.MonthlyBalance.ToString("F2") лв.
                         </h5>
                         <small class="text-muted">Нетен баланс</small>
+                    </div>
+                    <div class="col-md-2">
+                        <h5 class="text-success">+@Model.PlannedIncome.ToString("F2") лв.</h5>
+                        <small class="text-muted">Планирани приходи</small>
+                    </div>
+                    <div class="col-md-2">
+                        <h5 class="text-danger">-@Model.TotalPlannedExpenses.ToString("F2") лв.</h5>
+                        <small class="text-muted">Планирани разходи</small>
+                    </div>
+                    <div class="col-md-2">
+                        <h5 class="text-@(Model.BalanceAfterPlanned >= 0 ? "success" : "warning")">
+                            @(Model.BalanceAfterPlanned >= 0 ? "+" : "")@Model.BalanceAfterPlanned.ToString("F2") лв.
+                        </h5>
+                        <small class="text-muted">Прогнозен баланс</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Планирани транзакции widget -->
+@if (Model.HasOverdueTransactions || Model.HasUpcomingTransactions)
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-calendar-plus text-primary"></i>
+                        Планирани транзакции
+                        @if (Model.HasOverdueTransactions)
+                        {
+                            <span class="badge bg-warning ms-2">@Model.OverdueCount просрочени</span>
+                        }
+                    </h6>
+                    <div class="btn-group btn-group-sm">
+                        <a asp-controller="PlannedTransactions" asp-action="Upcoming" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-calendar-day"></i> Предстоящи
+                        </a>
+                        @if (Model.HasOverdueTransactions)
+                        {
+                            <a asp-controller="PlannedTransactions" asp-action="Overdue" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-exclamation-triangle"></i> Просрочени (@Model.OverdueCount)
+                            </a>
+                        }
+                        <a asp-controller="PlannedTransactions" asp-action="Create" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Нова
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Просрочени транзакции -->
+                        @if (Model.HasOverdueTransactions)
+                        {
+                            <div class="col-md-6">
+                                <div class="border-start border-warning border-3 ps-3 mb-3">
+                                    <h6 class="text-warning mb-2">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Просрочени (@Model.OverdueCount)
+                                    </h6>
+                                    @foreach (var overdue in Model.OverduePlannedTransactions.Take(3))
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold small">@overdue.Description</div>
+                                                <div class="text-muted small">
+                                                    @overdue.PlannedDate.ToString("dd.MM")
+                                                    <span class="badge bg-danger ms-1">-@Math.Abs(overdue.DaysUntilDue)д</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-@(overdue.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger") small">
+                                                    @(overdue.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@overdue.PlannedAmount.ToString("F0") лв.
+                                                </div>
+                                                <button class="btn btn-outline-success btn-sm"
+                                                        onclick="quickExecute(@overdue.Id, '@overdue.Description', @overdue.PlannedAmount)"
+                                                        title="Бързо изпълнение">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (Model.OverdueCount > 3)
+                                    {
+                                        <div class="text-center mt-2">
+                                            <a asp-controller="PlannedTransactions" asp-action="Overdue" class="btn btn-outline-warning btn-sm">
+                                                Виж всички (@Model.OverdueCount)
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Предстоящи транзакции -->
+                        @if (Model.HasUpcomingTransactions)
+                        {
+                            <div class="col-md-6">
+                                <div class="border-start border-info border-3 ps-3 mb-3">
+                                    <h6 class="text-info mb-2">
+                                        <i class="fas fa-calendar-day"></i>
+                                        Предстоящи (@Model.UpcomingCount)
+                                    </h6>
+                                    @foreach (var upcoming in Model.UpcomingPlannedTransactions.Take(3))
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold small">@upcoming.Description</div>
+                                                <div class="text-muted small">
+                                                    @upcoming.PlannedDate.ToString("dd.MM")
+                                                    @if (upcoming.IsDueToday)
+                                                    {
+                                                        <span class="badge bg-info ms-1">Днес</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary ms-1">@upcoming.DaysUntilDue д</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-@(upcoming.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger") small">
+                                                    @(upcoming.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@upcoming.PlannedAmount.ToString("F0") лв.
+                                                </div>
+                                                @if (upcoming.IsDueToday || upcoming.DaysUntilDue <= 3)
+                                                {
+                                                    <button class="btn btn-outline-success btn-sm"
+                                                            onclick="quickExecute(@upcoming.Id, '@upcoming.Description', @upcoming.PlannedAmount)"
+                                                            title="Бързо изпълнение">
+                                                        <i class="fas fa-play"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-controller="PlannedTransactions" asp-action="Details" asp-route-id="@upcoming.Id"
+                                                       class="btn btn-outline-primary btn-sm" title="Детайли">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (Model.UpcomingCount > 3)
+                                    {
+                                        <div class="text-center mt-2">
+                                            <a asp-controller="PlannedTransactions" asp-action="Upcoming" class="btn btn-outline-info btn-sm">
+                                                Виж всички (@Model.UpcomingCount)
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <div class="row">
     <!-- Сметки -->
@@ -313,17 +524,24 @@
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-lg-2 col-md-4 col-6 mb-3">
-                        <a asp-controller="Transactions" asp-action="Create" class="btn btn-outline-success w-100">
+                        <a asp-controller="Transactions" asp-action="Create" asp-route-type="Income" class="btn btn-outline-success w-100">
                             <i class="fas fa-plus fa-2x mb-2"></i>
                             <br>
                             <small>Приход</small>
                         </a>
                     </div>
                     <div class="col-lg-2 col-md-4 col-6 mb-3">
-                        <a asp-controller="Transactions" asp-action="Create" class="btn btn-outline-danger w-100">
+                        <a asp-controller="Transactions" asp-action="Create" asp-route-type="Expense" class="btn btn-outline-danger w-100">
                             <i class="fas fa-minus fa-2x mb-2"></i>
                             <br>
                             <small>Разход</small>
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-3">
+                        <a asp-controller="PlannedTransactions" asp-action="Create" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-calendar-plus fa-2x mb-2"></i>
+                            <br>
+                            <small>Планирана</small>
                         </a>
                     </div>
                     <div class="col-lg-2 col-md-4 col-6 mb-3">
@@ -334,17 +552,10 @@
                         </a>
                     </div>
                     <div class="col-lg-2 col-md-4 col-6 mb-3">
-                        <a asp-controller="Reports" asp-action="Monthly" class="btn btn-outline-primary w-100">
+                        <a asp-controller="Reports" asp-action="Monthly" class="btn btn-outline-warning w-100">
                             <i class="fas fa-chart-bar fa-2x mb-2"></i>
                             <br>
                             <small>Отчети</small>
-                        </a>
-                    </div>
-                    <div class="col-lg-2 col-md-4 col-6 mb-3">
-                        <a asp-controller="Budgets" asp-action="Index" class="btn btn-outline-warning w-100">
-                            <i class="fas fa-piggy-bank fa-2x mb-2"></i>
-                            <br>
-                            <small>Бюджети</small>
                         </a>
                     </div>
                     <div class="col-lg-2 col-md-4 col-6 mb-3">
@@ -399,90 +610,135 @@
 
                 <!-- Резултати -->
                 <div id="budget-details">
-                    @if (ViewBag.DailyBudgetInfo != null)
-                    {
-                        var info = (FlowKunevDev.Services.DTOs.DailyBudgetInfoDto)ViewBag.DailyBudgetInfo;
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-info">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-info">Текущ баланс</h6>
-                                        <h4 class="text-primary">@info.TotalBalance.ToString("F2") лв.</h4>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-warning">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-warning">Оставащи дни</h6>
-                                        <h4 class="text-warning">@info.RemainingDays дни</h4>
-                                        <small class="text-muted">@info.StartDate.ToString("dd.MM") - @info.EndDate.ToString("dd.MM")</small>
-                                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <h6 class="text-info">Текущ баланс</h6>
+                                    <h4 class="text-primary">@Model.TotalBalance.ToString("F2") лв.</h4>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <h6 class="text-warning">Оставащи дни</h6>
+                                    <h4 class="text-warning">@Model.RemainingDays дни</h4>
+                                    <small class="text-muted">@Model.AnalysisPeriodStart.ToString("dd.MM") - @Model.AnalysisPeriodEnd.ToString("dd.MM")</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-danger">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-danger">Планирани разходи</h6>
-                                        <h5 class="text-danger">@info.PlannedExpenses.ToString("F2") лв.</h5>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-success">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-success">Планирани приходи</h6>
-                                        <h5 class="text-success">@info.PlannedIncome.ToString("F2") лв.</h5>
-                                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-danger">
+                                <div class="card-body text-center">
+                                    <h6 class="text-danger">Планирани разходи</h6>
+                                    <h5 class="text-danger">@Model.TotalPlannedExpenses.ToString("F2") лв.</h5>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <h6 class="text-success">Планирани приходи</h6>
+                                    <h5 class="text-success">@Model.PlannedIncome.ToString("F2") лв.</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-primary">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-primary">Дневно разполагаеми</h6>
-                                        <h4 class="text-primary">@info.DailyAvailable.ToString("F2") лв.</h4>
-                                        <small class="text-muted">За период</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-secondary">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-secondary">Среден дневен разход</h6>
-                                        <h5 class="text-secondary">@info.AverageDailyExpenses.ToString("F2") лв.</h5>
-                                        <small class="text-muted">Последни 30 дни</small>
-                                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <h6 class="text-primary">Дневно разполагаеми</h6>
+                                    <h4 class="text-primary">@Model.DailyAvailableAmount.ToString("F2") лв.</h4>
+                                    <small class="text-muted">За период</small>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-secondary">
+                                <div class="card-body text-center">
+                                    <h6 class="text-secondary">Среден дневен разход</h6>
+                                    <h5 class="text-secondary">@Model.AverageDailyExpenses.ToString("F2") лв.</h5>
+                                    <small class="text-muted">Последни 30 дни</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-lightbulb me-2"></i>Препоръка:</h6>
-                            <p class="mb-0">
-                                Препоръчителен дневен бюджет: <strong>@info.RecommendedDailyBudget.ToString("F2") лв.</strong>
-                                @if (info.DailyAvailable > info.AverageDailyExpenses)
-                                {
-                                    <span class="text-success">
-                                        <br><small><i class="fas fa-check-circle"></i> Имате @((info.DailyAvailable - info.AverageDailyExpenses).ToString("F2")) лв. повече от обичайното дневно.</small>
-                                    </span>
-                                }
-                                else if (info.DailyAvailable < info.AverageDailyExpenses)
-                                {
-                                    <span class="text-warning">
-                                        <br><small><i class="fas fa-exclamation-triangle"></i> Имате @((info.AverageDailyExpenses - info.DailyAvailable).ToString("F2")) лв. по-малко от обичайното дневно.</small>
-                                    </span>
-                                }
-                            </p>
-                        </div>
-                    }
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-lightbulb me-2"></i>Препоръка:</h6>
+                        <p class="mb-0">
+                            @if (Model.DailyAvailableAmount > Model.AverageDailyExpenses)
+                            {
+                                <span class="text-success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <strong>Отлично!</strong> Имате @Model.DifferenceFromAverage.ToString("F2") лв. повече от обичайното дневно разходване.
+                                </span>
+                            }
+                            else if (Model.DailyAvailableAmount < Model.AverageDailyExpenses)
+                            {
+                                <span class="text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Внимание!</strong> Имате @Model.DifferenceFromAverage.ToString("F2") лв. по-малко от обичайното дневно разходване.
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    Дневните ви разполагаеми средства са равни на средния дневен разход.
+                                </span>
+                            }
+                        </p>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal за бързо изпълнение на планирани транзакции -->
+<div class="modal fade" id="quickExecuteModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h6 class="modal-title">
+                    <i class="fas fa-play"></i> Бързо изпълнение
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="quickExecuteForm" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="quickExecuteId" name="id" />
+                    <div class="mb-3">
+                        <label class="form-label small">Транзакция:</label>
+                        <div id="quickExecuteDescription" class="fw-bold"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickActualAmount" class="form-label small">Сума:</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" step="0.01" class="form-control" id="quickActualAmount" name="actualAmount" />
+                            <span class="input-group-text">лв.</span>
+                        </div>
+                        <small class="text-muted">Оставете празно за планираната сума</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickActualDate" class="form-label small">Дата:</label>
+                        <input type="date" class="form-control form-control-sm" id="quickActualDate" name="actualDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Откажи</button>
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-check"></i> Изпълни
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -499,7 +755,47 @@
                     $(this).removeClass('shadow-sm');
                 }
             );
+
+            // Auto-refresh на планираните транзакции всеки 5 минути
+            setInterval(refreshPlannedTransactions, 300000);
         });
+
+        function quickExecute(id, description, plannedAmount) {
+            document.getElementById('quickExecuteId').value = id;
+            document.getElementById('quickExecuteDescription').textContent = description;
+            document.getElementById('quickActualAmount').placeholder = plannedAmount.toFixed(2) + ' лв.';
+            document.getElementById('quickExecuteForm').action = '@Url.Action("QuickExecutePlanned")';
+            new bootstrap.Modal(document.getElementById('quickExecuteModal')).show();
+        }
+
+        function refreshPlannedTransactions() {
+            fetch('@Url.Action("GetPlannedTransactionsOverview")')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updatePlannedTransactionsWidget(data.data);
+                    }
+                })
+                .catch(error => console.log('Error refreshing planned transactions:', error));
+        }
+
+        function updatePlannedTransactionsWidget(data) {
+            // Обновяваме badges за просрочени
+            const overdueCount = data.overdue.length;
+            const upcomingCount = data.upcoming.length;
+
+            // Можем да добавим notification badge в навигацията
+            updateNotificationBadges(overdueCount, upcomingCount);
+        }
+
+        function updateNotificationBadges(overdueCount, upcomingCount) {
+            // Ако има navigation badge за планирани транзакции
+            const plannedNavBadge = document.querySelector('#plannedNavDropdown .badge');
+            if (plannedNavBadge && (overdueCount > 0 || upcomingCount > 0)) {
+                plannedNavBadge.textContent = overdueCount + upcomingCount;
+                plannedNavBadge.className = overdueCount > 0 ? 'badge bg-warning' : 'badge bg-info';
+            }
+        }
 
         function setToEndOfMonth() {
             const now = new Date();
@@ -612,12 +908,11 @@
                 <div class="alert alert-info">
                     <h6><i class="fas fa-lightbulb me-2"></i>Препоръка:</h6>
                     <p class="mb-0">
-                        Препоръчителен дневен бюджет: <strong>${data.recommendedDailyBudget.toFixed(2)} лв.</strong>
                         ${data.dailyAvailable > data.averageDailyExpenses ?
-                            `<span class="text-success"><br><small><i class="fas fa-check-circle"></i> Имате ${(data.dailyAvailable - data.averageDailyExpenses).toFixed(2)} лв. повече от обичайното дневно.</small></span>` :
+                            `<span class="text-success"><i class="fas fa-check-circle"></i> <strong>Отлично!</strong> Имате ${(data.dailyAvailable - data.averageDailyExpenses).toFixed(2)} лв. повече от обичайното дневно разходване.</span>` :
                             data.dailyAvailable < data.averageDailyExpenses ?
-                            `<span class="text-warning"><br><small><i class="fas fa-exclamation-triangle"></i> Имате ${(data.averageDailyExpenses - data.dailyAvailable).toFixed(2)} лв. по-малко от обичайното дневно.</small></span>` :
-                            ''
+                            `<span class="text-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Внимание!</strong> Имате ${(data.averageDailyExpenses - data.dailyAvailable).toFixed(2)} лв. по-малко от обичайното дневно разходване.</span>` :
+                            `<span class="text-info"><i class="fas fa-info-circle"></i> Дневните ви разполагаеми средства са равни на средния дневен разход.</span>`
                         }
                     </p>
                 </div>
@@ -644,6 +939,41 @@
 
             $('#remaining-days-text').text(`(${data.remainingDays} дни)`);
         }
+
+        // Handle quick execute form submission
+        $('#quickExecuteForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('quickExecuteModal')).hide();
+                    // Показваме success message
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alert.innerHTML = `
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.container-fluid').firstChild);
+
+                    // Refresh page за актуални данни
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    alert('Грешка: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Възникна грешка при изпълнението.');
+            });
+        });
     </script>
 
     <style>
@@ -671,6 +1001,14 @@
 
         #budget-details .card {
             border-width: 2px;
+        }
+
+        .border-3 {
+            border-width: 3px !important;
+        }
+
+        .planned-transactions-widget {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
     </style>
 }

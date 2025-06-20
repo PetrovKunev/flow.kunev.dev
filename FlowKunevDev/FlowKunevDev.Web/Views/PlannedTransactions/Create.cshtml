@@ -1,0 +1,332 @@
+﻿@model FlowKunevDev.Services.DTOs.CreatePlannedTransactionDto
+
+@{
+    ViewData["Title"] = "Нова Планирана Транзакция";
+    var accounts = ViewBag.Accounts as IEnumerable<FlowKunevDev.Services.DTOs.AccountSummaryDto>;
+    var categories = ViewBag.Categories as IEnumerable<FlowKunevDev.Data.Models.Category>;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-calendar-plus text-primary"></i>
+                    @ViewData["Title"]
+                </h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <!-- Тип и сума -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Type" class="form-label">
+                                <i class="fas fa-exchange-alt"></i> Тип транзакция
+                            </label>
+                            <select asp-for="Type" class="form-select" id="transactionType" onchange="updateCategoriesAndStyles()">
+                                <option value="@FlowKunevDev.Common.TransactionType.Income">
+                                    <i class="fas fa-arrow-up"></i> Приход
+                                </option>
+                                <option value="@FlowKunevDev.Common.TransactionType.Expense">
+                                    <i class="fas fa-arrow-down"></i> Разход
+                                </option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PlannedAmount" class="form-label">
+                                <i class="fas fa-coins"></i> Планирана сума
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="PlannedAmount" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00" />
+                                <span class="input-group-text">лв.</span>
+                            </div>
+                            <span asp-validation-for="PlannedAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Описание -->
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">
+                            <i class="fas fa-align-left"></i> Описание
+                        </label>
+                        <input asp-for="Description" class="form-control" placeholder="Въведете описание на транзакцията..." />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <!-- Планирана дата и сметка -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PlannedDate" class="form-label">
+                                <i class="fas fa-calendar-day"></i> Планирана дата
+                            </label>
+                            <input asp-for="PlannedDate" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <small class="form-text text-muted">Най-ранната дата е утре</small>
+                            <span asp-validation-for="PlannedDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="AccountId" class="form-label">
+                                <i class="fas fa-wallet"></i> Сметка
+                            </label>
+                            <select asp-for="AccountId" class="form-select">
+                                @if (accounts != null)
+                                {
+                                    @foreach (var account in accounts)
+                                    {
+                                        <option value="@account.Id">
+                                            @account.Name (@account.CurrentBalance.ToString("F2") лв.)
+                                        </option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="AccountId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Категория -->
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label">
+                            <i class="fas fa-tags"></i> Категория
+                        </label>
+                        <select asp-for="CategoryId" class="form-select" id="categorySelect">
+                            @if (categories != null)
+                            {
+                                @foreach (var category in categories)
+                                {
+                                    <option value="@category.Id"
+                                            data-type="@category.Type"
+                                            data-color="@category.Color"
+                                            data-icon="@category.Icon">
+                                        @category.Name
+                                    </option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Бележки -->
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label">
+                            <i class="fas fa-sticky-note"></i> Бележки
+                        </label>
+                        <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Допълнителни бележки (опционално)"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <!-- Повтаряща се секция -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="form-check">
+                                <input asp-for="IsRecurring" class="form-check-input" id="isRecurringCheck" onchange="toggleRecurrence()" />
+                                <label asp-for="IsRecurring" class="form-check-label fw-bold">
+                                    <i class="fas fa-repeat text-secondary"></i>
+                                    Повтаряща се транзакция
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-body" id="recurrenceOptions" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="RecurrenceType" class="form-label">
+                                        <i class="fas fa-clock"></i> Честота на повторение
+                                    </label>
+                                    <select asp-for="RecurrenceType" class="form-select">
+                                        <option value="">Изберете честота</option>
+                                        <option value="@FlowKunevDev.Common.RecurrenceType.Daily">
+                                            <i class="fas fa-sun"></i> Дневно
+                                        </option>
+                                        <option value="@FlowKunevDev.Common.RecurrenceType.Weekly">
+                                            <i class="fas fa-calendar-week"></i> Седмично
+                                        </option>
+                                        <option value="@FlowKunevDev.Common.RecurrenceType.Monthly">
+                                            <i class="fas fa-calendar"></i> Месечно
+                                        </option>
+                                        <option value="@FlowKunevDev.Common.RecurrenceType.Yearly">
+                                            <i class="fas fa-calendar-alt"></i> Годишно
+                                        </option>
+                                    </select>
+                                    <span asp-validation-for="RecurrenceType" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-center">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Автоматизация:</strong><br>
+                                        След изпълнение ще се създаде следващата планирана транзакция автоматично.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Действия -->
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Назад към списъка
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-info" onclick="previewTransaction()">
+                                <i class="fas fa-eye"></i> Преглед
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Създай планирана транзакция
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Преглед на планираната транзакция</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6"><strong>Тип:</strong></div>
+                    <div class="col-6" id="previewType"></div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Описание:</strong></div>
+                    <div class="col-6" id="previewDescription"></div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Сума:</strong></div>
+                    <div class="col-6" id="previewAmount"></div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Дата:</strong></div>
+                    <div class="col-6" id="previewDate"></div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Повтаряща се:</strong></div>
+                    <div class="col-6" id="previewRecurring"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Затвори</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updateCategoriesAndStyles() {
+            var selectedType = document.getElementById('transactionType').value;
+            var categorySelect = document.getElementById('categorySelect');
+            var options = categorySelect.getElementsByTagName('option');
+
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                var categoryType = option.getAttribute('data-type');
+
+                // Показваме подходящите категории
+                if (categoryType == '1' && selectedType != '1') { // IncomeOnly
+                    option.style.display = 'none';
+                } else if (categoryType == '2' && selectedType != '2') { // ExpenseOnly
+                    option.style.display = 'none';
+                } else {
+                    option.style.display = 'block';
+                }
+            }
+
+            // Избираме първата видима опция ако текущата е скрита
+            var currentOption = categorySelect.options[categorySelect.selectedIndex];
+            if (currentOption && currentOption.style.display == 'none') {
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].style.display != 'none') {
+                        categorySelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // Обновяваме стила на формата
+            updateFormStyle();
+        }
+
+        function toggleRecurrence() {
+            var isRecurring = document.getElementById('isRecurringCheck').checked;
+            var recurrenceOptions = document.getElementById('recurrenceOptions');
+
+            if (isRecurring) {
+                recurrenceOptions.style.display = 'block';
+            } else {
+                recurrenceOptions.style.display = 'none';
+                document.querySelector('[name="RecurrenceType"]').value = '';
+            }
+        }
+
+        function updateFormStyle() {
+            var type = document.getElementById('transactionType').value;
+            var card = document.querySelector('.card');
+
+            if (type == '1') { // Income
+                card.className = 'card border-success';
+            } else { // Expense
+                card.className = 'card border-danger';
+            }
+        }
+
+        function previewTransaction() {
+            var type = document.getElementById('transactionType').value;
+            var description = document.querySelector('[name="Description"]').value || 'Без описание';
+            var amount = document.querySelector('[name="PlannedAmount"]').value || '0';
+            var date = document.querySelector('[name="PlannedDate"]').value;
+            var isRecurring = document.getElementById('isRecurringCheck').checked;
+            var recurrenceType = document.querySelector('[name="RecurrenceType"]').value;
+
+            document.getElementById('previewType').innerHTML = type == '1' ?
+                '<span class="badge bg-success">Приход</span>' :
+                '<span class="badge bg-danger">Разход</span>';
+            document.getElementById('previewDescription').textContent = description;
+            document.getElementById('previewAmount').innerHTML =
+                '<span class="fw-bold text-' + (type == '1' ? 'success' : 'danger') + '">' +
+                (type == '1' ? '+' : '-') + parseFloat(amount).toFixed(2) + ' лв.</span>';
+
+            if (date) {
+                var dateObj = new Date(date);
+                document.getElementById('previewDate').textContent = dateObj.toLocaleDateString('bg-BG');
+            } else {
+                document.getElementById('previewDate').textContent = 'Не е избрана';
+            }
+
+            if (isRecurring && recurrenceType) {
+                var recurrenceText = {
+                    '1': 'Дневно',
+                    '2': 'Седмично',
+                    '3': 'Месечно',
+                    '4': 'Годишно'
+                };
+                document.getElementById('previewRecurring').innerHTML =
+                    '<span class="badge bg-secondary"><i class="fas fa-repeat"></i> ' +
+                    recurrenceText[recurrenceType] + '</span>';
+            } else {
+                document.getElementById('previewRecurring').textContent = 'Не';
+            }
+
+            new bootstrap.Modal(document.getElementById('previewModal')).show();
+        }
+
+        // Инициализация при зареждане
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCategoriesAndStyles();
+            toggleRecurrence();
+
+            // Задаваме минимална дата (утре)
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.querySelector('[name="PlannedDate"]').min = tomorrow.toISOString().split('T')[0];
+        });
+    </script>
+}

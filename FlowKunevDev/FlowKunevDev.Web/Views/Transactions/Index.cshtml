@@ -261,41 +261,41 @@ else
     {
         <nav aria-label="Страниране на транзакции" class="mt-4">
             <ul class="pagination justify-content-center">
-                @if (filter.Page > 1)
+                @if (filter?.Page > 1)
                 {
                     <li class="page-item">
                         <a class="page-link" href="@Url.Action("Index", new { 
-                            Page = filter.Page - 1, 
-                            filter.StartDate, 
-                            filter.EndDate, 
-                            filter.CategoryId, 
-                            filter.AccountId, 
-                            filter.Type, 
-                            filter.MinAmount, 
-                            filter.MaxAmount, 
-                            filter.SearchTerm 
+                            Page = filter?.Page - 1 ?? 1, 
+                            filter?.StartDate, 
+                            filter?.EndDate, 
+                            filter?.CategoryId, 
+                            filter?.AccountId, 
+                            filter?.Type, 
+                            filter?.MinAmount, 
+                            filter?.MaxAmount, 
+                            filter?.SearchTerm 
                         })">Предишна</a>
                     </li>
                 }
 
-                @for (int i = Math.Max(1, filter.Page - 2); i <= Math.Min(totalPages, filter.Page + 2); i++)
+                @for (int i = Math.Max(1, (filter?.Page ?? 1) - 2); i <= Math.Min(totalPages, (filter?.Page ?? 1) + 2); i++)
                 {
-                    <li class="page-item @(i == filter.Page ? "active" : "")">
+                    <li class="page-item @(i == (filter?.Page ?? 1) ? "active" : "")">
                         <a class="page-link" href="@Url.Action("Index", new { 
                             Page = i, 
-                            filter.StartDate, 
-                            filter.EndDate, 
-                            filter.CategoryId, 
-                            filter.AccountId, 
-                            filter.Type, 
-                            filter.MinAmount, 
-                            filter.MaxAmount, 
-                            filter.SearchTerm 
+                            StartDate = filter?.StartDate, 
+                            EndDate = filter?.EndDate, 
+                            CategoryId = filter?.CategoryId, 
+                            AccountId = filter?.AccountId, 
+                            Type = filter?.Type, 
+                            MinAmount = filter?.MinAmount, 
+                            MaxAmount = filter?.MaxAmount, 
+                            SearchTerm = filter?.SearchTerm 
                         })">@i</a>
                     </li>
                 }
 
-                @if (filter.Page < totalPages)
+                @if (filter?.Page < totalPages)
                 {
                     <li class="page-item">
                         <a class="page-link" href="@Url.Action("Index", new { 
@@ -316,7 +316,7 @@ else
 
         <div class="text-center text-muted">
             <small>
-                Показване на @((filter.Page - 1) * filter.PageSize + 1)-@Math.Min(filter.Page * filter.PageSize, totalCount) от @totalCount транзакции
+                Показване на @((filter?.Page - 1 ?? 0) * (filter?.PageSize ?? 1) + 1)-@Math.Min((filter?.Page ?? 1) * (filter?.PageSize ?? 1), totalCount) от @totalCount транзакции
             </small>
         </div>
     }

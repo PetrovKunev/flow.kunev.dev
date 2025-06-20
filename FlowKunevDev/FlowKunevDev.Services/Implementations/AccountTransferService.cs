@@ -287,8 +287,8 @@ namespace FlowKunevDev.Services.Implementations
                 ToAccountName = transfer.ToAccount.Name,
                 ToAccountColor = transfer.ToAccount.Color,
                 Date = transfer.Date,
-                Description = transfer.Description,
-                Notes = transfer.Notes,
+                Description = transfer.Description ?? string.Empty,
+                Notes = transfer.Notes ?? string.Empty,
                 UserId = transfer.UserId,
                 CreatedDate = transfer.CreatedDate
             };

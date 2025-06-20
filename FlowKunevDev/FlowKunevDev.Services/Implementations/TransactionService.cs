@@ -648,8 +648,9 @@ namespace FlowKunevDev.Services.Implementations
             if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
             {
                 var searchTerm = filter.SearchTerm.ToLower();
-                query = query.Where(t => t.Description.ToLower().Contains(searchTerm) ||
-                                        t.Notes.ToLower().Contains(searchTerm));
+                query = query.Where(t => 
+                    (t.Description != null && t.Description.ToLower().Contains(searchTerm)) ||
+                    (t.Notes != null && t.Notes.ToLower().Contains(searchTerm)));
             }
 
             return query;

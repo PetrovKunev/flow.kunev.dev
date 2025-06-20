@@ -1,0 +1,393 @@
+﻿@model IEnumerable<FlowKunevDev.Services.DTOs.PlannedTransactionSummaryDto>
+
+@{
+    ViewData["Title"] = "Предстоящи Планирани Транзакции";
+    var days = ViewBag.Days as int? ?? 30;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-calendar-day text-info"></i>
+        @ViewData["Title"]
+    </h2>
+    <div class="btn-group">
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="fas fa-list"></i> Всички
+        </a>
+        <a asp-action="Overdue" class="btn btn-outline-warning">
+            <i class="fas fa-exclamation-triangle"></i> Просрочени
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-plus"></i> Нова планирана
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" asp-action="Create" asp-route-type="Income">
+                        <i class="fas fa-arrow-up text-success"></i> Планиран приход
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-action="Create" asp-route-type="Expense">
+                        <i class="fas fa-arrow-down text-danger"></i> Планиран разход
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Филтър по период -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-filter"></i> Период за показване
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="btn-group flex-wrap" role="group">
+            <a asp-action="Upcoming" asp-route-days="7" class="btn @(days == 7 ? "btn-primary" : "btn-outline-primary")">
+                <i class="fas fa-calendar-week"></i> Следващите 7 дни
+            </a>
+            <a asp-action="Upcoming" asp-route-days="14" class="btn @(days == 14 ? "btn-primary" : "btn-outline-primary")">
+                Следващите 14 дни
+            </a>
+            <a asp-action="Upcoming" asp-route-days="30" class="btn @(days == 30 ? "btn-primary" : "btn-outline-primary")">
+                <i class="fas fa-calendar"></i> Следващите 30 дни
+            </a>
+            <a asp-action="Upcoming" asp-route-days="90" class="btn @(days == 90 ? "btn-primary" : "btn-outline-primary")">
+                Следващите 90 дни
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <!-- Статистики -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <div class="display-6 text-primary">@Model.Count()</div>
+                    <h6 class="card-title text-primary">Общо предстоящи</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <div class="display-6 text-info">@Model.Count(p => p.IsDueToday)</div>
+                    <h6 class="card-title text-info">Днес</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <div class="display-6 text-success">@Model.Count(p => p.Type == FlowKunevDev.Common.TransactionType.Income)</div>
+                    <h6 class="card-title text-success">Приходи</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <div class="display-6 text-danger">@Model.Count(p => p.Type == FlowKunevDev.Common.TransactionType.Expense)</div>
+                    <h6 class="card-title text-danger">Разходи</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сума по типове -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-arrow-up"></i> Планирани приходи
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-success">
+                        +@Model.Where(p => p.Type == FlowKunevDev.Common.TransactionType.Income).Sum(p => p.PlannedAmount).ToString("F2") лв.
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-arrow-down"></i> Планирани разходи
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-danger">
+                        -@Model.Where(p => p.Type == FlowKunevDev.Common.TransactionType.Expense).Sum(p => p.PlannedAmount).ToString("F2") лв.
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Групиране по дни -->
+    @foreach (var group in Model.GroupBy(p => p.PlannedDate.Date).OrderBy(g => g.Key))
+    {
+        <div class="card mb-4">
+            <div class="card-header @(group.Key == DateTime.Now.Date ? "bg-info text-white" : group.Key < DateTime.Now.Date ? "bg-warning text-dark" : "")">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-calendar-day"></i>
+                        @group.Key.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("bg-BG"))
+                        @if (group.Key == DateTime.Now.Date)
+                        {
+                            <span class="badge bg-light text-dark ms-2">
+                                <i class="fas fa-clock"></i> Днес
+                            </span>
+                        }
+                        else if (group.Key < DateTime.Now.Date)
+                        {
+                            <span class="badge bg-danger ms-2">
+                                <i class="fas fa-exclamation-triangle"></i> Просрочени
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary ms-2">
+                                <i class="fas fa-hourglass-half"></i> @group.First().DaysUntilDue дни
+                            </span>
+                        }
+                    </h6>
+                    <div class="text-end">
+                        <small>
+                            @group.Count() транзакци |
+                            <span class="text-success">+@group.Where(t => t.Type == FlowKunevDev.Common.TransactionType.Income).Sum(t => t.PlannedAmount).ToString("F0")</span> |
+                            <span class="text-danger">-@group.Where(t => t.Type == FlowKunevDev.Common.TransactionType.Expense).Sum(t => t.PlannedAmount).ToString("F0")</span> лв.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var planned in group.OrderBy(p => p.Type).ThenBy(p => p.Description))
+                    {
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 @(planned.IsDueToday ? "border-info" : planned.IsOverdue ? "border-warning" : "border-light") shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0 text-truncate" title="@planned.Description">
+                                            @planned.Description
+                                        </h6>
+                                        <span class="fw-bold text-@(planned.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger")">
+                                            @(planned.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@planned.PlannedAmount.ToString("F0") лв.
+                                        </span>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <span class="badge rounded-pill" style="background-color: @planned.CategoryColor; color: white; font-size: 0.75em;">
+                                            @planned.CategoryName
+                                        </span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-wallet"></i> @planned.AccountName
+                                        </small>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            @if (planned.IsDueToday)
+                                            {
+                                                <i class="fas fa-clock text-info"></i>
+                                                <span class="text-info fw-bold">Днес</span>
+                                            }
+                                            else if (planned.IsOverdue)
+                                            {
+                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                <span class="text-warning fw-bold">Просрочена</span>
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-calendar-day"></i>
+                                                @($"{planned.DaysUntilDue} дни")
+                                            }
+                                        </small>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Details" asp-route-id="@planned.Id" class="btn btn-outline-primary" title="Детайли">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            @if (planned.IsDueToday || planned.DaysUntilDue <= 3)
+                                            {
+                                                <button type="button" class="btn btn-outline-success"
+                                                        onclick="executeTransaction(@planned.Id, '@planned.Description', @planned.PlannedAmount)"
+                                                        title="Бързо изпълнение">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Бързи действия за целия ден -->
+                @if (group.Any(p => p.IsDueToday || p.DaysUntilDue <= 1))
+                {
+                    <div class="border-top pt-3 mt-3">
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success btn-sm" onclick="executeAllForDay('@group.Key.ToString("yyyy-MM-dd")')">
+                                <i class="fas fa-play-circle"></i> Изпълни всички за @group.Key.ToString("dd.MM")
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-calendar-plus fa-4x mb-4 text-muted opacity-50"></i>
+            <h4 class="text-muted">Няма предстоящи планирани транзакции</h4>
+            <p class="text-muted mb-4">
+                За следващите @days дни няма планирани транзакции.
+                <br>Планирайте бъдещи приходи и разходи за по-добро управление на финансите.
+            </p>
+            <div class="btn-group">
+                <a asp-action="Create" asp-route-type="Income" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Планиран приход
+                </a>
+                <a asp-action="Create" asp-route-type="Expense" class="btn btn-danger">
+                    <i class="fas fa-minus"></i> Планиран разход
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal за бързо изпълнение -->
+<div class="modal fade" id="executeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-play"></i> Бързо изпълнение
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="executeForm" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="executeId" name="id" />
+
+                    <div class="alert alert-info">
+                        <div class="fw-bold" id="executeDescription"></div>
+                        <div>Планирана сума: <span class="fw-bold" id="executePlannedAmount"></span></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="actualAmount" class="form-label">Реална сума (опционално)</label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" class="form-control" id="executeActualAmount" name="actualAmount" />
+                            <span class="input-group-text">лв.</span>
+                        </div>
+                        <small class="text-muted">Оставете празно за планираната сума</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="actualDate" class="form-label">Дата на изпълнение</label>
+                        <input type="date" class="form-control" id="executeActualDate" name="actualDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="actualNotes" class="form-label">Бележки</label>
+                        <textarea class="form-control" name="actualNotes" rows="2" placeholder="Опционални бележки..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Откажи</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Изпълни
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal за масово изпълнение -->
+<div class="modal fade" id="executeAllModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-play-circle"></i> Изпълни всички за деня
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Внимание!</strong> Ще изпълните всички планирани транзакции за избрания ден.
+                </div>
+                <p>Сигурни ли сте, че искате да продължите?</p>
+                <p class="text-muted small">Всички транзакции ще бъдат изпълнени с планираните суми и днешна дата.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Не, откажи</button>
+                <button type="button" class="btn btn-warning" onclick="confirmExecuteAll()">
+                    <i class="fas fa-check"></i> Да, изпълни всички
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let executeAllDate = '';
+
+        function executeTransaction(id, description, plannedAmount) {
+            document.getElementById('executeId').value = id;
+            document.getElementById('executeDescription').textContent = description;
+            document.getElementById('executePlannedAmount').textContent = plannedAmount.toFixed(2) + ' лв.';
+            document.getElementById('executeActualAmount').placeholder = plannedAmount.toFixed(2);
+            document.getElementById('executeForm').action = '@Url.Action("Execute")';
+            new bootstrap.Modal(document.getElementById('executeModal')).show();
+        }
+
+        function executeAllForDay(date) {
+            executeAllDate = date;
+            new bootstrap.Modal(document.getElementById('executeAllModal')).show();
+        }
+
+        function confirmExecuteAll() {
+            // Тук можеш да добавиш AJAX заявка за масово изпълнение
+            // За сега просто показваме съобщение
+            alert('Функцията за масово изпълнение ще бъде реализирана в следваща версия.');
+            bootstrap.Modal.getInstance(document.getElementById('executeAllModal')).hide();
+        }
+
+        // Auto refresh на страницата всеки 5 минути за актуална информация
+        setInterval(function() {
+            // Проверяваме дали има нови транзакции за днес
+            if (document.querySelector('.badge:contains("Днес")')) {
+                fetch('@Url.Action("GetUpcomingJson")' + '?days=1')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data.some(t => t.isDueToday)) {
+                            // Показваме notification badge или друга индикация
+                            console.log('Има транзакции за днес!');
+                        }
+                    })
+                    .catch(error => console.log('Error:', error));
+            }
+        }, 300000); // 5 минути
+    </script>
+}

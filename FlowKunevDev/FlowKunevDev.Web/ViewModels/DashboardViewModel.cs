@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FlowKunevDev.Data.Models;
+using FlowKunevDev.Services.DTOs;
 
 namespace FlowKunevDev.Web.ViewModels
 {
@@ -55,10 +56,12 @@ namespace FlowKunevDev.Web.ViewModels
         public List<AccountSummary> Accounts { get; set; } = new List<AccountSummary>();
         public List<CategorySummary> ExpensesByCategory { get; set; } = new List<CategorySummary>();
         public List<CategorySummary> IncomeByCategory { get; set; } = new List<CategorySummary>();
-        public List<PlannedTransaction> UpcomingPlannedTransactions { get; set; } = new List<PlannedTransaction>();
         public List<Transaction> RecentTransactions { get; set; } = new List<Transaction>();
         public List<PeriodComparison> PeriodComparisons { get; set; } = new List<PeriodComparison>();
         public List<Budget> ActiveBudgets { get; set; } = new List<Budget>();
+
+        public List<PlannedTransactionSummaryDto> UpcomingPlannedTransactions { get; set; } = new List<PlannedTransactionSummaryDto>();
+        public List<PlannedTransactionSummaryDto> OverduePlannedTransactions { get; set; } = new List<PlannedTransactionSummaryDto>();
 
         // Помощни свойства за UI
         public string DailyAvailableFormatted => $"{DailyAvailableAmount:F2} лв.";
@@ -66,5 +69,10 @@ namespace FlowKunevDev.Web.ViewModels
         public bool HasSufficientFunds => DailyAvailableAmount > 0;
         public bool IsAboveAverage => DailyAvailableAmount > AverageDailyExpenses;
         public decimal DifferenceFromAverage => Math.Abs(DailyAvailableAmount - AverageDailyExpenses);
+
+        public bool HasOverdueTransactions => OverduePlannedTransactions.Any();
+        public bool HasUpcomingTransactions => UpcomingPlannedTransactions.Any();
+        public int OverdueCount => OverduePlannedTransactions.Count;
+        public int UpcomingCount => UpcomingPlannedTransactions.Count;
     }
 }
