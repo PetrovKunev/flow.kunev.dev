@@ -23,5 +23,8 @@
             : DailyAvailable < AverageDailyExpenses
                 ? $"Имате {DifferenceFromAverage:F2} лв. по-малко от обичайното дневно"
                 : "Дневният бюджет съвпада с обичайните разходи";
+
+        public List<int> SelectedAccountIds { get; set; } = [];
+        public List<AccountSummaryForBudget> IncludedAccounts { get; set; } = [];
     }
 }

@@ -29,10 +29,11 @@ namespace FlowKunevDev.Services.Interfaces
         Task<Dictionary<string, object>> GetSpendingAnalysisAsync(string userId, DateTime startDate, DateTime endDate);
 
         // Дневни средства - ОБНОВЕНИ МЕТОДИ
-        Task<decimal> GetDailyAvailableAmountAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null);
-        Task<decimal> GetAverageDailyExpensesAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, int? lastDays = null);
-        Task<DailyBudgetInfoDto> GetDailyBudgetInfoAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null);
-        Task<decimal> GetProjectedBalanceAsync(string userId, DateTime targetDate);
+        Task<decimal> GetDailyAvailableAmountAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, List<int>? accountIds = null);
+        Task<decimal> GetAverageDailyExpensesAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, int? lastDays = null, List<int>? accountIds = null);
+        Task<DailyBudgetInfoDto> GetDailyBudgetInfoAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, List<int>? accountIds = null);
+        Task<DailyBudgetInfoDto> GetDailyBudgetInfoWithAccountsAsync(string userId, DailyBudgetCalculationRequest request);
+        Task<decimal> GetProjectedBalanceAsync(string userId, DateTime targetDate, List<int>? accountIds = null);
 
         // Валидации
         Task<bool> ExistsAsync(int id, string userId);
@@ -43,5 +44,6 @@ namespace FlowKunevDev.Services.Interfaces
         // Batch операции
         Task<IEnumerable<TransactionDto>> CreateMultipleAsync(IEnumerable<CreateTransactionDto> createDtos, string userId);
         Task<bool> DeleteMultipleAsync(IEnumerable<int> ids, string userId);
+
     }
 }

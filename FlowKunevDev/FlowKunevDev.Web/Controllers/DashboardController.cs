@@ -131,7 +131,7 @@ namespace FlowKunevDev.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDailyBudgetInfo(DateTime? fromDate, DateTime? toDate)
+        public async Task<IActionResult> GetDailyBudgetInfo(DateTime? fromDate, DateTime? toDate, string? accountIds = null)
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
@@ -141,12 +141,44 @@ namespace FlowKunevDev.Web.Controllers
 
             try
             {
-                var info = await _transactionService.GetDailyBudgetInfoAsync(userId, fromDate, toDate);
+                List<int>? selectedAccountIds = null;
+
+                // Парсираме избраните сметки ако са подадени
+                if (!string.IsNullOrEmpty(accountIds))
+                {
+                    var accountIdStrings = accountIds.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    selectedAccountIds = accountIdStrings
+                        .Where(id => int.TryParse(id, out _))
+                        .Select(int.Parse)
+                        .ToList();
+                }
+
+                var info = await _transactionService.GetDailyBudgetInfoAsync(userId, fromDate, toDate, selectedAccountIds);
                 return Json(new { success = true, data = info });
             }
             catch (Exception)
             {
                 return Json(new { success = false, message = "Възникна грешка при изчислението." });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetDailyBudgetInfoWithAccounts([FromBody] DailyBudgetCalculationRequest request)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, message = "Unauthorized" });
+            }
+
+            try
+            {
+                var info = await _transactionService.GetDailyBudgetInfoWithAccountsAsync(userId, request);
+                return Json(new { success = true, data = info });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Възникна грешка при изчислението.", error = ex.Message });
             }
         }
 

@@ -573,7 +573,7 @@
 
 <!-- Modal за дневен бюджет -->
 <div class="modal fade" id="dailyBudgetModal" tabindex="-1" aria-labelledby="dailyBudgetModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="dailyBudgetModalLabel">
@@ -582,18 +582,70 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Форма за период -->
+                <!-- Форма за период и избор на сметки -->
                 <div class="row mb-4">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="customFromDate" class="form-label">От дата:</label>
                         <input type="date" class="form-control" id="customFromDate" value="@DateTime.Now.ToString("yyyy-MM-dd")">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="customToDate" class="form-label">До дата:</label>
                         <input type="date" class="form-control" id="customToDate" value="@endOfMonth.ToString("yyyy-MM-dd")">
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Режим на изчисление:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="calculationMode" id="allAccountsMode" value="all" checked>
+                            <label class="form-check-label" for="allAccountsMode">
+                                Всички сметки
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="calculationMode" id="selectedAccountsMode" value="selected">
+                            <label class="form-check-label" for="selectedAccountsMode">
+                                Избрани сметки
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Избор на сметки -->
+                <div id="accountSelectionPanel" class="row mb-4" style="display: none;">
+                    <div class="col-12">
+                        <label class="form-label">Изберете сметки за включване в изчислението:</label>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row" id="accountCheckboxes">
+                                    @foreach (var account in Model.Accounts)
+                                    {
+                                        <div class="col-md-6 col-lg-4 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input account-checkbox" type="checkbox" 
+                                                       value="@account.Id" id="account-@account.Id" checked>
+                                                <label class="form-check-label d-flex align-items-center" for="account-@account.Id">
+                                                    <span class="badge me-2" style="background-color: @account.Color; color: white;">
+                                                        @account.Name
+                                                    </span>
+                                                    <small class="text-muted">@account.CurrentBalance.ToString("F2") @account.Currency</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllAccounts()">
+                                        <i class="fas fa-check-square"></i> Избери всички
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllAccounts()">
+                                        <i class="fas fa-square"></i> Премахни всички
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Бутони за обновяване -->
                 <div class="row mb-3">
                     <div class="col-12">
                         <button type="button" class="btn btn-primary me-2" onclick="updateDailyBudget()">
@@ -610,12 +662,14 @@
 
                 <!-- Резултати -->
                 <div id="budget-details">
+                    <!-- Първоначално показваме текущите данни -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="card border-info">
                                 <div class="card-body text-center">
                                     <h6 class="text-info">Текущ баланс</h6>
                                     <h4 class="text-primary">@Model.TotalBalance.ToString("F2") лв.</h4>
+                                    <small class="text-muted">Всички сметки</small>
                                 </div>
                             </div>
                         </div>
@@ -695,6 +749,18 @@
                                 </span>
                             }
                         </p>
+                    </div>
+
+                    <!-- Информация за включени сметки -->
+                    <div id="included-accounts-info" class="mt-3" style="display: none;">
+                        <div class="card border-info">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Включени сметки в изчислението</h6>
+                            </div>
+                            <div class="card-body" id="included-accounts-list">
+                                <!-- Ще се попълни динамично -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -974,6 +1040,284 @@
                 alert('Възникна грешка при изпълнението.');
             });
         });
+                $(document).ready(function() {
+            // Event handlers за режим на изчисление
+            $('input[name="calculationMode"]').change(function() {
+                if ($(this).val() === 'selected') {
+                    $('#accountSelectionPanel').show();
+                } else {
+                    $('#accountSelectionPanel').hide();
+                }
+            });
+
+            // Автоматично обновяване при промяна на чекбоксовете
+            $('.account-checkbox').change(function() {
+                if ($('#selectedAccountsMode').is(':checked')) {
+                    // Автоматично обновяване само ако сме в режим "избрани сметки"
+                    // updateDailyBudget(); // Премахваме автоматичното обновяване за по-добра производителност
+                }
+            });
+        });
+
+        // Функция за избор на всички сметки
+        function selectAllAccounts() {
+            $('.account-checkbox').prop('checked', true);
+            if ($('#selectedAccountsMode').is(':checked')) {
+                updateDailyBudget();
+            }
+        }
+
+        // Функция за премахване на избора от всички сметки
+        function deselectAllAccounts() {
+            $('.account-checkbox').prop('checked', false);
+            if ($('#selectedAccountsMode').is(':checked')) {
+                updateDailyBudget();
+            }
+        }
+
+        // Обновена функция за update на дневния бюджет
+        function updateDailyBudget() {
+            const fromDate = $('#customFromDate').val();
+            const toDate = $('#customToDate').val();
+            const calculationMode = $('input[name="calculationMode"]:checked').val();
+
+            let requestData = {
+                fromDate: fromDate || null,
+                toDate: toDate || null,
+                includeAllAccounts: calculationMode === 'all',
+                selectedAccountIds: []
+            };
+
+            // Ако е избран режим "избрани сметки", събираме избраните ID-та
+            if (calculationMode === 'selected') {
+                const selectedIds = [];
+                $('.account-checkbox:checked').each(function() {
+                    selectedIds.push(parseInt($(this).val()));
+                });
+                requestData.selectedAccountIds = selectedIds;
+
+                // Проверяваме дали има избрани сметки
+                if (selectedIds.length === 0) {
+                    showAlert('warning', 'Моля, изберете поне една сметка за изчислението.');
+                    return;
+                }
+            }
+
+            // Показваме loading индикатор
+            $('#budget-details').html(`
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Зареждане...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Изчисляване на дневния бюджет...</p>
+                </div>
+            `);
+
+            // Правим AJAX заявката
+            fetch('/Dashboard/GetDailyBudgetInfoWithAccounts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    updateBudgetDisplay(result.data);
+                    updateMainDashboard(result.data);
+                } else {
+                    showAlert('danger', 'Грешка: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Възникна грешка при изчислението.');
+            });
+        }
+
+        // Обновена функция за показване на резултатите
+        function updateBudgetDisplay(data) {
+            const calculationMode = $('input[name="calculationMode"]:checked').val();
+            const isSelectedMode = calculationMode === 'selected';
+            const accountsInfo = isSelectedMode ? 'Избрани сметки' : 'Всички сметки';
+
+            const html = `
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <h6 class="text-info">Текущ баланс</h6>
+                                <h4 class="text-primary">${data.totalBalance.toFixed(2)} лв.</h4>
+                                <small class="text-muted">${accountsInfo}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <h6 class="text-warning">Оставащи дни</h6>
+                                <h4 class="text-warning">${data.remainingDays} дни</h4>
+                                <small class="text-muted">${formatDate(data.startDate)} - ${formatDate(data.endDate)}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <h6 class="text-danger">Планирани разходи</h6>
+                                <h5 class="text-danger">${data.plannedExpenses.toFixed(2)} лв.</h5>
+                                <small class="text-muted">${accountsInfo}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <h6 class="text-success">Планирани приходи</h6>
+                                <h5 class="text-success">${data.plannedIncome.toFixed(2)} лв.</h5>
+                                <small class="text-muted">${accountsInfo}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Дневно разполагаеми</h6>
+                                <h4 class="text-primary">${data.dailyAvailable.toFixed(2)} лв.</h4>
+                                <small class="text-muted">За период</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-secondary">
+                            <div class="card-body text-center">
+                                <h6 class="text-secondary">Среден дневен разход</h6>
+                                <h5 class="text-secondary">${data.averageDailyExpenses.toFixed(2)} лв.</h5>
+                                <small class="text-muted">Последни 30 дни${isSelectedMode ? ' - ' + accountsInfo.toLowerCase() : ''}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Препоръка:</h6>
+                    <p class="mb-0">
+                        ${data.dailyAvailable > data.averageDailyExpenses ?
+                            `<span class="text-success"><i class="fas fa-check-circle"></i> <strong>Отлично!</strong> Имате ${(data.dailyAvailable - data.averageDailyExpenses).toFixed(2)} лв. повече от обичайното дневно разходване.</span>` :
+                            data.dailyAvailable < data.averageDailyExpenses ?
+                            `<span class="text-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Внимание!</strong> Имате ${(data.averageDailyExpenses - data.dailyAvailable).toFixed(2)} лв. по-малко от обичайното дневно разходване.</span>` :
+                            `<span class="text-info"><i class="fas fa-info-circle"></i> Дневните ви разполагаеми средства са равни на средния дневен разход.</span>`
+                        }
+                    </p>
+                </div>
+            `;
+
+            $('#budget-details').html(html);
+
+            // Показваме информацията за включените сметки, ако е в режим "избрани"
+            if (isSelectedMode && data.includedAccounts && data.includedAccounts.length > 0) {
+                showIncludedAccountsInfo(data.includedAccounts, data.selectedAccountIds);
+            } else {
+                $('#included-accounts-info').hide();
+            }
+        }
+
+        // Функция за показване на информация за включените сметки
+        function showIncludedAccountsInfo(accounts, selectedAccountIds) {
+            const includedAccounts = accounts.filter(acc => selectedAccountIds.includes(acc.id));
+
+            if (includedAccounts.length === 0) {
+                $('#included-accounts-info').hide();
+                return;
+            }
+
+            let accountsHtml = '<div class="row">';
+            includedAccounts.forEach(account => {
+                accountsHtml += `
+                    <div class="col-md-6 col-lg-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <span class="badge me-2" style="background-color: ${account.color}; color: white;">
+                                ${account.name}
+                            </span>
+                            <small class="text-muted">${account.currentBalance.toFixed(2)} ${account.currency}</small>
+                        </div>
+                    </div>
+                `;
+            });
+            accountsHtml += '</div>';
+
+            $('#included-accounts-list').html(accountsHtml);
+            $('#included-accounts-info').show();
+        }
+
+        // Обновена функция за update на основното табло
+        function updateMainDashboard(data) {
+            const calculationMode = $('input[name="calculationMode"]:checked').val();
+
+            // Обновяваме основната карта на таблото само ако е в режим "всички сметки"
+            if (calculationMode === 'all') {
+                $('#daily-available-amount').text(data.dailyAvailable.toFixed(2) + ' лв.');
+
+                // Обновяваме текста за периода
+                const startDate = new Date(data.startDate);
+                const endDate = new Date(data.endDate);
+                const today = new Date().toDateString();
+                const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toDateString();
+
+                if (startDate.toDateString() === today && endDate.toDateString() === endOfMonth) {
+                    $('#daily-period-text').text('Дневно до края на месеца');
+                } else {
+                    $('#daily-period-text').text('Дневно за периода');
+                }
+
+                $('#remaining-days-text').text(`(${data.remainingDays} дни)`);
+            }
+        }
+
+        // Помощни функции
+        function setToEndOfMonth() {
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+            $('#customFromDate').val(now.toISOString().split('T')[0]);
+            $('#customToDate').val(endOfMonth.toISOString().split('T')[0]);
+        }
+
+        function setNext30Days() {
+            const now = new Date();
+            const next30Days = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+
+            $('#customFromDate').val(now.toISOString().split('T')[0]);
+            $('#customToDate').val(next30Days.toISOString().split('T')[0]);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('bg-BG', { day: '2-digit', month: '2-digit' });
+        }
+
+        function showAlert(type, message) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+            // Добавяме alert-а в началото на modal body
+            $('.modal-body').prepend(alertHtml);
+
+            // Автоматично премахване след 5 секунди
+            setTimeout(() => {
+                $('.alert').fadeOut();
+            }, 5000);
+        }
     </script>
 
     <style>
@@ -999,6 +1343,10 @@
             max-width: 900px;
         }
 
+        .modal-xl {
+            max-width: 1200px;
+        }
+
         #budget-details .card {
             border-width: 2px;
         }
@@ -1009,6 +1357,77 @@
 
         .planned-transactions-widget {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        /* Стилове за панела за избор на сметки */
+        #accountSelectionPanel .card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        #accountSelectionPanel .form-check {
+            margin-bottom: 0.5rem;
+        }
+
+        #accountSelectionPanel .form-check-label {
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #accountSelectionPanel .badge {
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Стилове за информацията за включените сметки */
+        #included-accounts-info .card {
+            background-color: #f0f8ff;
+            border-color: #17a2b8;
+        }
+
+        #included-accounts-list .badge {
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Анимация за loading */
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        /* Стилове за режимите на изчисление */
+        .form-check {
+            margin-bottom: 0.5rem;
+        }
+
+        .form-check-input:checked + .form-check-label {
+            font-weight: 500;
+            color: #0d6efd;
+        }
+
+        /* Hover ефекти за чекбоксовете на сметките */
+        .account-checkbox:hover + .form-check-label {
+            background-color: #e9ecef;
+            border-radius: 0.25rem;
+            padding: 0.25rem;
+            margin: -0.25rem;
+        }
+
+        /* Responsive стилове */
+        @@media (max-width: 768px) {
+            .modal-xl
+
+        {
+            max-width: 95%;
+            margin: 1rem auto;
+        }
+
+        #accountCheckboxes .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
         }
     </style>
 }

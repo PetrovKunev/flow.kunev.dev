@@ -68,11 +68,18 @@ namespace FlowKunevDev.Web.ViewModels
         public string AverageDailyExpensesFormatted => $"{AverageDailyExpenses:F2} лв.";
         public bool HasSufficientFunds => DailyAvailableAmount > 0;
         public bool IsAboveAverage => DailyAvailableAmount > AverageDailyExpenses;
-        public decimal DifferenceFromAverage => Math.Abs(DailyAvailableAmount - AverageDailyExpenses);
+        
 
         public bool HasOverdueTransactions => OverduePlannedTransactions.Any();
         public bool HasUpcomingTransactions => UpcomingPlannedTransactions.Any();
         public int OverdueCount => OverduePlannedTransactions.Count;
         public int UpcomingCount => UpcomingPlannedTransactions.Count;
+
+        // Ново свойство за разликата
+        public decimal DifferenceFromAverage => Math.Abs(DailyAvailableAmount - AverageDailyExpenses);
+
+        // Свойства за контрол на избраните сметки (опционални)
+        public List<int> SelectedAccountIds { get; set; } = new List<int>();
+        public bool IncludeAllAccountsInCalculation { get; set; } = true;
     }
 }
