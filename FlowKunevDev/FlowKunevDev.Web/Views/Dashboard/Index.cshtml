@@ -113,6 +113,17 @@
                     <br>
                     <small id="remaining-days-text">(@Model.RemainingDays дни)</small>
                 </p>
+                <!-- Нова информация за избраните сметки и дати -->
+                <div id="calculation-info" class="mt-2" style="display: none;">
+                    <small class="text-info d-block" id="accounts-info">
+                        <i class="fas fa-wallet me-1"></i>
+                        <span id="selected-accounts-count">Всички сметки</span>
+                    </small>
+                    <small class="text-muted d-block" id="period-info">
+                        <i class="fas fa-calendar me-1"></i>
+                        <span id="period-dates">Стандартен период</span>
+                    </small>
+                </div>
                 <button type="button" class="btn btn-outline-warning btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#dailyBudgetModal">
                     <i class="fas fa-info-circle"></i> Детайли
                 </button>
@@ -824,6 +835,72 @@
 
             // Auto-refresh на планираните транзакции всеки 5 минути
             setInterval(refreshPlannedTransactions, 300000);
+
+            // Event handlers за режим на изчисление
+            $('input[name="calculationMode"]').change(function() {
+                if ($(this).val() === 'selected') {
+                    $('#accountSelectionPanel').show();
+                } else {
+                    $('#accountSelectionPanel').hide();
+                }
+            });
+
+            // Автоматично обновяване при промяна на чекбоксовете
+            $('.account-checkbox').change(function() {
+                if ($('#selectedAccountsMode').is(':checked')) {
+                    // Автоматично обновяване само ако сме в режим "избрани сметки"
+                    // updateDailyBudget(); // Премахваме автоматичното обновяване за по-добра производителност
+                }
+            });
+
+            // Функция за ресет на информацията при затваряне на модала
+            $('#dailyBudgetModal').on('hidden.bs.modal', function () {
+                // Проверяваме дали сме в стандартен режим
+                const isAllAccounts = $('input[name="calculationMode"]:checked').val() === 'all';
+                const isStandardPeriod = checkIfStandardPeriod();
+
+                if (isAllAccounts && isStandardPeriod) {
+                    // Скриваме допълнителната информация
+                    $('#calculation-info').hide();
+                    $('#selected-accounts-count').text('Всички сметки');
+                    $('#period-dates').text('Стандартен период');
+                }
+            });
+
+            // Handle quick execute form submission
+            $('#quickExecuteForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('quickExecuteModal')).hide();
+                        // Показваме success message
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-success alert-dismissible fade show';
+                        alert.innerHTML = `
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.container-fluid').firstChild);
+
+                        // Refresh page за актуални данни
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        alert('Грешка: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Възникна грешка при изпълнението.');
+                });
+            });
         });
 
         function quickExecute(id, description, plannedAmount) {
@@ -863,202 +940,6 @@
             }
         }
 
-        function setToEndOfMonth() {
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-            $('#customFromDate').val(firstDay.toISOString().split('T')[0]);
-            $('#customToDate').val(lastDay.toISOString().split('T')[0]);
-        }
-
-        function setNext30Days() {
-            const now = new Date();
-            const endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
-
-            $('#customFromDate').val(now.toISOString().split('T')[0]);
-            $('#customToDate').val(endDate.toISOString().split('T')[0]);
-        }
-
-        function updateDailyBudget() {
-            const fromDate = $('#customFromDate').val();
-            const toDate = $('#customToDate').val();
-
-            if (!fromDate || !toDate) {
-                alert('Моля въведете валидни дати');
-                return;
-            }
-
-            // Показваме loading
-            $('#budget-details').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Зареждане...</span></div></div>');
-
-            $.get('@Url.Action("GetDailyBudgetInfo")', {
-                fromDate: fromDate,
-                toDate: toDate
-            })
-            .done(function(response) {
-                if (response.success) {
-                    updateBudgetDisplay(response.data);
-                    updateMainDashboard(response.data);
-                } else {
-                    $('#budget-details').html('<div class="alert alert-danger">Грешка: ' + response.message + '</div>');
-                }
-            })
-            .fail(function() {
-                $('#budget-details').html('<div class="alert alert-danger">Възникна грешка при зареждането на данните</div>');
-            });
-        }
-
-        function updateBudgetDisplay(data) {
-            const startDate = new Date(data.startDate);
-            const endDate = new Date(data.endDate);
-
-            const html = `
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-info">
-                            <div class="card-body text-center">
-                                <h6 class="text-info">Текущ баланс</h6>
-                                <h4 class="text-primary">${data.totalBalance.toFixed(2)} лв.</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-warning">
-                            <div class="card-body text-center">
-                                <h6 class="text-warning">Оставащи дни</h6>
-                                <h4 class="text-warning">${data.remainingDays} дни</h4>
-                                <small class="text-muted">${startDate.toLocaleDateString('bg-BG')} - ${endDate.toLocaleDateString('bg-BG')}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-danger">
-                            <div class="card-body text-center">
-                                <h6 class="text-danger">Планирани разходи</h6>
-                                <h5 class="text-danger">${data.plannedExpenses.toFixed(2)} лв.</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-success">
-                            <div class="card-body text-center">
-                                <h6 class="text-success">Планирани приходи</h6>
-                                <h5 class="text-success">${data.plannedIncome.toFixed(2)} лв.</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-primary">
-                            <div class="card-body text-center">
-                                <h6 class="text-primary">Дневно разполагаеми</h6>
-                                <h4 class="text-primary">${data.dailyAvailable.toFixed(2)} лв.</h4>
-                                <small class="text-muted">За период</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-secondary">
-                            <div class="card-body text-center">
-                                <h6 class="text-secondary">Среден дневен разход</h6>
-                                <h5 class="text-secondary">${data.averageDailyExpenses.toFixed(2)} лв.</h5>
-                                <small class="text-muted">Последни 30 дни</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="alert alert-info">
-                    <h6><i class="fas fa-lightbulb me-2"></i>Препоръка:</h6>
-                    <p class="mb-0">
-                        ${data.dailyAvailable > data.averageDailyExpenses ?
-                            `<span class="text-success"><i class="fas fa-check-circle"></i> <strong>Отлично!</strong> Имате ${(data.dailyAvailable - data.averageDailyExpenses).toFixed(2)} лв. повече от обичайното дневно разходване.</span>` :
-                            data.dailyAvailable < data.averageDailyExpenses ?
-                            `<span class="text-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Внимание!</strong> Имате ${(data.averageDailyExpenses - data.dailyAvailable).toFixed(2)} лв. по-малко от обичайното дневно разходване.</span>` :
-                            `<span class="text-info"><i class="fas fa-info-circle"></i> Дневните ви разполагаеми средства са равни на средния дневен разход.</span>`
-                        }
-                    </p>
-                </div>
-            `;
-
-            $('#budget-details').html(html);
-        }
-
-        function updateMainDashboard(data) {
-            // Обновяваме основната карта на таблото
-            $('#daily-available-amount').text(data.dailyAvailable.toFixed(2) + ' лв.');
-
-            // Обновяваме текста за периода
-            const startDate = new Date(data.startDate);
-            const endDate = new Date(data.endDate);
-            const today = new Date().toDateString();
-            const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toDateString();
-
-            if (startDate.toDateString() === today && endDate.toDateString() === endOfMonth) {
-                $('#daily-period-text').text('Дневно до края на месеца');
-            } else {
-                $('#daily-period-text').text('Дневно за периода');
-            }
-
-            $('#remaining-days-text').text(`(${data.remainingDays} дни)`);
-        }
-
-        // Handle quick execute form submission
-        $('#quickExecuteForm').on('submit', function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-
-            fetch(this.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('quickExecuteModal')).hide();
-                    // Показваме success message
-                    const alert = document.createElement('div');
-                    alert.className = 'alert alert-success alert-dismissible fade show';
-                    alert.innerHTML = `
-                        ${data.message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.container-fluid').firstChild);
-
-                    // Refresh page за актуални данни
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    alert('Грешка: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Възникна грешка при изпълнението.');
-            });
-        });
-                $(document).ready(function() {
-            // Event handlers за режим на изчисление
-            $('input[name="calculationMode"]').change(function() {
-                if ($(this).val() === 'selected') {
-                    $('#accountSelectionPanel').show();
-                } else {
-                    $('#accountSelectionPanel').hide();
-                }
-            });
-
-            // Автоматично обновяване при промяна на чекбоксовете
-            $('.account-checkbox').change(function() {
-                if ($('#selectedAccountsMode').is(':checked')) {
-                    // Автоматично обновяване само ако сме в режим "избрани сметки"
-                    // updateDailyBudget(); // Премахваме автоматичното обновяване за по-добра производителност
-                }
-            });
-        });
-
         // Функция за избор на всички сметки
         function selectAllAccounts() {
             $('.account-checkbox').prop('checked', true);
@@ -1075,15 +956,57 @@
             }
         }
 
-        // Обновена функция за update на дневния бюджет
+        // Помощни функции за дати
+        function setToEndOfMonth() {
+            const now = new Date();
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+            $('#customFromDate').val(now.toISOString().split('T')[0]);
+            $('#customToDate').val(endOfMonth.toISOString().split('T')[0]);
+        }
+
+        function setNext30Days() {
+            const now = new Date();
+            const next30Days = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+
+            $('#customFromDate').val(now.toISOString().split('T')[0]);
+            $('#customToDate').val(next30Days.toISOString().split('T')[0]);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('bg-BG', { day: '2-digit', month: '2-digit' });
+        }
+
+        // Помощна функция за проверка на стандартния период
+        function checkIfStandardPeriod() {
+            const fromDate = $('#customFromDate').val();
+            const toDate = $('#customToDate').val();
+
+            const today = new Date();
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            const todayString = today.toISOString().split('T')[0];
+            const endOfMonthString = endOfMonth.toISOString().split('T')[0];
+
+            return fromDate === todayString && toDate === endOfMonthString;
+        }
+
+        // Главна функция за обновяване на дневния бюджет
         function updateDailyBudget() {
             const fromDate = $('#customFromDate').val();
             const toDate = $('#customToDate').val();
             const calculationMode = $('input[name="calculationMode"]:checked').val();
 
+            // Проверка за валидни дати
+            if (!fromDate || !toDate) {
+                showAlert('warning', 'Моля въведете валидни дати');
+                return;
+            }
+
             let requestData = {
-                fromDate: fromDate || null,
-                toDate: toDate || null,
+                fromDate: fromDate,
+                toDate: toDate,
                 includeAllAccounts: calculationMode === 'all',
                 selectedAccountIds: []
             };
@@ -1113,15 +1036,31 @@
                 </div>
             `);
 
+            // Определяме кой endpoint да използваме
+            let fetchUrl, fetchOptions;
+
+            if (calculationMode === 'all') {
+                // Използваме стария endpoint за всички сметки
+                fetchUrl = '@Url.Action("GetDailyBudgetInfo")?' + new URLSearchParams({
+                    fromDate: fromDate,
+                    toDate: toDate
+                });
+                fetchOptions = { method: 'GET' };
+            } else {
+                // Използваме новия endpoint за избрани сметки
+                fetchUrl = '/Dashboard/GetDailyBudgetInfoWithAccounts';
+                fetchOptions = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify(requestData)
+                };
+            }
+
             // Правим AJAX заявката
-            fetch('/Dashboard/GetDailyBudgetInfoWithAccounts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                body: JSON.stringify(requestData)
-            })
+            fetch(fetchUrl, fetchOptions)
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
@@ -1137,7 +1076,7 @@
             });
         }
 
-        // Обновена функция за показване на резултатите
+        // Функция за обновяване на показването на резултатите
         function updateBudgetDisplay(data) {
             const calculationMode = $('input[name="calculationMode"]:checked').val();
             const isSelectedMode = calculationMode === 'selected';
@@ -1255,51 +1194,71 @@
             $('#included-accounts-info').show();
         }
 
-        // Обновена функция за update на основното табло
+        // Функция за обновяване на основното табло
         function updateMainDashboard(data) {
             const calculationMode = $('input[name="calculationMode"]:checked').val();
+            const isSelectedMode = calculationMode === 'selected';
 
-            // Обновяваме основната карта на таблото само ако е в режим "всички сметки"
-            if (calculationMode === 'all') {
-                $('#daily-available-amount').text(data.dailyAvailable.toFixed(2) + ' лв.');
+            // Винаги обновяваме основната карта
+            $('#daily-available-amount').text(data.dailyAvailable.toFixed(2) + ' лв.');
 
-                // Обновяваме текста за периода
-                const startDate = new Date(data.startDate);
-                const endDate = new Date(data.endDate);
-                const today = new Date().toDateString();
-                const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toDateString();
+            // Обновяваме текста за периода
+            const startDate = new Date(data.startDate);
+            const endDate = new Date(data.endDate);
+            const today = new Date().toDateString();
+            const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toDateString();
 
-                if (startDate.toDateString() === today && endDate.toDateString() === endOfMonth) {
-                    $('#daily-period-text').text('Дневно до края на месеца');
-                } else {
-                    $('#daily-period-text').text('Дневно за периода');
-                }
+            let periodText = 'Дневно разполагаеми';
+            let isCustomPeriod = false;
 
-                $('#remaining-days-text').text(`(${data.remainingDays} дни)`);
+            if (startDate.toDateString() === today && endDate.toDateString() === endOfMonth) {
+                periodText = 'Дневно до края на месеца';
+            } else {
+                periodText = 'Дневно за периода';
+                isCustomPeriod = true;
             }
+
+            $('#daily-period-text').text(periodText);
+            $('#remaining-days-text').text(`(${data.remainingDays} дни)`);
+
+            // Показваме/скриваме допълнителната информация
+            updateCalculationInfo(data, isSelectedMode, isCustomPeriod);
         }
 
-        // Помощни функции
-        function setToEndOfMonth() {
-            const now = new Date();
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        // Нова функция за обновяване на информацията за изчислението
+        function updateCalculationInfo(data, isSelectedMode, isCustomPeriod) {
+            const $calculationInfo = $('#calculation-info');
+            const $accountsInfo = $('#selected-accounts-count');
+            const $periodInfo = $('#period-dates');
 
-            $('#customFromDate').val(now.toISOString().split('T')[0]);
-            $('#customToDate').val(endOfMonth.toISOString().split('T')[0]);
-        }
+            let shouldShowInfo = false;
 
-        function setNext30Days() {
-            const now = new Date();
-            const next30Days = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+            // Информация за сметките
+            if (isSelectedMode && data.includedAccounts) {
+                const selectedCount = data.selectedAccountIds.length;
+                const totalCount = data.includedAccounts.length;
+                $accountsInfo.text(`${selectedCount}/${totalCount} сметки`);
+                shouldShowInfo = true;
+            } else {
+                $accountsInfo.text('Всички сметки');
+            }
 
-            $('#customFromDate').val(now.toISOString().split('T')[0]);
-            $('#customToDate').val(next30Days.toISOString().split('T')[0]);
-        }
+            // Информация за периода
+            if (isCustomPeriod) {
+                const startDate = formatDate(data.startDate);
+                const endDate = formatDate(data.endDate);
+                $periodInfo.text(`${startDate} - ${endDate}`);
+                shouldShowInfo = true;
+            } else {
+                $periodInfo.text('Стандартен период');
+            }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('bg-BG', { day: '2-digit', month: '2-digit' });
+            // Показваме информацията само ако има нещо специфично
+            if (shouldShowInfo) {
+                $calculationInfo.show();
+            } else {
+                $calculationInfo.hide();
+            }
         }
 
         function showAlert(type, message) {
@@ -1389,6 +1348,46 @@
             min-width: 80px;
             text-align: center;
         }
+
+        /* Стилове за информацията в картата */
+        #calculation-info {
+            border-top: 1px solid rgba(255, 193, 7, 0.3);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem !important;
+        }
+
+            #calculation-info small {
+                font-size: 0.75rem;
+                line-height: 1.2;
+            }
+
+            #calculation-info .text-info {
+                color: #17a2b8 !important;
+            }
+
+            #calculation-info .text-muted {
+                color: #6c757d !important;
+            }
+
+        /* Плавен преход при показване/скриване на информацията */
+        #calculation-info {
+            transition: all 0.3s ease;
+            opacity: 1;
+        }
+
+            #calculation-info.hide {
+                opacity: 0;
+                height: 0;
+                padding: 0;
+                margin: 0;
+                border: none;
+            }
+
+            /* Стилове за иконките в информацията */
+            #calculation-info i {
+                font-size: 0.7rem;
+                opacity: 0.8;
+            }
 
         /* Анимация за loading */
         .spinner-border {
