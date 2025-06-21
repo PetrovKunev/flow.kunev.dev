@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using FlowKunevDev.Data;
-using FlowKunevDev.Services.Interfaces;
+﻿using FlowKunevDev.Data;
+using FlowKunevDev.Services.BackgroundServices;
 using FlowKunevDev.Services.Implementations;
+using FlowKunevDev.Services.Interfaces;
+using FlowKunevDev.Web.Mapping;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +33,13 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => {
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IAccountTransferService, AccountTransferService>();
+builder.Services.AddScoped<IPlannedTransactionService, PlannedTransactionService>();
+
+builder.Services.AddHostedService<PlannedTransactionBackgroundService>();
 
 // AutoMapper
-//builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddControllersWithViews();
 
@@ -61,6 +67,11 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "dashboard",
+    pattern: "dashboard",
+    defaults: new { controller = "Dashboard", action = "Index" });
 
 app.MapRazorPages();
 

@@ -1,9 +1,323 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Управлявайте финансите си с лекота";
     Layout = "_Layout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero-section py-5 mb-1">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Управлявайте финансите си с <span class="text-warning">Flow</span>
+                </h1>
+                <p class="lead mb-4">
+                    Проследявайте приходи и разходи, планирайте бюджет и анализирайте финансовото си състояние
+                    с най-лесното приложение за лично финансово управление.
+                </p>
+                <div class="d-grid d-md-flex gap-3">
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-warning btn-lg px-4">
+                        <i class="fas fa-rocket me-2"></i>Започнете сега
+                    </a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>Вход
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-image mt-4 mt-lg-0">
+                    <i class="fas fa-chart-line text-primary" style="font-size: 12rem; opacity: 0.8;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5" id="features">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Всички инструменти, които ви трябват</h2>
+                <p class="lead text-muted">
+                    Flow предлага всичко необходимо за управление на личните финанси в едно удобно място
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm feature-card bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-wallet text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title text-dark">Множество сметки</h5>
+                        <p class="card-text text-muted">
+                            Създавайте различни сметки - спестявания, заплата, кеш.
+                            Проследявайте баланса и движенията на всяка от тях.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm feature-card bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-exchange-alt text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title text-dark">Лесно въвеждане</h5>
+                        <p class="card-text text-muted">
+                            Добавяйте приходи и разходи по категории с няколко клика.
+                            Интуитивен интерфейс за ежедневно използване.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm feature-card bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-calendar-check text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title text-dark">Планиране</h5>
+                        <p class="card-text text-muted">
+                            Планирайте бъдещи разходи и виждайте как ще се отрази
+                            на баланса ви в реално време.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm feature-card bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-bar text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title text-dark">Анализи и отчети</h5>
+                        <p class="card-text text-muted">
+                            Разгледайте детайлни отчети за разходите си.
+                            Сравнявайте периоди и анализирайте тенденции.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm feature-card bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-piggy-bank text-danger" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title text-dark">Дневен бюджет</h5>
+                        <p class="card-text text-muted">
+                            Вижте колко средства имате на разположение всеки ден,
+                            като се отчитат планираните разходи.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm feature-card bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-arrows-alt-h text-secondary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title text-dark">Трансфери</h5>
+                        <p class="card-text text-muted">
+                            Прехвърляйте средства между различните си сметки
+                            и проследявайте всички движения.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-primary mb-0">100%</h3>
+                    <p class="text-muted">Безплатно</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-success mb-0">24/7</h3>
+                    <p class="text-muted">Достъп</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-warning mb-0">∞</h3>
+                    <p class="text-muted">Транзакции</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-info mb-0">🔒</h3>
+                    <p class="text-muted">Сигурност</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4">Готови ли сте да поемете контрола над финансите си?</h2>
+                <p class="lead mb-4">
+                    Започнете днес и открийте колко лесно може да бъде управлението на личните финанси.
+                </p>
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-warning btn-lg px-5">
+                    <i class="fas fa-user-plus me-2"></i>Създайте акаунт безплатно
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="how-it-works py-5" id="how-it-works">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Как работи Flow?</h2>
+                <p class="lead text-muted">Три прости стъпки до по-добро финансово управление</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 text-center">
+                <div class="step-item">
+                    <div class="step-number mb-3">
+                        <span class="badge bg-primary rounded-circle p-3" style="font-size: 1.5rem;">1</span>
+                    </div>
+                    <h5 class="text-dark">Създайте сметки</h5>
+                    <p class="text-muted">
+                        Добавете вашите банкови сметки, спестявания и други финансови акаунти
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="step-item">
+                    <div class="step-number mb-3">
+                        <span class="badge bg-success rounded-circle p-3" style="font-size: 1.5rem;">2</span>
+                    </div>
+                    <h5 class="text-dark">Въведете транзакции</h5>
+                    <p class="text-muted">
+                        Записвайте приходи и разходи. Категоризирайте ги за по-добър анализ
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="step-item">
+                    <div class="step-number mb-3">
+                        <span class="badge bg-warning rounded-circle p-3" style="font-size: 1.5rem;">3</span>
+                    </div>
+                    <h5 class="text-dark">Анализирайте</h5>
+                    <p class="text-muted">
+                        Разгледайте отчети, планирайте бюджет и оптимизирайте разходите си
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hero-section {
+        min-height: 70vh;
+    }
+
+    .feature-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background-color: #f8f9fa !important;
+    }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+
+    .feature-icon i {
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon i {
+        transform: scale(1.1);
+    }
+
+    .step-item {
+        padding: 2rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .step-item:hover {
+            transform: translateY(-5px);
+        }
+
+    .step-number .badge {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .step-item:hover .step-number .badge {
+        transform: scale(1.1);
+    }
+
+    .stat-item {
+        transition: all 0.3s ease;
+    }
+
+        .stat-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-item h3 {
+            font-size: 3.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover h3 {
+            transform: scale(1.05);
+        }
+
+   
+    .stats-section {
+        background-color: transparent;
+    }
+
+    @@media (max-width: 768px) {
+        .hero-section h1
+
+    {
+        font-size: 2.5rem;
+    }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+        }
+    }
+</style>

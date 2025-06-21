@@ -1,10 +1,5 @@
 ﻿using FlowKunevDev.Common;
 using FlowKunevDev.Services.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlowKunevDev.Services.Interfaces
 {
@@ -33,8 +28,10 @@ namespace FlowKunevDev.Services.Interfaces
         Task<Dictionary<string, decimal>> GetCategoryTrendsAsync(string userId, int categoryId, int months = 12);
         Task<Dictionary<string, object>> GetSpendingAnalysisAsync(string userId, DateTime startDate, DateTime endDate);
 
-        // Дневни средства
+        // Дневни средства - ОБНОВЕНИ МЕТОДИ
         Task<decimal> GetDailyAvailableAmountAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<decimal> GetAverageDailyExpensesAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, int? lastDays = null);
+        Task<DailyBudgetInfoDto> GetDailyBudgetInfoAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null);
         Task<decimal> GetProjectedBalanceAsync(string userId, DateTime targetDate);
 
         // Валидации

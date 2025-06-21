@@ -15,6 +15,13 @@ namespace FlowKunevDev.Web.Controllers
 
         public IActionResult Index()
         {
+            // Ако потребителят е вписан, го пренасочваме към Dashboard
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            // Ако не е вписан, показваме landing страницата
             return View();
         }
 

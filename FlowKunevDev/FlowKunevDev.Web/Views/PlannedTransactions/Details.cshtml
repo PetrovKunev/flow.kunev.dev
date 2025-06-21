@@ -1,0 +1,420 @@
+﻿@model FlowKunevDev.Services.DTOs.PlannedTransactionDto
+
+@{
+    ViewData["Title"] = "Детайли за Планирана Транзакция";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card @(Model.IsOverdue ? "border-warning" : Model.IsDueToday ? "border-info" : "border-primary")">
+            <div class="card-header @(Model.IsOverdue ? "bg-warning text-dark" : Model.IsDueToday ? "bg-info text-white" : "bg-primary text-white") d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                    <small>ID: @Model.Id | Създадена: @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</small>
+                </div>
+                <div class="btn-group">
+                    @if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned)
+                    {
+                        <button type="button" class="btn btn-success btn-sm" onclick="executeTransaction(@Model.Id)">
+                            <i class="fas fa-play"></i> Изпълни
+                        </button>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light btn-sm">
+                            <i class="fas fa-edit"></i> Редактирай
+                        </a>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="cancelTransaction(@Model.Id)">
+                            <i class="fas fa-times"></i> Откажи
+                        </button>
+                    }
+                    @if (Model.Status != FlowKunevDev.Common.PlannedTransactionStatus.Executed)
+                    {
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Изтрий
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Статус алерти -->
+                @if (Model.IsOverdue)
+                {
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Просрочена транзакция!</strong>
+                        Планираната дата е минала с @Math.Abs(Model.DaysUntilDue) дни.
+                        @if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned)
+                        {
+                            <br>
+                    
+                            <small>Препоръчваме да я изпълните или откажете.</small>
+                        }
+                    </div>
+                }
+                else if (Model.IsDueToday)
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-clock"></i>
+                        <strong>Транзакцията е планирана за днес!</strong>
+                        @if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned)
+                        {
+                            <br>
+                    
+                            <small>Можете да я изпълните сега.</small>
+                        }
+                    </div>
+                }
+                else if (Model.IsDueSoon)
+                {
+                    <div class="alert alert-primary">
+                        <i class="fas fa-calendar-day"></i>
+                        <strong>Предстояща транзакция!</strong>
+                        Остават @Model.DaysUntilDue дни до планираната дата.
+                    </div>
+                }
+
+                @if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Executed)
+                {
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Транзакцията е изпълнена!</strong>
+                        @if (Model.ExecutedTransactionId.HasValue)
+                        {
+                            <a asp-controller="Transactions" asp-action="Details" asp-route-id="@Model.ExecutedTransactionId" class="btn btn-sm btn-outline-success ms-2">
+                                <i class="fas fa-external-link-alt"></i> Виж транзакцията
+                            </a>
+                        }
+                    </div>
+                }
+                else if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Cancelled)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-ban"></i>
+                        <strong>Транзакцията е отказана!</strong>
+                        Тя няма да бъде изпълнена автоматично.
+                    </div>
+                }
+
+                <!-- Основна информация -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="fas fa-info-circle text-primary"></i> Основна информация
+                        </h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Описание:</th>
+                                <td>
+                                    <span class="fw-bold">@Model.Description</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Тип:</th>
+                                <td>
+                                    <span class="badge bg-@(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger")">
+                                        <i class="fas fa-@(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "arrow-up" : "arrow-down")"></i>
+                                        @(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "Приход" : "Разход")
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Планирана сума:</th>
+                                <td>
+                                    <span class="fw-bold fs-5 text-@(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger")">
+                                        @(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@Model.PlannedAmount.ToString("F2") лв.
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Планирана дата:</th>
+                                <td>
+                                    <div class="fw-bold">@Model.PlannedDate.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("bg-BG"))</div>
+                                    @if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned)
+                                    {
+                                        @if (Model.IsOverdue)
+                                        {
+                                            <small class="text-warning">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                Просрочена с @Math.Abs(Model.DaysUntilDue) дни
+                                            </small>
+                                        }
+                                        else if (Model.IsDueToday)
+                                        {
+                                            <small class="text-info">
+                                                <i class="fas fa-clock"></i> Днес
+                                            </small>
+                                        }
+                                        else if (Model.DaysUntilDue <= 7)
+                                        {
+                                            <small class="text-primary">
+                                                <i class="fas fa-calendar-day"></i>
+                                                Остават @Model.DaysUntilDue дни
+                                            </small>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Статус:</th>
+                                <td>
+                                    @switch (Model.Status)
+                                    {
+                                        case FlowKunevDev.Common.PlannedTransactionStatus.Planned:
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-clock"></i> Планирана
+                                            </span>
+                                            break;
+                                        case FlowKunevDev.Common.PlannedTransactionStatus.Executed:
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Изпълнена
+                                            </span>
+                                            break;
+                                        case FlowKunevDev.Common.PlannedTransactionStatus.Cancelled:
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-ban"></i> Отказана
+                                            </span>
+                                            break;
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="fas fa-cogs text-secondary"></i> Подробности
+                        </h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Категория:</th>
+                                <td>
+                                    <span class="badge rounded-pill fs-6" style="background-color: @Model.CategoryColor; color: white;">
+                                        <i class="@Model.CategoryIcon"></i> @Model.CategoryName
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Сметка:</th>
+                                <td>
+                                    <i class="fas fa-wallet text-muted"></i>
+                                    <span class="fw-bold">@Model.AccountName</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Повтаряща се:</th>
+                                <td>
+                                    @if (Model.IsRecurring)
+                                    {
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas fa-repeat"></i>
+                                            @(Model.RecurrenceType?.ToString() switch
+                                            {
+                                                "Daily" => "Дневно",
+                                                "Weekly" => "Седмично",
+                                                "Monthly" => "Месечно",
+                                                "Yearly" => "Годишно",
+                                                _ => "Да"
+                                            })
+                                    </span>
+                                    @if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Executed)
+                                        {
+                                            <br>
+                                    
+                                            <small class="text-muted">Следващата итерация ще бъде създадена автоматично</small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Не</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Създадена:</th>
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </small>
+                                </td>
+                            </tr>
+                            @if (Model.ExecutedTransactionId.HasValue)
+                            {
+                                <tr>
+                                    <th>Изпълнена транзакция:</th>
+                                    <td>
+                                        <a asp-controller="Transactions" asp-action="Details" asp-route-id="@Model.ExecutedTransactionId" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-external-link-alt"></i> Транзакция #@Model.ExecutedTransactionId
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Бележки -->
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-sticky-note text-warning"></i> Бележки
+                            </h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="card-text">@Model.Notes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Действия -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Назад към списъка
+                                </a>
+                                @if (Model.IsRecurring)
+                                {
+                                    <a asp-action="Recurring" class="btn btn-outline-info">
+                                        <i class="fas fa-repeat"></i> Повтарящи се
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned)
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-success" onclick="executeTransaction(@Model.Id)">
+                                        <i class="fas fa-play"></i> Изпълни транзакцията
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Execute Modal -->
+<div class="modal fade" id="executeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-play"></i> Изпълни планирана транзакция
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="executeForm" method="post" asp-action="Execute">
+                <div class="modal-body">
+                    <input type="hidden" name="id" value="@Model.Id" />
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>@Model.Description</strong><br>
+                        Планирана сума: <strong>@Model.PlannedAmount.ToString("F2") лв.</strong><br>
+                        Планирана дата: <strong>@Model.PlannedDate.ToString("dd.MM.yyyy")</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="actualAmount" class="form-label">
+                            <i class="fas fa-coins"></i> Реална сума
+                        </label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" class="form-control" name="actualAmount" placeholder="@Model.PlannedAmount.ToString("F2")" />
+                            <span class="input-group-text">лв.</span>
+                        </div>
+                        <small class="text-muted">Оставете празно за планираната сума (@Model.PlannedAmount.ToString("F2") лв.)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="actualDate" class="form-label">
+                            <i class="fas fa-calendar"></i> Реална дата
+                        </label>
+                        <input type="date" class="form-control" name="actualDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        <small class="text-muted">По подразбиране е днешната дата</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="actualNotes" class="form-label">
+                            <i class="fas fa-edit"></i> Допълнителни бележки
+                        </label>
+                        <textarea class="form-control" name="actualNotes" rows="3" placeholder="Опционални бележки за изпълнението..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Откажи
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Изпълни транзакцията
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> Отказване на планирана транзакция
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>@Model.Description</strong><br>
+                    Планирана сума: <strong>@Model.PlannedAmount.ToString("F2") лв.</strong><br>
+                    Планирана дата: <strong>@Model.PlannedDate.ToString("dd.MM.yyyy")</strong>
+                </div>
+
+                <p><strong>Сигурни ли сте, че искате да откажете тази планирана транзакция?</strong></p>
+                <p class="text-muted">Тя няма да бъде изпълнена автоматично и ще бъде маркирана като отказана.</p>
+
+                @if (Model.IsRecurring)
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-repeat"></i>
+                        <strong>Внимание:</strong> Това е повтаряща се транзакция. Отказването ще засегне само тази итерация.
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-arrow-left"></i> Не, запази я
+                </button>
+                <form method="post" asp-action="Cancel" style="display: inline;">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-ban"></i> Да, откажи я
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function executeTransaction(id) {
+            new bootstrap.Modal(document.getElementById('executeModal')).show();
+        }
+
+        function cancelTransaction(id) {
+            new bootstrap.Modal(document.getElementById('cancelModal')).show();
+        }
+
+        // Auto-focus на първото поле в modal-ите
+        document.getElementById('executeModal').addEventListener('shown.bs.modal', function () {
+            document.querySelector('#executeModal input[name="actualAmount"]').focus();
+        });
+    </script>
+}

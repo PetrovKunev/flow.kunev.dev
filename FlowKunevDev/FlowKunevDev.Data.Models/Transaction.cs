@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using FlowKunevDev.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,7 +49,7 @@ namespace FlowKunevDev.Data.Models
 
         [StringLength(1000, ErrorMessage = "Бележките не могат да бъдат по-дълги от 1000 символа")]
         [Display(Name = "Бележки")]
-        public string Notes { get; set; } = string.Empty;
+        public string? Notes { get; set; }
 
         [Display(Name = "Дата на създаване")]
         public DateTime CreatedDate { get; set; } = DateTime.Now;

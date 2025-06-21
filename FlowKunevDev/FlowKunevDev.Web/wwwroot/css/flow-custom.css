@@ -1,0 +1,490 @@
+﻿/* Flow Custom Styles */
+
+/* Card hover effects */
+.card {
+    transition: all 0.3s ease;
+    border-width: 1px;
+}
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+
+/* Feature card specific hover effects */
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    }
+
+.feature-icon i {
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon i {
+    transform: scale(1.1);
+}
+
+/* Account card hover effects */
+.account-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+/* Dashboard card hover effects */
+.dashboard-card {
+    transition: all 0.3s ease;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    }
+
+/* Button hover effects */
+.btn-outline-success:hover i,
+.btn-outline-danger:hover i,
+.btn-outline-info:hover i,
+.btn-outline-primary:hover i,
+.btn-outline-warning:hover i,
+.btn-outline-secondary:hover i {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* Navigation improvements */
+.navbar-nav .nav-link {
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    margin: 0 2px;
+}
+
+    .navbar-nav .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        transform: translateY(-1px);
+    }
+
+/* Hero section animations */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 70vh;
+}
+
+/* Login button стилове */
+.btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+    }
+
+/* Button стилове */
+.btn {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+    .hero-section p {
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .hero-section .btn {
+        animation: fadeInUp 1s ease-out 0.4s both;
+    }
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Step items */
+.step-item {
+    padding: 2rem 1rem;
+    transition: all 0.3s ease;
+}
+
+    .step-item:hover {
+        transform: translateY(-5px);
+    }
+
+.step-number .badge {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.step-item:hover .step-number .badge {
+    transform: scale(1.1);
+}
+
+/* Stats hover effects */
+.stat-item {
+    transition: all 0.3s ease;
+}
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-item h3 {
+        font-size: 3.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover h3 {
+        transform: scale(1.05);
+    }
+
+/* Color preset buttons */
+.color-preset {
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+    .color-preset:hover {
+        border-color: #495057;
+        transform: scale(1.05);
+    }
+
+/* Preview card */
+.preview-card {
+    transition: all 0.3s ease;
+}
+
+    .preview-card:hover {
+        transform: scale(1.02);
+    }
+
+/* Modal improvements */
+.modal-lg {
+    max-width: 900px;
+}
+
+#budget-details .card {
+    border-width: 2px;
+    transition: all 0.3s ease;
+}
+
+    #budget-details .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+/* Form improvements */
+.form-floating {
+    transition: all 0.3s ease;
+}
+
+    .form-floating:focus-within {
+        transform: translateY(-1px);
+    }
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Loading states */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+
+    .stat-item h3 {
+        font-size: 2.5rem;
+    }
+
+    .card:hover {
+        transform: none;
+    }
+
+    .feature-card:hover {
+        transform: none;
+    }
+}
+
+/* Account specific styles */
+.account-balance-positive {
+    color: #28a745 !important;
+}
+
+.account-balance-negative {
+    color: #dc3545 !important;
+}
+
+.account-balance-zero {
+    color: #6c757d !important;
+}
+
+/* Transaction type indicators */
+.transaction-income {
+    color: #28a745;
+}
+
+.transaction-expense {
+    color: #dc3545;
+}
+
+/* Category color indicators */
+.category-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* Dashboard specific improvements */
+.dashboard-metric-card {
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+    .dashboard-metric-card:hover {
+        transform: translateX(5px);
+    }
+
+    .dashboard-metric-card.primary {
+        border-left-color: var(--bs-primary);
+    }
+
+    .dashboard-metric-card.success {
+        border-left-color: var(--bs-success);
+    }
+
+    .dashboard-metric-card.danger {
+        border-left-color: var(--bs-danger);
+    }
+
+    .dashboard-metric-card.warning {
+        border-left-color: var(--bs-warning);
+    }
+
+/* Quick action buttons */
+.quick-action-btn {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+
+    .quick-action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+/* Footer improvements */
+footer {
+    margin-top: auto;
+}
+
+    footer a:hover {
+        text-decoration: underline !important;
+    }
+
+/* Alert improvements */
+.alert {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Table improvements */
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,0.05);
+    transform: scale(1.01);
+    transition: all 0.3s ease;
+}
+
+/* Badge improvements */
+.badge {
+    transition: all 0.3s ease;
+}
+
+    .badge:hover {
+        transform: scale(1.05);
+    }
+
+/* Additional utility classes */
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.glass-effect {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.gradient-border {
+    border: 2px solid;
+    border-image: linear-gradient(45deg, #667eea, #764ba2) 1;
+}
+
+/* Dark mode preparations */
+@media (prefers-color-scheme: dark) {
+    .card {
+        background-color: #2d3748;
+        border-color: #4a5568;
+    }
+
+        .card:hover {
+            background-color: #374151;
+        }
+}
+
+/* Прости корекции - заменете сложния CSS с този */
+
+/* 1. Фиксваме Identity страниците - само бял фон */
+.card.border-success,
+.card.border-primary,
+.card.border-warning {
+    background-color: white !important;
+}
+
+.card-header.bg-success,
+.card-header.bg-primary,
+.card-header.bg-warning {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+/* 2. Премахваме всички фонове на секциите */
+.stats-section {
+    background-color: transparent !important;
+    background: none !important;
+}
+
+/* Премахваме сивия фон от how-it-works секцията */
+.how-it-works {
+    background-color: transparent !important;
+    background: none !important;
+}
+
+/* Ако има bg-light класове, ги премахваме */
+.bg-light {
+    background-color: transparent !important;
+    background: none !important;
+}
+
+/* Footer стилове */
+.bg-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+
+footer.bg-primary {
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Identity pages стилове */
+.card.border-success .card-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.card.border-primary .card-header {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    color: white;
+}
+
+.card.border-warning .card-header {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #212529;
+}
+
+/* Form controls за identity */
+.form-floating > .form-control:focus,
+.form-floating > .form-control:not(:placeholder-shown) {
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+}
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        opacity: 0.65;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+
+/* Подобрени бутони */
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+    }
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #520dc2 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+    }

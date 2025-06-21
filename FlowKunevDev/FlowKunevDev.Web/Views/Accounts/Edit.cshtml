@@ -1,0 +1,206 @@
+﻿@model FlowKunevDev.Services.DTOs.UpdateAccountDto
+
+@{
+    ViewData["Title"] = "Редактиране на Сметка";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">@ViewData["Title"]</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Name" class="form-control" placeholder="Име на сметката" />
+                                <label asp-for="Name">Име на сметката</label>
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="Type" class="form-select">
+                                    <option value="">Изберете тип</option>
+                                    <option value="0">Спестявания</option>
+                                    <option value="1">Заплата</option>
+                                    <option value="2">Текуща сметка</option>
+                                    <option value="3">Кредитна карта</option>
+                                    <option value="4">Инвестиции</option>
+                                    <option value="5">Кеш</option>
+                                    <option value="6">Друго</option>
+                                </select>
+                                <label asp-for="Type">Тип сметка</label>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea asp-for="Description" class="form-control"
+                                  placeholder="Описание (незадължително)" style="height: 100px"></textarea>
+                        <label asp-for="Description">Описание (незадължително)</label>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="BGN">BGN - Български лев</option>
+                                    <option value="EUR">EUR - Евро</option>
+                                    <option value="USD">USD - Американски долар</option>
+                                </select>
+                                <label asp-for="Currency">Валута</label>
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    Активна сметка
+                                </label>
+                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Color" class="form-label">Цвят на сметката</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input asp-for="Color" type="color" class="form-control form-control-color" />
+                                <span asp-validation-for="Color" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #007bff;" data-color="#007bff">
+                                        
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #28a745;" data-color="#28a745">
+                                        
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #dc3545;" data-color="#dc3545">
+                                        
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #ffc107;" data-color="#ffc107">
+                                        
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #6f42c1;" data-color="#6f42c1">
+                                        
+                                    </button>
+                                    <button type="button" class="btn btn-sm color-preset"
+                                            style="background-color: #fd7e14;" data-color="#fd7e14">
+                                        
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Предварителен преглед -->
+                    <div class="mb-3">
+                        <label class="form-label">Предварителен преглед</label>
+                        <div class="card preview-card" style="max-width: 300px;">
+                            <div class="card-header text-white" id="preview-header">
+                                <span id="preview-name">Име на сметката</span>
+                                <span class="badge bg-light text-dark" id="preview-type">Тип</span>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="text-success">Текущ баланс</h5>
+                                <small class="text-muted">
+                                    <span class="badge" id="preview-status">Активна</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Забележка:</strong> Началният баланс не може да се променя след създаването на сметката.
+                            За промяна на баланса използвайте транзакции.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary me-md-2">Отказ</a>
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info me-md-2">Детайли</a>
+                            <button type="submit" class="btn btn-warning">Запази Промените</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function() {
+            // Цветни бутони
+            $('.color-preset').click(function() {
+                var color = $(this).data('color');
+                $('#Color').val(color);
+                updatePreview();
+            });
+
+            // Обновяване на предварителния преглед
+            $('#Name, #Type, #Currency, #Color, #IsActive').on('input change', updatePreview);
+
+            function updatePreview() {
+                var name = $('#Name').val() || 'Име на сметката';
+                var type = $('#Type option:selected').text() || 'Тип';
+                var currency = $('#Currency').val() || 'BGN';
+                var color = $('#Color').val() || '#007bff';
+                var isActive = $('#IsActive').is(':checked');
+
+                $('#preview-name').text(name);
+                $('#preview-type').text(type);
+                $('#preview-header').css('background-color', color);
+
+                var statusBadge = $('#preview-status');
+                if (isActive) {
+                    statusBadge.removeClass('bg-secondary').addClass('bg-success').text('Активна');
+                } else {
+                    statusBadge.removeClass('bg-success').addClass('bg-secondary').text('Неактивна');
+                }
+            }
+
+            // Начално обновяване
+            updatePreview();
+        });
+    </script>
+
+    <style>
+        .color-preset {
+            width: 50px;
+            height: 30px;
+            border: 2px solid #dee2e6;
+            color: white;
+            font-size: 0.75rem;
+        }
+
+            .color-preset:hover {
+                border-color: #495057;
+            }
+
+        .preview-card {
+            transition: all 0.3s ease;
+        }
+    </style>
+}

@@ -36,22 +36,22 @@ namespace FlowKunevDev.Data.Models
 
         [StringLength(500, ErrorMessage = "Описанието не може да бъде по-дълго от 500 символа")]
         [Display(Name = "Описание")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [StringLength(1000, ErrorMessage = "Бележките не могат да бъдат по-дълги от 1000 символа")]
         [Display(Name = "Бележки")]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 
         [Required]
         [StringLength(450)]
-        [ForeignKey("User")]
-        public string UserId { get; set; }
+        [ForeignKey("User")]    
+        public string UserId { get; set; } = null!;
 
         [Display(Name = "Дата на създаване")]
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         // Navigation properties
-        public virtual Account FromAccount { get; set; }
-        public virtual Account ToAccount { get; set; }
+        public virtual Account FromAccount { get; set; } = null!;
+        public virtual Account ToAccount { get; set; } = null!;
     }
 }

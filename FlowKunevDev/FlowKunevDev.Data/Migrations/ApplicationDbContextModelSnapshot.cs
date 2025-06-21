@@ -44,7 +44,6 @@ namespace FlowKunevDev.Data.Migrations
                         .HasColumnType("nvarchar(3)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -94,7 +93,6 @@ namespace FlowKunevDev.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -102,7 +100,6 @@ namespace FlowKunevDev.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -472,7 +469,6 @@ namespace FlowKunevDev.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -541,7 +537,6 @@ namespace FlowKunevDev.Data.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 

@@ -1,0 +1,122 @@
+﻿@model FlowKunevDev.Services.DTOs.AccountDto
+
+@{
+    ViewData["Title"] = "Изтриване на Сметка";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    @ViewData["Title"]
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-warning"></i>
+                    <strong>Внимание!</strong> Тази операция ще деактивира сметката, но няма да изтрие данните за нея.
+                    Сметката ще бъде скрита от основния списък, но историята на транзакциите ще остане запазена.
+                </div>
+
+                <!-- Преглед на сметката -->
+                <div class="card mb-4">
+                    <div class="card-header text-white" style="background-color: @Model.Color;">
+                        <h5 class="mb-0">@Model.Name</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="text-center">
+                                    <h4 class="text-@(Model.CurrentBalance >= 0 ? "success" : "danger")">
+                                        @Model.CurrentBalance.ToString("C") @Model.Currency
+                                    </h4>
+                                    <p class="text-muted">Текущ баланс</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Тип:</strong> @Model.Type.ToString()</p>
+                                <p><strong>Валута:</strong> @Model.Currency</p>
+                                <p><strong>Транзакции:</strong> @Model.TransactionCount</p>
+                                @if (Model.LastTransactionDate.HasValue)
+                                {
+                                    <p><strong>Последна операция:</strong> @Model.LastTransactionDate.Value.ToString("dd.MM.yyyy")</p>
+                                }
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <div class="mt-3">
+                                <strong>Описание:</strong>
+                                <p class="text-muted">@Model.Description</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (Model.TransactionCount > 0)
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Тази сметка има <strong>@Model.TransactionCount транзакции</strong>.
+                        След деактивирането, тези данни ще останат запазени, но сметката няма да се показва в основния списък.
+                    </div>
+                }
+
+                <div class="alert alert-secondary">
+                    <h6>Какво ще се случи:</h6>
+                    <ul class="mb-0">
+                        <li>Сметката ще бъде маркирана като неактивна</li>
+                        <li>Няма да се показва в основния списък със сметки</li>
+                        <li>Всички транзакции ще останат запазени</li>
+                        <li>Може да активирате отново сметката по всяко време</li>
+                        <li>Балансът ще остане непроменен</li>
+                    </ul>
+                </div>
+
+                <form asp-action="Delete" method="post">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                        <label class="form-check-label" for="confirmDelete">
+                            Потвърждавам, че искам да деактивирам сметката <strong>"@Model.Name"</strong>
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times"></i> Отказ
+                        </a>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info me-md-2">
+                            <i class="fas fa-eye"></i> Детайли
+                        </a>
+                        <button type="submit" class="btn btn-danger" id="deleteButton" disabled>
+                            <i class="fas fa-trash"></i> Деактивирай Сметката
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#confirmDelete').change(function() {
+                $('#deleteButton').prop('disabled', !this.checked);
+            });
+
+            $('form').submit(function(e) {
+                if (!$('#confirmDelete').is(':checked')) {
+                    e.preventDefault();
+                    alert('Моля, потвърдете че искате да деактивирате сметката.');
+                    return false;
+                }
+
+                return confirm('Сигурни ли сте? Тази операция ще деактивира сметката "' + '@Model.Name' + '".');
+            });
+        });
+    </script>
+}

@@ -1,18 +1,23 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@ViewData["Title"] - Flow</title>
     <link rel="stylesheet" href="~/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FlowKunevDev.styles.css" asp-append-version="true" />
+    <link rel="icon" href="~/favicon.ico" type="image/x-icon" asp-append-version="true" />
+    <!-- Font Awesome за икони -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark bg-primary mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Flow</a>
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-chart-line me-2"></i>Flow
+                </a>
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
@@ -25,32 +30,240 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i>Начало
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                        @* Показваме тези навигации само за вписани потребители *@
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Табло
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Accounts" asp-action="Index">
+                                    <i class="fas fa-wallet me-1"></i>Сметки
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="transactionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-exchange-alt me-1"></i>Транзакции
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Transactions" asp-action="Index">
+                                            <i class="fas fa-list me-2"></i>Всички
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AccountTransfers" asp-action="Index">
+                                            <i class="fas fa-exchange-alt me-2"></i>Трансфери
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="plannedNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-calendar-plus"></i> Планирани
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="plannedNavDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Index">
+                                            <i class="fas fa-list"></i> Всички планирани
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Upcoming">
+                                            <i class="fas fa-calendar-day"></i> Предстоящи
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Overdue">
+                                            <i class="fas fa-exclamation-triangle"></i> Просрочени
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Recurring">
+                                            <i class="fas fa-repeat"></i> Повтарящи се
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Create" asp-route-type="Income">
+                                            <i class="fas fa-plus text-success"></i> Нов планиран приход
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Create" asp-route-type="Expense">
+                                            <i class="fas fa-minus text-danger"></i> Нов планиран разход
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-chart-bar me-1"></i>Отчети
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reports" asp-action="Monthly">
+                                            <i class="fas fa-calendar-alt me-2"></i>Месечни отчети
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reports" asp-action="Categories">
+                                            <i class="fas fa-tags me-2"></i>По категории
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reports" asp-action="Trends">
+                                            <i class="fas fa-chart-line me-2"></i>Тенденции
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Budgets" asp-action="Index">
+                                            <i class="fas fa-piggy-bank me-2"></i>Бюджети
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            @* За невписани потребители показваме информационни връзки *@
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Home")#features">
+                                    <i class="fas fa-star me-1"></i>Възможности
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Home")#how-it-works">
+                                    <i class="fas fa-question-circle me-1"></i>Как работи
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
-
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Основното съдържание със flex-grow-1 за да заема пространството -->
+    <main class="container flex-grow-1" role="main">
+        @RenderBody()
+    </main>
+
+    <!-- Футърът ще се позиционира в дъното -->
+    <footer class="bg-primary text-white mt-4 py-3">
         <div class="container">
-            &copy; 2025 - <a href="https://kunev.dev" target="_blank">kunev.dev</a> - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    &copy; 2025 - <a href="https://kunev.dev" target="_blank" class="text-white text-decoration-none">kunev.dev</a>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-white-50">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Вашите данни са защитени
+                    </small>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Navigation improvements JavaScript -->
+    <script>
+        // Custom easing function
+        $.easing.easeInOutCubic = function (x, t, b, c, d) {
+            if ((t/=d/2) < 1) return c/2*t*t*t + b;
+            return c/2*((t-=2)*t*t + 2) + b;
+        };
+
+        $(document).ready(function() {
+            // Smooth scrolling за anchor links
+            $('a[href*="#"]:not([href="#"])').click(function(e) {
+                // Проверяваме дали сме на същата страница
+                if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+                    var target = $(this.hash);
+                    target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+
+                    if (target.length) {
+                        e.preventDefault();
+                        $('html, body').animate({
+                            scrollTop: target.offset().top - 80 // Offset за navigation bar
+                        }, 1000, 'easeInOutCubic');
+                    }
+                } else {
+                    // Ако не сме на началната страница, отиваме там и после скролираме
+                    var hash = this.hash;
+                    if (hash) {
+                        window.location.href = '/#' + hash.substring(1);
+                    }
+                }
+            });
+
+            // Highlight active nav links при скролиране
+            $(window).scroll(function() {
+                var scrollPos = $(document).scrollTop() + 100;
+
+                $('.nav-link[href*="#"]').each(function() {
+                    var currLink = $(this);
+                    var refElement = $(currLink.attr("href").split('#')[1]);
+                    refElement = $('#' + refElement);
+
+                    if (refElement.length && refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+                        $('.nav-link').removeClass("active");
+                        currLink.addClass("active");
+                    } else {
+                        currLink.removeClass("active");
+                    }
+                });
+            });
+
+            // Добавяме loading състояние към бутони при submit
+            $('form').submit(function() {
+                var $submitBtn = $(this).find('button[type="submit"]');
+                if ($submitBtn.length) {
+                    $submitBtn.prop('disabled', true);
+                    var originalText = $submitBtn.html();
+                    $submitBtn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Обработване...');
+
+                    // Възстановяваме оригиналния текст след 5 секунди ако формата не се submit-не
+                    setTimeout(function() {
+                        $submitBtn.prop('disabled', false);
+                        $submitBtn.html(originalText);
+                    }, 5000);
+                }
+            });
+
+            // Navbar collapse при клик на link (mobile)
+            $('.navbar-nav .nav-link').on('click', function() {
+                if ($(window).width() < 992) {
+                    $('.navbar-collapse').collapse('hide');
+                }
+            });
+
+            // Animation за fade-in при зареждане на страницата
+            if ($('.fade-in-up').length === 0) {
+                $('main > .container > *').each(function(i) {
+                    var $this = $(this);
+                    setTimeout(function() {
+                        $this.addClass('fade-in-up');
+                    }, i * 100);
+                });
+            }
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

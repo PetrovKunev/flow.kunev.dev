@@ -386,11 +386,16 @@ namespace FlowKunevDev.Services.Implementations
             return currentBalance + projectedChange;
         }
 
+        // В TransactionService.cs - заменете съществуващия метод GetDailyAvailableAmountAsync
+
         public async Task<decimal> GetDailyAvailableAmountAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            var startDate = fromDate ?? DateTime.Now;
-            var endDate = toDate ?? DateTime.Now.AddMonths(1);
-            var days = Math.Max(1, (endDate - startDate).Days);
+            // Ако не са подадени дати, използваме от днес до края на месеца
+            var startDate = fromDate ?? DateTime.Now.Date;
+            var endDate = toDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+            // Изчисляваме броя дни (включително днешния ден)
+            var days = Math.Max(1, (endDate - startDate).Days + 1);
 
             // Получаваме текущия общ баланс
             var accounts = await _context.Accounts
@@ -411,11 +416,117 @@ namespace FlowKunevDev.Services.Implementations
                            pt.PlannedDate >= startDate && pt.PlannedDate <= endDate)
                 .SumAsync(pt => (decimal?)pt.PlannedAmount) ?? 0;
 
-            // Изчисляваме наличните средства след планираните разходи
-            var availableAmount = totalBalance - plannedExpenses;
+            // Получаваме планираните приходи за периода
+            var plannedIncome = await _context.PlannedTransactions
+                .Where(pt => pt.UserId == userId &&
+                           pt.Status == PlannedTransactionStatus.Planned &&
+                           pt.Type == TransactionType.Income &&
+                           pt.PlannedDate >= startDate && pt.PlannedDate <= endDate)
+                .SumAsync(pt => (decimal?)pt.PlannedAmount) ?? 0;
 
-            // Връщаме средно дневно
+            // Изчисляваме наличните средства след планираните транзакции
+            var availableAmount = totalBalance - plannedExpenses + plannedIncome;
+
+            // Връщаме средно дневно (не може да бъде отрицателно)
             return Math.Max(0, availableAmount / days);
+        }
+
+        // Добавяме нов метод за получаване на исторически средни дневни разходи
+        public async Task<decimal> GetAverageDailyExpensesAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, int? lastDays = null)
+        {
+            DateTime startDate;
+            DateTime endDate;
+
+            if (lastDays.HasValue)
+            {
+                // Ако е зададен брой дни, използваме последните X дни
+                endDate = DateTime.Now.Date;
+                startDate = endDate.AddDays(-lastDays.Value + 1);
+            }
+            else
+            {
+                // Ако не са подадени дати, използваме текущия месец
+                startDate = fromDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                endDate = toDate ?? DateTime.Now.Date;
+            }
+
+            var days = Math.Max(1, (endDate - startDate).Days + 1);
+
+            // Получаваме всички разходи за периода
+            var totalExpenses = await _context.Transactions
+                .Where(t => t.UserId == userId &&
+                           t.Type == TransactionType.Expense &&
+                           t.Date >= startDate && t.Date <= endDate)
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
+            return totalExpenses / days;
+        }
+
+        // Добавяме метод за получаване на детайлна информация за дневния бюджет
+        public async Task<DailyBudgetInfoDto> GetDailyBudgetInfoAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var startDate = fromDate ?? DateTime.Now.Date;
+            var endDate = toDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            var days = Math.Max(1, (endDate - startDate).Days + 1);
+
+            // Текущ баланс
+            var accounts = await _context.Accounts
+                .Where(a => a.UserId == userId && a.IsActive)
+                .ToListAsync();
+
+            decimal totalBalance = 0;
+            foreach (var account in accounts)
+            {
+                totalBalance += await CalculateCurrentBalanceAsync(account.Id);
+            }
+
+            // Безопасно проверяваме за планирани транзакции
+            decimal plannedExpenses = 0;
+            decimal plannedIncome = 0;
+
+            try
+            {
+                // Опитваме се да заредим планирани транзакции
+                plannedExpenses = await _context.PlannedTransactions
+                    .Where(pt => pt.UserId == userId &&
+                               pt.Status == PlannedTransactionStatus.Planned &&
+                               pt.Type == TransactionType.Expense &&
+                               pt.PlannedDate >= startDate && pt.PlannedDate <= endDate)
+                    .SumAsync(pt => (decimal?)pt.PlannedAmount) ?? 0;
+
+                plannedIncome = await _context.PlannedTransactions
+                    .Where(pt => pt.UserId == userId &&
+                               pt.Status == PlannedTransactionStatus.Planned &&
+                               pt.Type == TransactionType.Income &&
+                               pt.PlannedDate >= startDate && pt.PlannedDate <= endDate)
+                    .SumAsync(pt => (decimal?)pt.PlannedAmount) ?? 0;
+            }
+            catch (Exception)
+            {
+                // Ако има грешка (таблицата не съществува или друг проблем), използваме 0
+                plannedExpenses = 0;
+                plannedIncome = 0;
+            }
+
+            // Исторически среден дневен разход
+            var averageDailyExpenses = await GetAverageDailyExpensesAsync(userId, lastDays: 30);
+
+            var availableAmount = totalBalance - plannedExpenses + plannedIncome;
+            var dailyAvailable = Math.Max(0, availableAmount / days);
+
+            return new DailyBudgetInfoDto
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                RemainingDays = days,
+                TotalBalance = totalBalance,
+                PlannedExpenses = plannedExpenses,
+                PlannedIncome = plannedIncome,
+                AvailableAmount = availableAmount,
+                DailyAvailable = dailyAvailable,
+                AverageDailyExpenses = averageDailyExpenses,
+                RecommendedDailyBudget = dailyAvailable > 0 ? dailyAvailable : averageDailyExpenses
+            };
         }
 
         public async Task<bool> ExistsAsync(int id, string userId)
@@ -537,8 +648,9 @@ namespace FlowKunevDev.Services.Implementations
             if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
             {
                 var searchTerm = filter.SearchTerm.ToLower();
-                query = query.Where(t => t.Description.ToLower().Contains(searchTerm) ||
-                                        t.Notes.ToLower().Contains(searchTerm));
+                query = query.Where(t => 
+                    (t.Description != null && t.Description.ToLower().Contains(searchTerm)) ||
+                    (t.Notes != null && t.Notes.ToLower().Contains(searchTerm)));
             }
 
             return query;
