@@ -1,0 +1,307 @@
+﻿@model IEnumerable<FlowKunevDev.Services.DTOs.PlannedTransactionDto>
+
+@{
+    ViewData["Title"] = "Повтарящи се планирани транзакции";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-repeat text-info"></i> Повтарящи се планирани транзакции
+                    </h2>
+                    <p class="text-muted mb-0">Управление на автоматично повтарящи се приходи и разходи</p>
+                </div>
+                <div>
+                    <a asp-action="Create" asp-route-isRecurring="true" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Добави повтаряща се транзакция
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-list"></i> Всички планирани
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="card border-info">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-repeat fa-3x text-info mb-3"></i>
+                        <h4 class="card-title">Няма повтарящи се транзакции</h4>
+                        <p class="card-text text-muted">
+                            Все още не сте създали повтарящи се планирани транзакции.
+                            Те са полезни за редовни приходи (заплата) или разходи (наем, абонаменти).
+                        </p>
+                        <a asp-action="Create" asp-route-isRecurring="true" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Създай първата повтаряща се транзакция
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Статистики -->
+                <div class="row mb-4">
+                    @{
+                        var incomeCount = Model.Count(x => x.Type == FlowKunevDev.Common.TransactionType.Income);
+                        var expenseCount = Model.Count(x => x.Type == FlowKunevDev.Common.TransactionType.Expense);
+                        var totalIncome = Model.Where(x => x.Type == FlowKunevDev.Common.TransactionType.Income).Sum(x => x.PlannedAmount);
+                        var totalExpense = Model.Where(x => x.Type == FlowKunevDev.Common.TransactionType.Expense).Sum(x => x.PlannedAmount);
+                        var activeCount = Model.Count(x => x.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned);
+                    }
+
+                    <div class="col-md-3">
+                        <div class="card border-success mb-3">
+                            <div class="card-header">
+                                <i class="fas fa-arrow-up"></i> Повтарящи се приходи
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title text-success">@incomeCount</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">Общo: @totalIncome.ToString("C")</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card border-danger mb-3">
+                            <div class="card-header">
+                                <i class="fas fa-arrow-down"></i> Повтарящи се разходи
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title text-danger">@expenseCount</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">Общo: @totalExpense.ToString("C")</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card border-info mb-3">
+                            <div class="card-header">
+                                <i class="fas fa-play"></i> Активни
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title text-info">@activeCount</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">от @Model.Count() общо</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card border-warning mb-3">
+                            <div class="card-header">
+                                <i class="fas fa-balance-scale"></i> Месечен баланс
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title @(totalIncome - totalExpense >= 0 ? "text-success" : "text-danger")">
+                                    @((totalIncome - totalExpense).ToString("C"))
+                                </h5>
+                                <p class="card-text">
+                                    <small class="text-muted">прогноза</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Таблица с повтарящи се транзакции -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-table"></i> Списък с повтарящи се транзакции (@Model.Count())
+                            </h5>
+                            <div>
+                                <small class="text-muted">
+                                    Актуални към @DateTime.Now.ToString("dd.MM.yyyy HH:mm")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                        <th>Сума</th>
+                                        <th>Сметка</th>
+                                        <th>Категория</th>
+                                        <th>Честота</th>
+                                        <th>Следваща дата</th>
+                                        <th>Статус</th>
+                                        <th class="text-center">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.OrderBy(x => x.PlannedDate))
+                                    {
+                                        <tr class="@(item.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned ? "" : "table-secondary")">
+                                            <td>
+                                                @if (item.Type == FlowKunevDev.Common.TransactionType.Income)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-arrow-up"></i> Приход
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-arrow-down"></i> Разход
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong>@item.Description</strong>
+                                                @if (!string.IsNullOrEmpty(item.Notes))
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">@item.Notes</small>
+                                                }
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold @(item.Type == FlowKunevDev.Common.TransactionType.Income ? "text-success" : "text-danger")">
+                                                @item.PlannedAmount.ToString("C")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-university text-muted"></i>
+                                            @item.AccountName
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-tag text-muted"></i>
+                                            @item.CategoryName
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-repeat"></i>
+                                                @(item.RecurrenceType?.ToString() switch
+                                                {
+                                                    "Daily" => "Дневно",
+                                                    "Weekly" => "Седмично",
+                                                    "Monthly" => "Месечно",
+                                                    "Yearly" => "Годишно",
+                                                    _ => "Неизвестно"
+                                                })
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-calendar-alt text-muted"></i>
+                                        @item.PlannedDate.ToString("dd.MM.yyyy")
+                                        <br>
+                                        <small class="text-muted">@item.PlannedDate.ToString("dddd")</small>
+                                    </td>
+                                    <td>
+                                        @switch (item.Status)
+                                                {
+                                                    case FlowKunevDev.Common.PlannedTransactionStatus.Planned:
+                                                        <span class="badge bg-warning">
+                                                            <i class="fas fa-clock"></i> Планирана
+                                                        </span>
+                                                        break;
+                                                    case FlowKunevDev.Common.PlannedTransactionStatus.Executed:
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-check"></i> Изпълнена
+                                                        </span>
+                                                        break;
+                                                    case FlowKunevDev.Common.PlannedTransactionStatus.Cancelled:
+                                                        <span class="badge bg-secondary">
+                                                            <i class="fas fa-times"></i> Отказана
+                                                        </span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id"
+                                                       class="btn btn-outline-info" title="Детайли">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    @if (item.Status == FlowKunevDev.Common.PlannedTransactionStatus.Planned)
+                                                    {
+                                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                                           class="btn btn-outline-primary" title="Редактирай">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a asp-action="Execute" asp-route-id="@item.Id"
+                                                           class="btn btn-outline-success" title="Изпълни">
+                                                            <i class="fas fa-play"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Бърз достъп до действия -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-lightning-bolt"></i> Бърз достъп
+                                </h6>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a asp-action="Create" asp-route-type="Income" asp-route-isRecurring="true"
+                                       class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-plus"></i> Нов повтарящ се приход
+                                    </a>
+                                    <a asp-action="Create" asp-route-type="Expense" asp-route-isRecurring="true"
+                                       class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-minus"></i> Нов повтарящ се разход
+                                    </a>
+                                    <a asp-action="Upcoming" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-calendar-day"></i> Предстоящи транзакции
+                                    </a>
+                                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-list"></i> Всички планирани
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Автоматично обновяване на страницата на всеки 5 минути
+            setTimeout(function() {
+                location.reload();
+            }, 300000);
+        });
+    </script>
+}
