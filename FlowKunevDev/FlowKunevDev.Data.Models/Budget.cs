@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlowKunevDev.Data.Models
 {
@@ -17,7 +12,7 @@ namespace FlowKunevDev.Data.Models
         [Required(ErrorMessage = "Името на бюджета е задължително")]
         [StringLength(200, ErrorMessage = "Името не може да бъде по-дълго от 200 символа")]
         [Display(Name = "Име")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Required(ErrorMessage = "Сумата е задължителна")]
         [Column(TypeName = "decimal(18,2)")]
@@ -33,7 +28,7 @@ namespace FlowKunevDev.Data.Models
         [Required]
         [StringLength(450)]
         [ForeignKey("User")]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         [Required(ErrorMessage = "Началната дата е задължителна")]
         [Display(Name = "Начална дата")]
@@ -50,7 +45,7 @@ namespace FlowKunevDev.Data.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         // Navigation properties
-        public virtual Category Category { get; set; }
+        public virtual Category Category { get; set; } = null!;
 
         // Computed property за изразходвана сума (не се записва в БД)
         [NotMapped]

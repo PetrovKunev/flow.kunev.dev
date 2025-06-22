@@ -4,6 +4,11 @@
     ViewData["Title"] = "Детайли за трансфер";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/account-transfers.css" />
+}
+
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>@ViewData["Title"]</h2>
     <div class="btn-group">
@@ -31,8 +36,8 @@
                 <div class="row align-items-center mb-4">
                     <div class="col-md-5">
                         <div class="card border-warning">
-                            <div class="card-header text-white" style="background-color: @Model.FromAccountColor;">
-                                <h6 class="mb-0">От сметка</h6>
+                            <div class="card-header" style="background-color: @Model.FromAccountColor; color: white !important;">
+                                <h6 class="mb-0" style="color: white !important;">От сметка</h6>
                             </div>
                             <div class="card-body text-center">
                                 <h5 class="card-title">@Model.FromAccountName</h5>
@@ -48,8 +53,8 @@
                     </div>
                     <div class="col-md-5">
                         <div class="card border-success">
-                            <div class="card-header text-white" style="background-color: @Model.ToAccountColor;">
-                                <h6 class="mb-0">Към сметка</h6>
+                            <div class="card-header" style="background-color: @Model.ToAccountColor; color: white !important;">
+                                <h6 class="mb-0" style="color: white !important;">Към сметка</h6>
                             </div>
                             <div class="card-body text-center">
                                 <h5 class="card-title">@Model.ToAccountName</h5>
@@ -153,37 +158,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <style>
-        .card {
-            transition: all 0.3s ease;
-        }
-
-            .card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            }
-
-        .fa-arrow-right {
-            animation: pulse 2s infinite;
-        }
-
-        @@keyframes pulse {
-            0%
-
-        {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.1);
-        }
-
-        100% {
-            transform: scale(1);
-        }
-
-        }
-    </style>
-}

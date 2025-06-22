@@ -30,8 +30,8 @@
                         <div class="row align-items-center mb-3">
                             <div class="col-md-5">
                                 <div class="card border-warning">
-                                    <div class="card-header text-white" style="background-color: @Model.FromAccountColor;">
-                                        <h6 class="mb-0">От сметка</h6>
+                                    <div class="card-header" style="background-color: @Model.FromAccountColor; color: white !important;">
+                                        <h6 class="mb-0" style="color: white !important;">От сметка</h6>
                                     </div>
                                     <div class="card-body text-center">
                                         <h6 class="card-title">@Model.FromAccountName</h6>
@@ -46,8 +46,8 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="card border-success">
-                                    <div class="card-header text-white" style="background-color: @Model.ToAccountColor;">
-                                        <h6 class="mb-0">Към сметка</h6>
+                                    <div class="card-header" style="background-color: @Model.ToAccountColor; color: white !important;">
+                                        <h6 class="mb-0" style="color: white !important;">Към сметка</h6>
                                     </div>
                                     <div class="card-body text-center">
                                         <h6 class="card-title">@Model.ToAccountName</h6>
@@ -58,56 +58,60 @@
 
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>Сума:</strong> @Model.Amount.ToString("F2") лв.</p>
-                                <p><strong>Дата:</strong> @Model.Date.ToString("dd.MM.yyyy HH:mm")</p>
+                                <strong>Сума:</strong> @Model.Amount.ToString("F2") лв.
                             </div>
                             <div class="col-md-6">
-                                @if (!string.IsNullOrEmpty(Model.Description))
-                                {
-                                    <p><strong>Описание:</strong> @Model.Description</p>
-                                }
-                                <p><strong>Създаден на:</strong> @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</p>
+                                <strong>Създаден на:</strong> @Model.Date.ToString("dd.MM.yyyy") в @Model.Date.ToString("HH:mm")
                             </div>
                         </div>
 
-                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        @if (!string.IsNullOrEmpty(Model.Description))
                         {
                             <div class="mt-3">
-                                <strong>Бележки:</strong>
-                                <p class="text-muted">@Model.Notes</p>
+                                <strong>Описание:</strong> @Model.Description
                             </div>
                         }
                     </div>
                 </div>
 
-                <div class="alert alert-secondary">
-                    <h6>Какво ще се случи при изтриването:</h6>
-                    <ul class="mb-0">
-                        <li>Трансферът ще бъде изтрит напълно от системата</li>
-                        <li>Сметката <strong>"@Model.FromAccountName"</strong> ще получи обратно <strong>@Model.Amount.ToString("F2") лв.</strong></li>
-                        <li>Сметката <strong>"@Model.ToAccountName"</strong> ще загуби <strong>@Model.Amount.ToString("F2") лв.</strong></li>
-                        <li>Операцията не може да бъде отменена</li>
-                    </ul>
-                </div>
+                <h6 class="text-primary">Какво ще се случи при изтриването:</h6>
+                <ul class="list-unstyled">
+                    <li class="text-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Трансферът ще бъде изтрит напълно от системата
+                    </li>
+                    <li class="text-info">
+                        <i class="fas fa-undo me-2"></i>
+                        Сметката "@Model.FromAccountName" ще получи обратно <strong>@Model.Amount.ToString("F2") лв.</strong>
+                    </li>
+                    <li class="text-warning">
+                        <i class="fas fa-minus-circle me-2"></i>
+                        Сметката "@Model.ToAccountName" ще загуби <strong>@Model.Amount.ToString("F2") лв.</strong>
+                    </li>
+                    <li class="text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Операцията не може да бъде отменена
+                    </li>
+                </ul>
 
-                <form asp-action="Delete" method="post">
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="confirmDelete" required>
-                        <label class="form-check-label" for="confirmDelete">
-                            Потвърждавам, че искам да изтрия трансфера от <strong>@Model.Date.ToString("dd.MM.yyyy")</strong>
-                            на стойност <strong>@Model.Amount.ToString("F2") лв.</strong>
+                <div class="alert alert-light mt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirm-delete">
+                        <label class="form-check-label" for="confirm-delete">
+                            Потвърждавам, че искам да изтрия трансфера от <strong>@Model.Date.ToString("dd.MM.yyyy")</strong> на стойност <strong>@Model.Amount.ToString("F2") лв.</strong>
                         </label>
                     </div>
+                </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a asp-action="Index" class="btn btn-secondary me-md-2">
-                            <i class="fas fa-times"></i> Отказ
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Отказ
                         </a>
-                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info me-md-2">
-                            <i class="fas fa-eye"></i> Детайли
-                        </a>
-                        <button type="submit" class="btn btn-danger" id="deleteButton" disabled>
-                            <i class="fas fa-trash"></i> Изтрий трансфера
+                        <button type="submit" class="btn btn-danger" id="delete-btn" disabled>
+                            <i class="fas fa-trash me-2"></i>Изтрий трансфера
                         </button>
                     </div>
                 </form>
@@ -118,48 +122,8 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            $('#confirmDelete').change(function() {
-                $('#deleteButton').prop('disabled', !this.checked);
-            });
-
-            $('form').submit(function(e) {
-                if (!$('#confirmDelete').is(':checked')) {
-                    e.preventDefault();
-                    alert('Моля, потвърдете че искате да изтриете трансфера.');
-                    return false;
-                }
-
-                return confirm('Сигурни ли сте? Тази операция ще изтрие трансфера и ще промени балансите на сметките.');
-            });
+        document.getElementById('confirm-delete').addEventListener('change', function() {
+            document.getElementById('delete-btn').disabled = !this.checked;
         });
     </script>
-
-    <style>
-        .fa-arrow-right {
-            color: #dc3545 !important;
-            animation: shake 1s infinite;
-        }
-
-        @@keyframes shake {
-            0%, 100%
-
-        {
-            transform: translateX(0);
-        }
-
-        25% {
-            transform: translateX(-2px);
-        }
-
-        75% {
-            transform: translateX(2px);
-        }
-
-        }
-
-        .card {
-            transition: all 0.3s ease;
-        }
-    </style>
 }
