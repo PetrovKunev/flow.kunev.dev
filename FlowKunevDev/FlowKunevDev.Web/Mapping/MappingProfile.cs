@@ -79,9 +79,21 @@ namespace FlowKunevDev.Web.Mapping
                 .ForMember(dest => dest.FromAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.ToAccount, opt => opt.Ignore());
 
-            // Budget mappings (когато ги създадем)
+            // Budget mappings
+            CreateMap<Budget, BudgetDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+                .ForMember(dest => dest.SpentAmount, opt => opt.Ignore());
+
+            CreateMap<CreateBudgetDto, Budget>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+
+            CreateMap<UpdateBudgetDto, Budget>()
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore());
             // PlannedTransaction mappings (когато ги създадем)
-            
+
         }
     }
 }

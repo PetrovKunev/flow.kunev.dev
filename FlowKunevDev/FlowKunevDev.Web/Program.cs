@@ -35,6 +35,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAccountTransferService, AccountTransferService>();
 builder.Services.AddScoped<IPlannedTransactionService, PlannedTransactionService>();
+builder.Services.AddScoped<IBudgetService, BudgetService>();
 
 builder.Services.AddHostedService<PlannedTransactionBackgroundService>();
 

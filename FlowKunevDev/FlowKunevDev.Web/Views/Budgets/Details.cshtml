@@ -1,0 +1,28 @@
+﻿@model FlowKunevDev.Services.DTOs.BudgetDto
+@{
+    ViewData["Title"] = "Детайли";
+}
+
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">@Model.Name</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Категория</dt>
+            <dd class="col-sm-9">@Model.CategoryName</dd>
+            <dt class="col-sm-3">Период</dt>
+            <dd class="col-sm-9">@Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")</dd>
+            <dt class="col-sm-3">Сума</dt>
+            <dd class="col-sm-9">@Model.Amount.ToString("F2") лв.</dd>
+            <dt class="col-sm-3">Изразходвано</dt>
+            <dd class="col-sm-9">@Model.SpentAmount.ToString("F2") лв.</dd>
+            <dt class="col-sm-3">Оставащо</dt>
+            <dd class="col-sm-9">@Model.RemainingAmount.ToString("F2") лв.</dd>
+            <dt class="col-sm-3">Активен</dt>
+            <dd class="col-sm-9">@(Model.IsActive ? "Да" : "Не")</dd>
+        </dl>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редакция</a>
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </div>
+</div>

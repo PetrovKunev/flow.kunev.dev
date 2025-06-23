@@ -1,0 +1,19 @@
+﻿@model FlowKunevDev.Services.DTOs.BudgetDto
+@{
+    ViewData["Title"] = "Изтриване";
+}
+
+<h4>Сигурни ли сте, че искате да изтриете бюджета "@Model.Name"?</h4>
+
+<div class="mb-3">
+    <strong>Период:</strong> @Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")
+</div>
+<div class="mb-3">
+    <strong>Сума:</strong> @Model.Amount.ToString("F2") лв.
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Изтрий</button>
+    <a asp-action="Index" class="btn btn-secondary">Отказ</a>
+</form>
