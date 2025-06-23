@@ -69,13 +69,6 @@
                     <div class="col-md-6">
                         <h6 class="text-muted">Сума на трансфера:</h6>
                         <h4 class="text-primary mb-3">@Model.Amount.ToString("F2") лв.</h4>
-
-                        <h6 class="text-muted">Дата и час:</h6>
-                        <p class="mb-3">
-                            @Model.Date.ToString("dddd, dd MMMM yyyy")
-                            <br>
-                            <small class="text-muted">@Model.Date.ToString("HH:mm")</small>
-                        </p>
                     </div>
                     <div class="col-md-6">
                         @if (!string.IsNullOrEmpty(Model.Description))
