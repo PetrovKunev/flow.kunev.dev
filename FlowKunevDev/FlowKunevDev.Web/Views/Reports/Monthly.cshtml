@@ -1,0 +1,195 @@
+﻿@model FlowKunevDev.Web.ViewModels.MonthlyReportViewModel
+@using FlowKunevDev.Common
+@{
+    ViewData["Title"] = "Месечен отчет";
+    Layout = "_Layout";
+    var months = new[] { "", "Януари", "Февруари", "Март", "Април", "Май", "Юни", "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември" };
+}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-calendar-alt me-2"></i>Месечен отчет</h2>
+                <div class="btn-group">
+                    <a asp-action="Categories" class="btn btn-outline-info">
+                        <i class="fas fa-tags me-1"></i>По категории
+                    </a>
+                    <a asp-action="Trends" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-line me-1"></i>Тенденции
+                    </a>
+                    <a asp-action="PeriodComparison" class="btn btn-outline-secondary">
+                        <i class="fas fa-chart-bar me-1"></i>Сравнение
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" asp-action="Monthly" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="year" class="form-label">Година:</label>
+                            <select id="year" name="year" class="form-select" onchange="this.form.submit()">
+                                @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 5; y--)
+                                {
+                                    <option value="@y" selected="@(Model.Year == y ? "selected" : null)">@y</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="month" class="form-label">Месец:</label>
+                            <select id="month" name="month" class="form-select" onchange="this.form.submit()">
+                                @for (int m = 1; m <= 12; m++)
+                                {
+                                    <option value="@m" selected="@(Model.Month == m ? "selected" : null)">@months[m]</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-primary" onclick="refreshChart()">
+                                <i class="fas fa-sync me-1"></i>Обнови
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Summary != null)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-success text-center">
+                    <div class="card-body">
+                        <h6 class="text-success">Приходи</h6>
+                        <h4 class="text-success">@($"{Model.Summary.TotalIncome:F2} лв.")</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-danger text-center">
+                    <div class="card-body">
+                        <h6 class="text-danger">Разходи</h6>
+                        <h4 class="text-danger">@($"{Model.Summary.TotalExpenses:F2} лв.")</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-primary text-center">
+                    <div class="card-body">
+                        <h6 class="text-primary">Баланс</h6>
+                        <h4 class="text-primary">@($"{Model.Summary.NetAmount:F2} лв.")</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-secondary text-center">
+                    <div class="card-body">
+                        <h6 class="text-secondary">Транзакции</h6>
+                        <h4 class="text-secondary">@Model.Summary.TransactionCount</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Разпределение по категории</div>
+                    <div class="card-body">
+                        <canvas id="catChart" style="height:300px;"></canvas>
+                        <table class="table table-sm mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Категория</th>
+                                    <th class="text-end">Сума</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cat in Model.Summary.CategoryBreakdown)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge rounded-pill me-1" style="background-color:@cat.CategoryColor;">&nbsp;</span>
+                                            @cat.CategoryName
+                                        </td>
+                                        <td class="text-end">@($"{cat.Amount:F2} лв.")</td>
+                                        <td class="text-end">@($"{cat.Percentage:F2}%")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Сметки</div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Име</th>
+                                    <th class="text-end">Баланс</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var acc in Model.Accounts)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge rounded-pill me-1" style="background-color:@acc.Color;">&nbsp;</span>
+                                            @acc.Name
+                                        </td>
+                                        <td class="text-end">@($"{acc.CurrentBalance:F2} {acc.Currency}")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initializeChart);
+        let catChart;
+        function initializeChart() {
+            const ctx = document.getElementById('catChart').getContext('2d');
+            const data = @Html.Raw(Json.Serialize(Model.Summary?.CategoryBreakdown.Select(c => new { c.CategoryName, c.Amount, c.CategoryColor }) ?? Enumerable.Empty<object>()));
+            if (catChart) catChart.destroy();
+            catChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(c => c.categoryName),
+                    datasets: [{ data: data.map(c => c.amount), backgroundColor: data.map(c => c.categoryColor) }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'right' } } }
+            });
+        }
+        function refreshChart() {
+            const year = document.getElementById('year').value;
+            const month = document.getElementById('month').value;
+            fetch(`/Reports/GetMonthlyData?year=${year}&month=${month}`)
+                .then(r => r.json())
+                .then(d => d.success ? updateChart(d.data.categoryBreakdown) : console.error(d.message))
+                .catch(console.error);
+        }
+        function updateChart(breakdown) {
+            if (!catChart) return;
+            catChart.data.labels = breakdown.map(c => c.categoryName);
+            catChart.data.datasets[0].data = breakdown.map(c => c.amount);
+            catChart.data.datasets[0].backgroundColor = breakdown.map(c => c.categoryColor);
+            catChart.update();
+        }
+    </script>
+}

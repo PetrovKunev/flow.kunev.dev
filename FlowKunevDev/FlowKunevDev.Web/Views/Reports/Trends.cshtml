@@ -1,0 +1,87 @@
+﻿@model FlowKunevDev.Web.ViewModels.TrendsReportViewModel
+@{
+    ViewData["Title"] = "Тенденции";
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-chart-line me-2"></i>Тенденции</h2>
+                <div class="btn-group">
+                    <a asp-action="Monthly" class="btn btn-outline-primary">
+                        <i class="fas fa-calendar-alt me-1"></i>Месечни отчети
+                    </a>
+                    <a asp-action="Categories" class="btn btn-outline-info">
+                        <i class="fas fa-tags me-1"></i>По категории
+                    </a>
+                    <a asp-action="PeriodComparison" class="btn btn-outline-secondary">
+                        <i class="fas fa-chart-bar me-1"></i>Сравнение
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" asp-action="Trends" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="months" class="form-label">Последни месеци:</label>
+                            <select id="months" name="months" class="form-select" onchange="this.form.submit()">
+                                <option value="6" selected="@(Model.SelectedMonths == 6 ? "selected" : null)">6</option>
+                                <option value="12" selected="@(Model.SelectedMonths == 12 ? "selected" : null)">12</option>
+                                <option value="24" selected="@(Model.SelectedMonths == 24 ? "selected" : null)">24</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="trendChart" style="height:400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initializeChart);
+        let trendChart;
+        function initializeChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = @Html.Raw(Json.Serialize(Model.MonthlyComparison.Keys));
+            const data = @Html.Raw(Json.Serialize(Model.MonthlyComparison.Values));
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Разходи',
+                        data: data,
+                        tension: 0.4,
+                        fill: false,
+                        borderColor: 'rgb(220, 53, 69)',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: v => v.toFixed(2) + ' лв.' } } }
+                }
+            });
+        }
+    </script>
+}

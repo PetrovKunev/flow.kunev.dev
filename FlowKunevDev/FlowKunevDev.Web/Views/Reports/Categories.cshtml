@@ -1,0 +1,127 @@
+﻿@model FlowKunevDev.Web.ViewModels.CategoryReportViewModel
+@using FlowKunevDev.Common
+@{
+    ViewData["Title"] = "Отчети по категории";
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-tags me-2"></i>Отчети по категории</h2>
+                <div class="btn-group">
+                    <a asp-action="Monthly" class="btn btn-outline-primary">
+                        <i class="fas fa-calendar-alt me-1"></i>Месечни отчети
+                    </a>
+                    <a asp-action="Trends" class="btn btn-outline-info">
+                        <i class="fas fa-chart-line me-1"></i>Тенденции
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" asp-action="Categories" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="startDate" class="form-label">От:</label>
+                            <input type="date" id="startDate" name="startDate" class="form-control" value="@(Model.StartDate.ToString("yyyy-MM-dd"))" onchange="this.form.submit()" />
+                        </div>
+                        <div class="col-md-3">
+                            <label for="endDate" class="form-label">До:</label>
+                            <input type="date" id="endDate" name="endDate" class="form-control" value="@(Model.EndDate.ToString("yyyy-MM-dd"))" onchange="this.form.submit()" />
+                        </div>
+                        <div class="col-md-3">
+                            <label for="type" class="form-label">Тип:</label>
+                            <select id="type" name="type" class="form-select" onchange="this.form.submit()">
+                                <option value="" selected="@(Model.Type == null ? "selected" : null)">Всички</option>
+                                <option value="Income" selected="@(Model.Type == TransactionType.Income ? "selected" : null)">Приходи</option>
+                                <option value="Expense" selected="@(Model.Type == TransactionType.Expense ? "selected" : null)">Разходи</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-primary" onclick="refreshChart()">
+                                <i class="fas fa-sync me-1"></i>Обнови
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.CategorySummaries.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="categoriesChart" style="height:400px;"></canvas>
+                        <table class="table table-sm mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Категория</th>
+                                    <th class="text-end">Сума</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cat in Model.CategorySummaries)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge rounded-pill me-1" style="background-color:@cat.CategoryColor;">&nbsp;</span>
+                                            @cat.CategoryName
+                                        </td>
+                                        <td class="text-end">@($"{cat.Amount:F2} лв.")</td>
+                                        <td class="text-end">@($"{cat.Percentage:F2}%")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initializeChart);
+        let categoriesChart;
+        function initializeChart() {
+            const ctx = document.getElementById('categoriesChart').getContext('2d');
+            const data = @Html.Raw(Json.Serialize(Model.CategorySummaries.Select(c => new { c.CategoryName, c.Amount, c.CategoryColor })));
+            if (categoriesChart) categoriesChart.destroy();
+            categoriesChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(c => c.categoryName),
+                    datasets: [{ data: data.map(c => c.amount), backgroundColor: data.map(c => c.categoryColor) }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'right' } } }
+            });
+        }
+        function refreshChart() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            const type = document.getElementById('type').value;
+            fetch(`/Reports/GetCategoryData?startDate=${start}&endDate=${end}&type=${type}`)
+                .then(r => r.json())
+                .then(d => d.success ? updateChart(d.data) : console.error(d.message))
+                .catch(console.error);
+        }
+        function updateChart(data) {
+            if (!categoriesChart) return;
+            categoriesChart.data.labels = data.map(c => c.categoryName);
+            categoriesChart.data.datasets[0].data = data.map(c => c.amount);
+            categoriesChart.data.datasets[0].backgroundColor = data.map(c => c.categoryColor);
+            categoriesChart.update();
+        }
+    </script>
+}
