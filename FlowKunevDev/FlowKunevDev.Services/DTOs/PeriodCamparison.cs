@@ -1,4 +1,4 @@
-﻿namespace FlowKunevDev.Web.ViewModels
+﻿namespace FlowKunevDev.Services.DTOs
 {
     public class PeriodComparison
     {
@@ -11,5 +11,11 @@
         public decimal ChangeFromPrevious { get; set; }
         public decimal PercentageChange { get; set; }
         public bool IsCurrentPeriod { get; set; }
+        public string TrendIcon => PercentageChange > 5 ? "fa-arrow-up text-danger" :
+                                  PercentageChange < -5 ? "fa-arrow-down text-success" :
+                                  "fa-minus text-warning";
+        public string TrendText => PercentageChange > 5 ? "Увеличение" :
+                                  PercentageChange < -5 ? "Намаление" :
+                                  "Стабилно";
     }
 }

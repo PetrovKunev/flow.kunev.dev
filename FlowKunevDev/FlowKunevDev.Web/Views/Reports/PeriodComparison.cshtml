@@ -1,0 +1,445 @@
+﻿@using FlowKunevDev.Common;
+@using FlowKunevDev.Services.DTOs;
+@model FlowKunevDev.Web.ViewModels.PeriodComparisonViewModel
+
+@{
+    ViewData["Title"] = "Сравнение на разходи за периоди";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-chart-line me-2"></i>Сравнение на разходи за периоди</h2>
+                <div class="btn-group">
+                    <a asp-controller="Reports" asp-action="Monthly" class="btn btn-outline-primary">
+                        <i class="fas fa-calendar-alt me-1"></i>Месечни отчети
+                    </a>
+                    <a asp-controller="Reports" asp-action="Trends" class="btn btn-outline-info">
+                        <i class="fas fa-chart-bar me-1"></i>Тенденции
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Филтри -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" asp-action="PeriodComparison" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="type" class="form-label">Тип период:</label>
+                            <select name="type" id="type" class="form-select" onchange="this.form.submit()">
+                                <option value="Monthly" selected='@(Model.SelectedType == ComparisonType.Monthly ? "selected" : "")'>Месечно</option>
+                                <option value="Quarterly" selected='@(Model.SelectedType == ComparisonType.Quarterly ? "selected" : "")'>Тримесечно</option>
+                                <option value="Yearly" selected='@(Model.SelectedType == ComparisonType.Yearly ? "selected" : "")'>Годишно</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="baseDate" class="form-label">Базова дата:</label>
+                            <input type="date" name="baseDate" id="baseDate" class="form-control"
+                                   value="@(Model.SelectedDate.ToString("yyyy-MM-dd"))"
+                                   onchange="this.form.submit()" />
+                        </div>
+                        <div class="col-md-3">
+                            <label for="periodsCount" class="form-label">Брой периоди:</label>
+                            <select name="periodsCount" id="periodsCount" class="form-select" onchange="this.form.submit()">
+                                <option value="3" selected='@(Model.PeriodsCount == 3 ? "selected" : "")'>3</option>
+                                <option value="6" selected='@(Model.PeriodsCount == 6 ? "selected" : "")'>6</option>
+                                <option value="12" selected='@(Model.PeriodsCount == 12 ? "selected" : "")'>12</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-primary" onclick="refreshChart()">
+                                <i class="fas fa-sync me-1"></i>Обнови
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Обобщение -->
+    @if (Model.Summary != null && Model.Periods.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h6 class="text-primary">Средни месечни разходи</h6>
+                        <h4 class="text-primary">
+                            @($"{Model.Summary.AverageMonthlyExpenses:F2} лв.")
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-danger">
+                    <div class="card-body text-center">
+                        <h6 class="text-danger">Най-високи разходи</h6>
+                        <h5 class="text-danger">
+                            @($"{Model.Summary.HighestMonthlyExpenses:F2} лв.")
+                        </h5>
+                        <small class="text-muted">@Model.Summary.HighestExpenseMonth</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h6 class="text-success">Най-ниски разходи</h6>
+                        <h5 class="text-success">
+                            @($"{Model.Summary.LowestMonthlyExpenses:F2} лв.")
+                        </h5>
+                        <small class="text-muted">@Model.Summary.LowestExpenseMonth</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <h6 class="text-warning">Тренд на разходите</h6>
+                        <h5 class="@(Model.Summary.ExpensesTrend > 0 ? "text-danger" : Model.Summary.ExpensesTrend < 0 ? "text-success" : "text-warning")">
+                            <i class="fas @(Model.Summary.ExpensesTrend > 0
+                                                                               ? "fa-arrow-up"
+                                                                               : Model.Summary.ExpensesTrend < 0
+                                                                                   ? "fa-arrow-down"
+                                                                                   : "fa-minus")"></i>
+                            @(Model.Summary.ExpensesTrend > 0
+                                                    ? "Растящ"
+                                                    : Model.Summary.ExpensesTrend < 0
+                                                    ? "Намаляващ"
+                                                    : "Стабилен")
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+        }
+
+    <!-- Графика -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Тенденции в разходите</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="expensesChart" style="height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица с периоди -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Детайлно сравнение по периоди</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Periods.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Период</th>
+                                        <th>Приходи</th>
+                                        <th>Разходи</th>
+                                        <th>Баланс</th>
+                                        <th>Промяна</th>
+                                        <th>% Промяна</th>
+                                        <th>Тренд</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var period in Model.Periods.OrderByDescending(p => p.StartDate))
+                                    {
+                                        <tr class="@(period.IsCurrentPeriod ? "table-info" : "")">
+                                            <td>
+                                                <strong>@period.PeriodName</strong>
+                                                @if (period.IsCurrentPeriod)
+                                                {
+                                                    <span class="badge bg-primary ms-2">Текущ</span>
+                                                }
+                                        </td>
+                                        <td class="text-success">@($"{period.TotalIncome:F2} лв.")</td>
+                                        <td class="text-danger">@($"{period.TotalExpenses:F2} лв.")</td>
+                                        <td class="@(period.Balance >= 0 ? "text-success" : "text-danger")">
+                                            @($"{period.Balance:F2} лв.")
+                                        </td>
+                                        <td class="@(period.ChangeFromPrevious >= 0 ? "text-danger" : "text-success")">
+                                            @(period.ChangeFromPrevious != 0
+                                                                                    ? $"{(period.ChangeFromPrevious >= 0 ? "+" : "")}{period.ChangeFromPrevious:F2} лв."
+                                                                                    : "-")
+                                                                                      </td>
+                                                                                      <td class="@(period.PercentageChange >= 0 ? "text-danger" : "text-success")">
+                                            @(period.PercentageChange != 0
+                                                                                    ? $"{(period.PercentageChange >= 0 ? "+" : "")}{period.PercentageChange:F1}%"
+                                                                                    : "-")
+                                    </td>
+                                    <td>
+                                        @if (period.PercentageChange != 0)
+                                                {
+                                                    <i class="fas @(period.PercentageChange > 5
+                                                                                                                           ? "fa-arrow-up text-danger"
+                                                                                                                           : period.PercentageChange < -5
+                                                                                                                               ? "fa-arrow-down text-success"
+                                                                                                                               : "fa-minus text-warning")"></i>
+                                                                                                                                                      <span class="ms-1">
+                                                        @(period.PercentageChange > 5
+                                                                                                    ? "Увеличение"
+                                                                                                    : period.PercentageChange < -5
+                                                                                                    ? "Намаление"
+                                                                                                    : "Стабилно")
+                                        </span>
+                                                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i>
+                            <p>Няма данни за сравнение</p>
+                            <a asp-controller="Transactions" asp-action="Create" class="btn btn-primary">Добавете транзакции</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сравнение по категории -->
+    @if (Model.CategoryComparisons.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tags me-2"></i>Сравнение по категории
+                            <small class="text-muted">(Текущ vs Предишен период)</small>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (var cat in Model.CategoryComparisons.Take(8))
+                            {
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                                    <div class="card @(Math.Abs(cat.PercentageChange) > 10 ? "border-warning" : "")">
+                                        <div class="card-body text-center">
+                                            <div class="mb-2">
+                                                <span class="badge rounded-pill" style="background-color: @cat.CategoryColor;">
+                                                    @cat.CategoryName
+                                                </span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted">Текущ:</small>
+                                                <strong>@($"{cat.CurrentPeriodAmount:F2} лв.")</strong>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted">Предишен:</small>
+                                                <strong>@($"{cat.PreviousPeriodAmount:F2} лв.")</strong>
+                                            </div>
+                                            <div class="@(cat.Change >= 0 ? "text-danger" : "text-success")">
+                                                <i class="fas @(cat.PercentageChange > 0
+                                                                                                               ? "fa-arrow-up text-danger"
+                                                                                                               : cat.PercentageChange < 0
+                                                                                                                   ? "fa-arrow-down text-success"
+                                                                                                                   : "fa-minus text-muted")"></i>
+                                        @($"{(cat.Change >= 0 ? "+" : "")}{cat.Change:F2} лв. ({(cat.PercentageChange >= 0 ? "+" : "")}{cat.PercentageChange:F1}%)")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                                                }
+                        </div>
+
+                        @if (Model.CategoryComparisons.Count > 8)
+                        {
+                            <div class="text-center mt-3">
+                                <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#moreCategories">
+                                    <i class="fas fa-plus me-1"></i>Покажи още @(Model.CategoryComparisons.Count - 8)
+                                </button>
+                            </div>
+                            <div class="collapse mt-3" id="moreCategories">
+                                <div class="row">
+                                    @foreach (var cat in Model.CategoryComparisons.Skip(8))
+                                    {
+                                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                                            <div class="card @(Math.Abs(cat.PercentageChange) > 10 ? "border-warning" : "")">
+                                                <div class="card-body text-center">
+                                                    <div class="mb-2">
+                                                        <span class="badge rounded-pill" style="background-color: @cat.CategoryColor;">
+                                                            @cat.CategoryName
+                                                        </span>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <small class="text-muted">Текущ:</small>
+                                                        <strong>@($"{cat.CurrentPeriodAmount:F2} лв.")</strong>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <small class="text-muted">Предишен:</small>
+                                                        <strong>@($"{cat.PreviousPeriodAmount:F2} лв.")</strong>
+                                                    </div>
+                                                    <div class="@(cat.Change >= 0 ? "text-danger" : "text-success")">
+                                                        <i class="fas @(cat.PercentageChange > 0
+                                                                                                                               ? "fa-arrow-up text-danger"
+                                                                                                                               : cat.PercentageChange < 0
+                                                                                                                                   ? "fa-arrow-down text-success"
+                                                                                                                                   : "fa-minus text-muted")"></i>
+                                            @($"{(cat.Change >= 0 ? "+" : "")}{cat.Change:F2} лв. ({(cat.PercentageChange >= 0 ? "+" : "")}{cat.PercentageChange:F1}%)")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                                        }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Анализ и препоръки -->
+    @if (Model.Summary?.TopGrowingCategories?.Any() == true || Model.Summary?.TopDecreasingCategories?.Any() == true)
+    {
+        <div class="row mb-4">
+            <div class="col-md-6">
+                @if (Model.Summary.TopGrowingCategories.Any())
+                {
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h6 class="mb-0"><i class="fas fa-arrow-up me-2"></i>Най-растящи категории</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var c in Model.Summary.TopGrowingCategories)
+                                {
+                                    <li class="mb-2">
+                                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>@c
+                                    </li>
+                                }
+                            </ul>
+                            <small class="text-muted">Тези категории показват значително увеличение на разходите.</small>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-md-6">
+                @if (Model.Summary.TopDecreasingCategories.Any())
+                {
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Най-намаляващи категории</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var c in Model.Summary.TopDecreasingCategories)
+                                {
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>@c
+                                    </li>
+                                }
+                            </ul>
+                            <small class="text-muted">Тези категории показват значително намаление на разходите.</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        let expensesChart;
+        document.addEventListener('DOMContentLoaded', initializeChart);
+
+        function initializeChart() {
+            const ctx = document.getElementById('expensesChart').getContext('2d');
+            const periods = @Html.Raw(Json.Serialize(Model.Periods
+                                                                            .OrderBy(p => p.StartDate)
+                                                                            .Select(p => new { p.PeriodName, p.TotalExpenses, p.TotalIncome, p.Balance })));
+
+        if (expensesChart) expensesChart.destroy();
+
+            expensesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: periods.map(p => p.periodName),
+                    datasets: [
+                        {
+                            label: 'Разходи',
+                            data: periods.map(p => p.totalExpenses),
+                            tension: 0.4, fill: true,
+                            borderColor: 'rgb(220, 53, 69)', backgroundColor: 'rgba(220, 53, 69, 0.1)'
+                        },
+                        {
+                            label: 'Приходи',
+                            data: periods.map(p => p.totalIncome),
+                            tension: 0.4, fill: true,
+                            borderColor: 'rgb(25, 135, 84)', backgroundColor: 'rgba(25, 135, 84, 0.1)'
+                        },
+                        {
+                            label: 'Баланс',
+                            data: periods.map(p => p.balance),
+                            tension: 0.4, fill: false, borderDash: [5, 5],
+                            borderColor: 'rgb(13, 110, 253)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Финансови тенденции по периоди' },
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: v => v.toFixed(2) + ' лв.' }
+                        }
+                    },
+                    elements: { point: { radius: 6, hoverRadius: 8 } }
+                }
+            });
+        }
+
+        function refreshChart() {
+            const params = new URLSearchParams(new FormData(document.querySelector('form')));
+            fetch(`/Reports/GetComparisonData?${params}`)
+                .then(r => r.json())
+                .then(d => d.success ? updateChart(d.data) : console.error(d.message))
+                .catch(console.error);
+        }
+
+        function updateChart(data) {
+            if (!expensesChart || !data) return;
+            expensesChart.data.labels = data.map(p => p.periodName);
+            expensesChart.data.datasets[0].data = data.map(p => p.expenses);
+            expensesChart.data.datasets[1].data = data.map(p => p.income);
+            expensesChart.data.datasets[2].data = data.map(p => p.balance);
+            expensesChart.update();
+        }
+    </script>
+}

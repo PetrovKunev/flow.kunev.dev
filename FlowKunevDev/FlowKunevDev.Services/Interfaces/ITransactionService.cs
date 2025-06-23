@@ -45,5 +45,9 @@ namespace FlowKunevDev.Services.Interfaces
         Task<IEnumerable<TransactionDto>> CreateMultipleAsync(IEnumerable<CreateTransactionDto> createDtos, string userId);
         Task<bool> DeleteMultipleAsync(IEnumerable<int> ids, string userId);
 
+        // Сравнителни анализи
+        Task<List<PeriodComparison>> GetPeriodComparisonAsync(string userId, ComparisonType type, DateTime baseDate, int periodsCount = 6);
+        Task<List<CategoryComparison>> GetCategoryComparisonAsync(string userId, DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd);
+        Task<ComparisonSummary> GetComparisonSummaryAsync(string userId, List<PeriodComparison> periods, List<CategoryComparison> categories);
     }
 }

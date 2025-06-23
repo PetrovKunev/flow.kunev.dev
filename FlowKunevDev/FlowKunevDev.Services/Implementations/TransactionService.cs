@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Globalization;
+using FlowKunevDev.Common;
 using FlowKunevDev.Data;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
-using FlowKunevDev.Common;
-using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlowKunevDev.Services.Implementations
 {
@@ -825,6 +825,210 @@ namespace FlowKunevDev.Services.Implementations
             }
 
             return currentBalance + projectedChange;
+        }
+
+        // Сравнение на разходи за периоди и категории
+
+        public async Task<List<PeriodComparison>> GetPeriodComparisonAsync(string userId, ComparisonType type, DateTime baseDate, int periodsCount = 6)
+        {
+            var comparisons = new List<PeriodComparison>();
+
+            for (int i = 0; i < periodsCount; i++)
+            {
+                var (startDate, endDate, periodName) = GetPeriodDates(baseDate, type, i);
+
+                var summary = await GetPeriodSummaryAsync(userId, startDate, endDate);
+
+                var comparison = new PeriodComparison
+                {
+                    PeriodName = periodName,
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalIncome = summary.TotalIncome,
+                    TotalExpenses = summary.TotalExpenses,
+                    Balance = summary.NetAmount,
+                    IsCurrentPeriod = i == 0
+                };
+
+                // Изчисляваме промяната спрямо предишния период
+                if (comparisons.Any())
+                {
+                    var previousPeriod = comparisons.Last();
+                    comparison.ChangeFromPrevious = comparison.TotalExpenses - previousPeriod.TotalExpenses;
+                    comparison.PercentageChange = previousPeriod.TotalExpenses > 0
+                        ? (comparison.ChangeFromPrevious / previousPeriod.TotalExpenses) * 100
+                        : 0;
+                }
+
+                comparisons.Add(comparison);
+            }
+
+            return comparisons.OrderBy(c => c.StartDate).ToList();
+        }
+
+        public async Task<List<CategoryComparison>> GetCategoryComparisonAsync(string userId, DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd)
+        {
+            // Текущ период
+            var currentCategories = await GetCategorySummaryAsync(userId, currentStart, currentEnd, TransactionType.Expense);
+
+            // Предишен период
+            var previousCategories = await GetCategorySummaryAsync(userId, previousStart, previousEnd, TransactionType.Expense);
+
+            var comparisons = new List<CategoryComparison>();
+
+            // Обединяваме всички категории
+            var allCategoryIds = currentCategories.Select(c => c.CategoryId)
+                .Union(previousCategories.Select(c => c.CategoryId))
+                .Distinct();
+
+            foreach (var categoryId in allCategoryIds)
+            {
+                var current = currentCategories.FirstOrDefault(c => c.CategoryId == categoryId);
+                var previous = previousCategories.FirstOrDefault(c => c.CategoryId == categoryId);
+
+                var currentAmount = current?.Amount ?? 0;
+                var previousAmount = previous?.Amount ?? 0;
+                var change = currentAmount - previousAmount;
+                var percentageChange = previousAmount > 0 ? (change / previousAmount) * 100 : 0;
+
+                comparisons.Add(new CategoryComparison
+                {
+                    CategoryId = categoryId,
+                    CategoryName = current?.CategoryName ?? previous?.CategoryName ?? "Неизвестна",
+                    CategoryColor = current?.CategoryColor ?? previous?.CategoryColor ?? "#007bff",
+                    CurrentPeriodAmount = currentAmount,
+                    PreviousPeriodAmount = previousAmount,
+                    Change = change,
+                    PercentageChange = percentageChange
+                });
+            }
+
+            return comparisons.OrderByDescending(c => Math.Abs(c.Change)).ToList();
+        }
+
+        public Task<ComparisonSummary> GetComparisonSummaryAsync(string userId, List<PeriodComparison> periods, List<CategoryComparison> categories)
+        {
+            var expenses = periods.Select(p => p.TotalExpenses).Where(e => e > 0).ToList();
+
+            if (!expenses.Any())
+            {
+                return Task.FromResult(new ComparisonSummary());
+            }
+
+            var highest = periods.OrderByDescending(p => p.TotalExpenses).First();
+            var lowest = periods.Where(p => p.TotalExpenses > 0).OrderBy(p => p.TotalExpenses).First();
+
+            // Изчисляваме тренда (линейна регресия)
+            var trend = CalculateExpensesTrend(periods);
+
+            return Task.FromResult(new ComparisonSummary
+            {
+                AverageMonthlyExpenses = expenses.Average(),
+                HighestMonthlyExpenses = highest.TotalExpenses,
+                LowestMonthlyExpenses = lowest.TotalExpenses,
+                HighestExpenseMonth = highest.PeriodName,
+                LowestExpenseMonth = lowest.PeriodName,
+                TotalExpensesAllPeriods = expenses.Sum(),
+                ExpensesTrend = trend,
+                TopGrowingCategories = categories
+                    .Where(c => c.PercentageChange > 10)
+                    .OrderByDescending(c => c.PercentageChange)
+                    .Take(3)
+                    .Select(c => c.CategoryName)
+                    .ToList(),
+                TopDecreasingCategories = categories
+                    .Where(c => c.PercentageChange < -10)
+                    .OrderBy(c => c.PercentageChange)
+                    .Take(3)
+                    .Select(c => c.CategoryName)
+                    .ToList()
+            });
+        }
+
+        private (DateTime startDate, DateTime endDate, string periodName) GetPeriodDates(DateTime baseDate, ComparisonType type, int periodsBack)
+        {
+            DateTime startDate, endDate;
+            string periodName;
+
+            switch (type)
+            {
+                case ComparisonType.Monthly:
+                    var monthDate = baseDate.AddMonths(-periodsBack);
+                    startDate = new DateTime(monthDate.Year, monthDate.Month, 1);
+                    endDate = startDate.AddMonths(1).AddDays(-1);
+                    periodName = monthDate.ToString("MMM yyyy", new System.Globalization.CultureInfo("bg-BG"));
+                    break;
+
+                case ComparisonType.Quarterly:
+                    var quarterDate = baseDate.AddMonths(-periodsBack * 3);
+                    var quarter = (quarterDate.Month - 1) / 3 + 1;
+                    startDate = new DateTime(quarterDate.Year, (quarter - 1) * 3 + 1, 1);
+                    endDate = startDate.AddMonths(3).AddDays(-1);
+                    periodName = $"Q{quarter} {quarterDate.Year}";
+                    break;
+
+                case ComparisonType.Yearly:
+                    var yearDate = baseDate.AddYears(-periodsBack);
+                    startDate = new DateTime(yearDate.Year, 1, 1);
+                    endDate = new DateTime(yearDate.Year, 12, 31);
+                    periodName = yearDate.Year.ToString();
+                    break;
+
+                default:
+                    throw new ArgumentException("Невалиден тип сравнение");
+            }
+
+            return (startDate, endDate, periodName);
+        }
+
+        private decimal CalculateExpensesTrend(List<PeriodComparison> periods)
+        {
+            if (periods.Count < 2) return 0;
+
+            var orderedPeriods = periods.OrderBy(p => p.StartDate).ToList();
+            var n = orderedPeriods.Count;
+
+            // Проста линейна регресия за тренда
+            var sumX = 0m;
+            var sumY = 0m;
+            var sumXY = 0m;
+            var sumX2 = 0m;
+
+            for (int i = 0; i < n; i++)
+            {
+                var x = i;
+                var y = orderedPeriods[i].TotalExpenses;
+
+                sumX += x;
+                sumY += y;
+                sumXY += x * y;
+                sumX2 += x * x;
+            }
+
+            var slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            return slope; // Positive = increasing trend, Negative = decreasing trend
+        }
+
+        private async Task<MonthlyTransactionSummaryDto> GetPeriodSummaryAsync(string userId, DateTime startDate, DateTime endDate)
+        {
+            var transactions = await _context.Transactions
+                .Where(t => t.UserId == userId && t.Date >= startDate && t.Date <= endDate)
+                .Include(t => t.Category)
+                .ToListAsync();
+
+            var income = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
+            var expenses = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
+
+            return new MonthlyTransactionSummaryDto
+            {
+                Month = startDate.Month,
+                Year = startDate.Year,
+                TotalIncome = income,
+                TotalExpenses = expenses,
+                NetAmount = income - expenses,
+                TransactionCount = transactions.Count,
+                CategoryBreakdown = new List<CategorySummaryDto>()
+            };
         }
     }
 }
