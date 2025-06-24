@@ -74,28 +74,30 @@
 <style>
     /* Подобрения за user dropdown на малки екрани */
     @@media (max-width: 767.98px) {
-        .user-name {
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            display: inline-block;
-        }
+        .user-name
 
-        .dropdown-menu {
-            min-width: 200px;
-        }
+    {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+    }
 
-        .dropdown-header {
-            font-size: 0.875rem;
-            padding: 0.5rem 1rem;
-        }
+    .dropdown-menu {
+        min-width: 200px;
+    }
 
-        /* Подобряваме touch targets за mobile */
-        .dropdown-item {
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-        }
+    .dropdown-header {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Подобряваме touch targets за mobile */
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
 
         .dropdown-item i {
             width: 20px;
@@ -108,31 +110,38 @@
             color: #721c24 !important;
         }
 
-        /* Компактен login бутон */
-        .login-text {
-            font-size: 0.9rem;
-        }
+    /* Компактен login бутон */
+    .login-text {
+        font-size: 0.9rem;
+    }
+
     }
 
     /* Подобрения за tablet екрани */
     @@media (min-width: 768px) and (max-width: 991.98px) {
-        .navbar-nav .nav-link {
-            padding: 0.5rem 0.75rem;
-        }
+        .navbar-nav .nav-link
+
+    {
+        padding: 0.5rem 0.75rem;
+    }
+
     }
 
     /* По-голям touch target за мобилни устройства */
     @@media (hover: none) and (pointer: coarse) {
-        .dropdown-toggle {
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-        }
+        .dropdown-toggle
 
-        .dropdown-item {
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-        }
+    {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-item {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
     }
 </style>

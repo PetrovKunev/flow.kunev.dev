@@ -274,7 +274,7 @@ body {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Mobile Navigation Improvements*/
+/* Mobile Navigation Improvements - Добавете в site.css или отделен файл */
 
 /* Основни подобрения за navbar на малки екрани */
 @media (max-width: 991.98px) {
@@ -490,25 +490,35 @@ body {
         }
 }
 
-/* Dark mode support (ако използвате) */
-@media (prefers-color-scheme: dark) {
-    .navbar-collapse {
-        background-color: rgba(255, 255, 255, 0.1);
+/* Осигуряваме че dropdown менютата остават бели */
+.dropdown-menu {
+    background-color: white !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #212529 !important;
+}
+
+.dropdown-item {
+    color: #212529 !important;
+}
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background-color: #f8f9fa !important;
+        color: #212529 !important;
     }
 
-    .dropdown-menu {
-        background-color: #2d3748;
-        border-color: #4a5568;
+    .dropdown-item.text-success:hover {
+        background-color: #d1edff !important;
+        color: #0f5132 !important;
     }
 
-    .dropdown-item {
-        color: #e2e8f0;
+    .dropdown-item.text-danger:hover {
+        background-color: #f8d7da !important;
+        color: #721c24 !important;
     }
 
-        .dropdown-item:hover {
-            background-color: #4a5568;
-            color: white;
-        }
+.dropdown-header {
+    color: #6c757d !important;
 }
 
 /* High contrast mode support */
