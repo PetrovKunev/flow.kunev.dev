@@ -4,6 +4,7 @@ using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace FlowKunevDev.Services.Implementations
 {
@@ -12,15 +13,18 @@ namespace FlowKunevDev.Services.Implementations
         private readonly ApplicationDbContext _context;
         private readonly ICategoryService _categoryService;
         private readonly ITransactionService _transactionService;
+        private readonly IMapper _mapper;
 
         public PlannedTransactionService(
             ApplicationDbContext context,
             ICategoryService categoryService,
-            ITransactionService transactionService)
+            ITransactionService transactionService,
+            IMapper mapper)
         {
             _context = context;
             _categoryService = categoryService;
             _transactionService = transactionService;
+            _mapper = mapper;
         }
 
         public async Task<PlannedTransactionDto?> GetByIdAsync(int id, string userId)
@@ -31,7 +35,7 @@ namespace FlowKunevDev.Services.Implementations
                 .Include(pt => pt.ExecutedTransaction)
                 .FirstOrDefaultAsync(pt => pt.Id == id && pt.UserId == userId);
 
-            return planned == null ? null : MapToDto(planned);
+            return planned == null ? null : _mapper.Map<PlannedTransactionDto>(planned);
         }
 
         public async Task<IEnumerable<PlannedTransactionDto>> GetAllAsync(string userId, PlannedTransactionFilterDto? filter = null)
@@ -45,7 +49,7 @@ namespace FlowKunevDev.Services.Implementations
                 .ThenBy(pt => pt.Id)
                 .ToListAsync();
 
-            return planned.Select(MapToDto);
+            return planned.Select(pt => _mapper.Map<PlannedTransactionDto>(pt));
         }
 
         public async Task<(IEnumerable<PlannedTransactionDto> Items, int TotalCount)> GetPagedAsync(PlannedTransactionFilterDto filter, string userId)
@@ -63,7 +67,7 @@ namespace FlowKunevDev.Services.Implementations
                 .Take(filter.PageSize)
                 .ToListAsync();
 
-            return (planned.Select(MapToDto), totalCount);
+            return (planned.Select(pt => _mapper.Map<PlannedTransactionDto>(pt)), totalCount);
         }
 
         public async Task<PlannedTransactionDto> CreateAsync(CreatePlannedTransactionDto createDto, string userId)
@@ -73,21 +77,8 @@ namespace FlowKunevDev.Services.Implementations
                 throw new InvalidOperationException("Не може да се създаде планираната транзакция.");
             }
 
-            var planned = new PlannedTransaction
-            {
-                Description = createDto.Description,
-                PlannedAmount = createDto.PlannedAmount,
-                PlannedDate = createDto.PlannedDate,
-                CategoryId = createDto.CategoryId,
-                AccountId = createDto.AccountId,
-                UserId = userId,
-                Type = createDto.Type,
-                Notes = createDto.Notes,
-                IsRecurring = createDto.IsRecurring,
-                RecurrenceType = createDto.RecurrenceType,
-                Status = PlannedTransactionStatus.Planned,
-                CreatedDate = DateTime.Now
-            };
+            var planned = _mapper.Map<PlannedTransaction>(createDto);
+            planned.UserId = userId;
 
             _context.PlannedTransactions.Add(planned);
             await _context.SaveChangesAsync();
@@ -99,7 +90,7 @@ namespace FlowKunevDev.Services.Implementations
                 .Reference(pt => pt.Account)
                 .LoadAsync();
 
-            return MapToDto(planned);
+            return _mapper.Map<PlannedTransactionDto>(planned);
         }
 
         public async Task<PlannedTransactionDto?> UpdateAsync(UpdatePlannedTransactionDto updateDto, string userId)
@@ -114,15 +105,7 @@ namespace FlowKunevDev.Services.Implementations
                 throw new InvalidOperationException("Не може да се обнови планираната транзакция.");
             }
 
-            planned.Description = updateDto.Description;
-            planned.PlannedAmount = updateDto.PlannedAmount;
-            planned.PlannedDate = updateDto.PlannedDate;
-            planned.CategoryId = updateDto.CategoryId;
-            planned.AccountId = updateDto.AccountId;
-            planned.Type = updateDto.Type;
-            planned.Notes = updateDto.Notes;
-            planned.IsRecurring = updateDto.IsRecurring;
-            planned.RecurrenceType = updateDto.RecurrenceType;
+            _mapper.Map(updateDto, planned);
 
             await _context.SaveChangesAsync();
 
@@ -209,7 +192,7 @@ namespace FlowKunevDev.Services.Implementations
                 .OrderBy(pt => pt.PlannedDate)
                 .ToListAsync();
 
-            return dueTransactions.Select(MapToDto);
+            return dueTransactions.Select(pt => _mapper.Map<PlannedTransactionDto>(pt));
         }
 
         public async Task<int> ExecuteDueTransactionsAsync(DateTime? targetDate = null)
@@ -283,7 +266,7 @@ namespace FlowKunevDev.Services.Implementations
                 .OrderBy(pt => pt.PlannedDate)
                 .ToListAsync();
 
-            return upcoming.Select(MapToSummaryDto);
+            return upcoming.Select(pt => _mapper.Map<PlannedTransactionSummaryDto>(pt));
         }
 
         public async Task<IEnumerable<PlannedTransactionSummaryDto>> GetOverdueAsync(string userId)
@@ -297,7 +280,7 @@ namespace FlowKunevDev.Services.Implementations
                 .OrderBy(pt => pt.PlannedDate)
                 .ToListAsync();
 
-            return overdue.Select(MapToSummaryDto);
+            return overdue.Select(pt => _mapper.Map<PlannedTransactionSummaryDto>(pt));
         }
 
         public async Task<IEnumerable<PlannedTransactionDto>> GetByStatusAsync(string userId, PlannedTransactionStatus status)
@@ -309,7 +292,7 @@ namespace FlowKunevDev.Services.Implementations
                 .OrderBy(pt => pt.PlannedDate)
                 .ToListAsync();
 
-            return transactions.Select(MapToDto);
+            return transactions.Select(pt => _mapper.Map<PlannedTransactionDto>(pt));
         }
 
         public async Task<IEnumerable<PlannedTransactionDto>> GetRecurringAsync(string userId)
@@ -321,7 +304,7 @@ namespace FlowKunevDev.Services.Implementations
                 .OrderBy(pt => pt.PlannedDate)
                 .ToListAsync();
 
-            return recurring.Select(MapToDto);
+            return recurring.Select(pt => _mapper.Map<PlannedTransactionDto>(pt));
         }
 
         public async Task<decimal> GetTotalPlannedExpensesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
@@ -519,53 +502,7 @@ namespace FlowKunevDev.Services.Implementations
                 _ => currentDate.AddMonths(1)
             };
         }
-
-        private PlannedTransactionDto MapToDto(PlannedTransaction planned)
-        {
-            return new PlannedTransactionDto
-            {
-                Id = planned.Id,
-                Description = planned.Description,
-                PlannedAmount = planned.PlannedAmount,
-                PlannedDate = planned.PlannedDate,
-                CategoryId = planned.CategoryId,
-                CategoryName = planned.Category?.Name ?? "",
-                CategoryColor = planned.Category?.Color ?? "#007bff",
-                CategoryIcon = planned.Category?.Icon ?? "fa fa-folder",
-                AccountId = planned.AccountId,
-                AccountName = planned.Account?.Name ?? "",
-                UserId = planned.UserId,
-                Type = planned.Type,
-                Notes = planned.Notes,
-                Status = planned.Status,
-                IsRecurring = planned.IsRecurring,
-                RecurrenceType = planned.RecurrenceType,
-                ExecutedTransactionId = planned.ExecutedTransactionId,
-                CreatedDate = planned.CreatedDate
-            };
-        }
-
-        private PlannedTransactionSummaryDto MapToSummaryDto(PlannedTransaction planned)
-        {
-            var now = DateTime.Now.Date;
-            var plannedDate = planned.PlannedDate.Date;
-
-            return new PlannedTransactionSummaryDto
-            {
-                Id = planned.Id,
-                Description = planned.Description,
-                PlannedAmount = planned.PlannedAmount,
-                PlannedDate = planned.PlannedDate,
-                CategoryName = planned.Category?.Name ?? "",
-                CategoryColor = planned.Category?.Color ?? "#007bff",
-                AccountName = planned.Account?.Name ?? "",
-                Type = planned.Type,
-                Status = planned.Status,
-                IsOverdue = planned.Status == PlannedTransactionStatus.Planned && plannedDate < now,
-                IsDueToday = planned.Status == PlannedTransactionStatus.Planned && plannedDate == now,
-                DaysUntilDue = planned.Status == PlannedTransactionStatus.Planned ? (plannedDate - now).Days : 0
-            };
-        }
+        // AutoMapper handles DTO conversions
     }
 
 }

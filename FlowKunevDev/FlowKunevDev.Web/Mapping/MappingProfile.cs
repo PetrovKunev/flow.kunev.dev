@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using FlowKunevDev.Common;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FlowKunevDev.Web.Mapping
 {
@@ -92,7 +92,39 @@ namespace FlowKunevDev.Web.Mapping
             CreateMap<UpdateBudgetDto, Budget>()
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.UserId, opt => opt.Ignore());
-            // PlannedTransaction mappings (когато ги създадем)
+            // PlannedTransaction mappings
+            CreateMap<PlannedTransaction, PlannedTransactionDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : ""))
+                .ForMember(dest => dest.CategoryColor, opt => opt.MapFrom(src => src.Category != null ? src.Category.Color : "#007bff"))
+                .ForMember(dest => dest.CategoryIcon, opt => opt.MapFrom(src => src.Category != null ? src.Category.Icon : "fa fa-folder"))
+                .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account != null ? src.Account.Name : ""));
+
+            CreateMap<PlannedTransaction, PlannedTransactionSummaryDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : ""))
+                .ForMember(dest => dest.CategoryColor, opt => opt.MapFrom(src => src.Category != null ? src.Category.Color : "#007bff"))
+                .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account != null ? src.Account.Name : ""))
+                .ForMember(dest => dest.IsOverdue, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned && src.PlannedDate.Date < DateTime.Now.Date))
+                .ForMember(dest => dest.IsDueToday, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned && src.PlannedDate.Date == DateTime.Now.Date))
+                .ForMember(dest => dest.DaysUntilDue, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned ? (src.PlannedDate.Date - DateTime.Now.Date).Days : 0));
+
+            CreateMap<CreatePlannedTransactionDto, PlannedTransaction>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => PlannedTransactionStatus.Planned))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.Account, opt => opt.Ignore())
+                .ForMember(dest => dest.ExecutedTransactionId, opt => opt.Ignore())
+                .ForMember(dest => dest.ExecutedTransaction, opt => opt.Ignore());
+
+            CreateMap<UpdatePlannedTransactionDto, PlannedTransaction>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.Account, opt => opt.Ignore())
+                .ForMember(dest => dest.ExecutedTransactionId, opt => opt.Ignore())
+                .ForMember(dest => dest.ExecutedTransaction, opt => opt.Ignore());
 
         }
     }
