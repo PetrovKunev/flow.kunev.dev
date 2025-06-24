@@ -14,7 +14,8 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-dark bg-primary mb-3">
+        <!-- Променихме navbar-expand-sm на navbar-expand-lg за по-добро mobile поведение -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-3">
             <div class="container">
                 <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
                     <i class="fas fa-chart-line me-2"></i>Flow
@@ -25,14 +26,15 @@
                         data-bs-target=".navbar-collapse"
                         aria-controls="navbarSupportedContent"
                         aria-expanded="false"
-                        aria-label="Toggle navigation">
+                        aria-label="Отвори навигация">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <!-- Премахнахме d-sm-inline-flex за по-добро mobile поведение -->
+                <div class="navbar-collapse collapse justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home me-1"></i>Начало
+                                <i class="fas fa-home me-1"></i><span class="d-lg-inline">Начало</span>
                             </a>
                         </li>
 
@@ -41,17 +43,20 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                                    <i class="fas fa-tachometer-alt me-1"></i>Табло
+                                    <i class="fas fa-tachometer-alt me-1"></i><span class="d-lg-inline">Табло</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Accounts" asp-action="Index">
-                                    <i class="fas fa-wallet me-1"></i>Сметки
+                                    <i class="fas fa-wallet me-1"></i><span class="d-lg-inline">Сметки</span>
                                 </a>
                             </li>
+
+
+                            <!-- Опростихме dropdown менютата за mobile -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="transactionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-exchange-alt me-1"></i>Транзакции
+                                    <i class="fas fa-exchange-alt me-1"></i><span class="d-lg-inline">Транзакции</span>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
                                     <li>
@@ -64,42 +69,39 @@
                                             <i class="fas fa-exchange-alt me-2"></i>Трансфери
                                         </a>
                                     </li>
+
                                 </ul>
                             </li>
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="plannedNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-calendar-plus"></i> Планирани
+                                    <i class="fas fa-calendar-plus me-1"></i><span class="d-lg-inline">Планирани</span>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="plannedNavDropdown">
                                     <li>
                                         <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Index">
-                                            <i class="fas fa-list"></i> Всички планирани
+                                            <i class="fas fa-list me-2"></i>Всички планирани
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Upcoming">
-                                            <i class="fas fa-calendar-day"></i> Предстоящи
+                                            <i class="fas fa-calendar-day me-2"></i>Предстоящи
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Overdue">
-                                            <i class="fas fa-exclamation-triangle"></i> Просрочени
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Recurring">
-                                            <i class="fas fa-repeat"></i> Повтарящи се
+                                            <i class="fas fa-exclamation-triangle me-2"></i>Просрочени
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Create" asp-route-type="Income">
-                                            <i class="fas fa-plus text-success"></i> Нов планиран приход
+                                            <i class="fas fa-plus text-success me-2"></i>Нов планиран приход
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="PlannedTransactions" asp-action="Create" asp-route-type="Expense">
-                                            <i class="fas fa-minus text-danger"></i> Нов планиран разход
+                                            <i class="fas fa-minus text-danger me-2"></i>Нов планиран разход
                                         </a>
                                     </li>
                                 </ul>
@@ -107,7 +109,7 @@
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-chart-bar me-1"></i>Отчети
+                                    <i class="fas fa-chart-bar me-1"></i><span class="d-lg-inline">Отчети</span>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
                                     <li>
@@ -139,12 +141,12 @@
                             @* За невписани потребители показваме информационни връзки *@
                             <li class="nav-item">
                                 <a class="nav-link" href="@Url.Action("Index", "Home")#features">
-                                    <i class="fas fa-star me-1"></i>Възможности
+                                    <i class="fas fa-star me-1"></i><span class="d-lg-inline">Възможности</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="@Url.Action("Index", "Home")#how-it-works">
-                                    <i class="fas fa-question-circle me-1"></i>Как работи
+                                    <i class="fas fa-question-circle me-1"></i><span class="d-lg-inline">Как работи</span>
                                 </a>
                             </li>
                         }
@@ -246,11 +248,16 @@
                 }
             });
 
-            // Navbar collapse при клик на link (mobile)
-            $('.navbar-nav .nav-link').on('click', function() {
+            // Подобрен navbar collapse при клик на link (mobile)
+            $('.navbar-nav .nav-link:not(.dropdown-toggle)').on('click', function() {
                 if ($(window).width() < 992) {
                     $('.navbar-collapse').collapse('hide');
                 }
+            });
+
+            // Затваряне на dropdown когато се кликне друг dropdown
+            $('.dropdown-toggle').on('click', function() {
+                $('.dropdown-menu').not($(this).next('.dropdown-menu')).removeClass('show');
             });
 
             // Animation за fade-in при зареждане на страницата

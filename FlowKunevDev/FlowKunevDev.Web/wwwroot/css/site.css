@@ -1,4 +1,4 @@
-/* ������� ������� �� body � html */
+﻿/* Îñíîâíè ñòèëîâå çà body è html */
 html, body {
     height: 100%;
 }
@@ -8,7 +8,7 @@ body {
     background-color: #f8f9fa;
 }
 
-/* ��������� */
+/* Íàâèãàöèÿ */
 .navbar-brand {
     font-weight: 700;
     font-size: 1.5rem;
@@ -27,7 +27,7 @@ body {
         transform: translateY(-2px);
     }
 
-/* ����� �� ������ */
+/* Êàðòè çà ñìåòêè */
 .account-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border-radius: 10px;
@@ -49,7 +49,7 @@ body {
         font-weight: 700;
     }
 
-/* ������ */
+/* Áóòîíè */
 .btn {
     border-radius: 8px;
     font-weight: 500;
@@ -75,7 +75,7 @@ body {
         border-bottom-right-radius: 8px;
     }
 
-/* ������ */
+/* Àëåðòè */
 .alert {
     border: none;
     border-radius: 10px;
@@ -86,7 +86,7 @@ body {
     padding: 1rem 1rem;
 }
 
-/* ����� */
+/* Ôîðìè */
 .form-floating > label {
     font-weight: 500;
 }
@@ -102,7 +102,7 @@ body {
         box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
     }
 
-/* ���������� ����� */
+/* Ñòàòèñòèêà êàðòè */
 .stats-card {
     border-radius: 15px;
     border: none;
@@ -127,7 +127,7 @@ body {
     letter-spacing: 1px;
 }
 
-/* ������� */
+/* Òàáëèöè */
 .table {
     border-radius: 10px;
     overflow: hidden;
@@ -152,7 +152,7 @@ body {
             background-color: #f8f9fa;
         }
 
-/* ������ �������� */
+/* Öâåòíè áåéäæîâå */
 .badge {
     font-weight: 500;
     padding: 0.5em 0.75em;
@@ -167,7 +167,7 @@ body {
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
-    content: "�";
+    content: "›";
     color: #6c757d;
 }
 
@@ -210,7 +210,7 @@ body {
     }
 }
 
-/* �������� */
+/* Àíèìàöèè */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -227,7 +227,7 @@ body {
     animation: fadeIn 0.5s ease-out;
 }
 
-/* ������� ������� �� ������ ������ */
+/* Öâåòîâà ïàëèòðà çà òèïîâå ñìåòêè */
 .account-savings {
     border-left: 4px solid #28a745;
 }
@@ -256,7 +256,7 @@ body {
     border-left: 4px solid #6c757d;
 }
 
-/* ������� � ��������� ��������� */
+/* Óñïåøíè è íåóñïåøíè ñúñòîÿíèÿ */
 .text-success-custom {
     color: #198754 !important;
 }
@@ -272,4 +272,256 @@ body {
 
 .shadow-custom-lg {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile Navigation Improvements*/
+
+/* Основни подобрения за navbar на малки екрани */
+@media (max-width: 991.98px) {
+    /* По-голям и по-видим navbar toggler */
+    .navbar-toggler {
+        padding: 0.5rem;
+        font-size: 1.1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 0.375rem;
+    }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+        }
+
+    /* Подобрена навигация на малки екрани */
+    .navbar-collapse {
+        background-color: rgba(0, 0, 0, 0.05);
+        margin-top: 0.5rem;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+    }
+
+    .navbar-nav .nav-item {
+        margin-bottom: 0.25rem;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+    /* Подобрения за dropdown менютата */
+    .dropdown-menu {
+        border: none;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+        margin-top: 0.25rem;
+    }
+
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        margin: 0.125rem;
+        display: flex;
+        align-items: center;
+    }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(3px);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+
+        /* Специални стилове за различни типове dropdown елементи */
+        .dropdown-item.text-success:hover {
+            background-color: #d1edff;
+            color: #0f5132 !important;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #f8d7da;
+            color: #721c24 !important;
+        }
+
+    /* Подобрения за потребителското dropdown меню */
+    #navbarDropdown {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* Специални подобрения за много малки екрани */
+@media (max-width: 576px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+
+    .navbar-nav .nav-link span {
+        font-size: 0.9rem;
+    }
+
+    /* Компактни dropdown менюта */
+    .dropdown-menu {
+        min-width: 250px;
+        max-width: calc(100vw - 2rem);
+    }
+
+    .dropdown-item {
+        font-size: 0.9rem;
+        padding: 0.625rem 0.875rem;
+    }
+
+    /* Подобрения за footer */
+    footer .row {
+        text-align: center;
+    }
+
+    footer .col-md-6:last-child {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* По-големи touch targets */
+    .navbar-nav .nav-link {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-item {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar-toggler {
+        min-width: 48px;
+        min-height: 48px;
+    }
+
+    /* Премахваме hover ефекти на touch устройства */
+    .navbar-nav .nav-link:hover {
+        transform: none;
+    }
+
+    .dropdown-item:hover {
+        transform: none;
+    }
+
+    /* Но добавяме active states */
+    .navbar-nav .nav-link:active {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .dropdown-item:active {
+        background-color: var(--bs-primary) !important;
+        color: white !important;
+    }
+}
+
+/* Landscape orientation на малки екрани */
+@media (max-width: 991.98px) and (orientation: landscape) {
+    .navbar-collapse {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .navbar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+        .navbar-nav .nav-item {
+            flex: 0 0 auto;
+            margin: 0.25rem;
+        }
+
+    .dropdown-menu {
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+}
+
+/* Анимации за по-гладко изживяване */
+.navbar-collapse {
+    transition: all 0.3s ease-in-out;
+}
+
+.dropdown-menu {
+    transition: all 0.2s ease-in-out;
+}
+
+.dropdown-item {
+    transition: all 0.15s ease-in-out;
+}
+
+/* Accessibility подобрения */
+@media (prefers-reduced-motion: reduce) {
+    .navbar-nav .nav-link,
+    .dropdown-item,
+    .navbar-collapse,
+    .dropdown-menu {
+        transition: none;
+    }
+
+        .navbar-nav .nav-link:hover,
+        .dropdown-item:hover {
+            transform: none;
+        }
+}
+
+/* Dark mode support (ако използвате) */
+@media (prefers-color-scheme: dark) {
+    .navbar-collapse {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .dropdown-menu {
+        background-color: #2d3748;
+        border-color: #4a5568;
+    }
+
+    .dropdown-item {
+        color: #e2e8f0;
+    }
+
+        .dropdown-item:hover {
+            background-color: #4a5568;
+            color: white;
+        }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .navbar-toggler {
+        border: 2px solid;
+    }
+
+    .dropdown-menu {
+        border: 2px solid;
+    }
+
+    .dropdown-item:hover {
+        outline: 2px solid;
+    }
 }

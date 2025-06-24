@@ -12,9 +12,18 @@
                     var userName = User.Identity?.Name ?? "";
                     var displayName = userName.Contains("@") ? userName.Substring(0, userName.IndexOf("@")) : userName;
                 }
-                <span class="d-none d-sm-inline">Здравей</span> @displayName<span class="d-none d-sm-inline">!</span>
+                <!-- Подобрено показване на потребителското име -->
+                <span class="d-none d-md-inline">Здравей</span>
+                <span class="user-name">@displayName</span>
+                <span class="d-none d-md-inline">!</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li>
+                    <h6 class="dropdown-header d-md-none">
+                        <i class="fas fa-user me-1"></i>Здравей, @displayName!
+                    </h6>
+                </li>
+                <li class="d-md-none"><hr class="dropdown-divider"></li>
                 <li>
                     <a class="dropdown-item" asp-controller="Dashboard" asp-action="Index">
                         <i class="fas fa-tachometer-alt me-2"></i>Табло
@@ -34,7 +43,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="d-inline">
-                        <button type="submit" class="dropdown-item">
+                        <button type="submit" class="dropdown-item text-danger">
                             <i class="fas fa-sign-out-alt me-2"></i>Изход
                         </button>
                     </form>
@@ -46,13 +55,84 @@
     {
         <li class="nav-item">
             <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
-                <i class="fas fa-user-plus me-1"></i><span class="d-none d-sm-inline">Регистрация</span>
+                <i class="fas fa-user-plus me-1"></i>
+                <!-- Показваме текста само на по-големи екрани за да спестим място -->
+                <span class="d-md-inline">Регистрация</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-warning btn-sm ms-2" asp-area="Identity" asp-page="/Account/Login">
-                <i class="fas fa-sign-in-alt me-1"></i>Вход
+            <!-- Направихме бутона по-компактен на малки екрани -->
+            <a class="nav-link btn btn-outline-warning btn-sm ms-md-2" asp-area="Identity" asp-page="/Account/Login">
+                <i class="fas fa-sign-in-alt me-1"></i>
+                <span class="login-text">Вход</span>
             </a>
         </li>
     }
 </ul>
+
+<!-- Добавени стилове за по-добро mobile изживяване -->
+<style>
+    /* Подобрения за user dropdown на малки екрани */
+    @@media (max-width: 767.98px) {
+        .user-name {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            min-width: 200px;
+        }
+
+        .dropdown-header {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Подобряваме touch targets за mobile */
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* По-добро оцветяване на изход бутона */
+        .dropdown-item.text-danger:hover {
+            background-color: #f8d7da;
+            color: #721c24 !important;
+        }
+
+        /* Компактен login бутон */
+        .login-text {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Подобрения за tablet екрани */
+    @@media (min-width: 768px) and (max-width: 991.98px) {
+        .navbar-nav .nav-link {
+            padding: 0.5rem 0.75rem;
+        }
+    }
+
+    /* По-голям touch target за мобилни устройства */
+    @@media (hover: none) and (pointer: coarse) {
+        .dropdown-toggle {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown-item {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+    }
+</style>
