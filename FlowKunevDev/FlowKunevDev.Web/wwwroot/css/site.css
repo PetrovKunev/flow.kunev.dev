@@ -535,3 +535,10 @@ body {
         outline: 2px solid;
     }
 }
+
+/* Responsive tables for very small screens */
+@media (max-width: 500px) {
+    .table-responsive > table {
+        min-width: 600px;
+    }
+}
