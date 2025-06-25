@@ -15,7 +15,11 @@
                     <h4 class="text-center mb-4">Създайте нов акаунт</h4>
                     <hr />
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" placeholder="потребителско име" />
+                        <label asp-for="Input.UserName">Потребителско име</label>
+                        <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                    </div>
                     <div class="form-floating mb-3">
                         <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="име@пример.com" />
                         <label asp-for="Input.Email">Електронна поща</label>

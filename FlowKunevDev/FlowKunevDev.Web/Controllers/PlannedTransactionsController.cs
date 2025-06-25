@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using FlowKunevDev.Services.Interfaces;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Common;
+using FlowKunevDev.Data.Models;
 
 namespace FlowKunevDev.Web.Controllers
 {
@@ -13,13 +14,13 @@ namespace FlowKunevDev.Web.Controllers
         private readonly IPlannedTransactionService _plannedTransactionService;
         private readonly IAccountService _accountService;
         private readonly ICategoryService _categoryService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public PlannedTransactionsController(
             IPlannedTransactionService plannedTransactionService,
             IAccountService accountService,
             ICategoryService categoryService,
-            UserManager<IdentityUser> userManager)
+            UserManager<ApplicationUser> userManager)
         {
             _plannedTransactionService = plannedTransactionService;
             _accountService = accountService;

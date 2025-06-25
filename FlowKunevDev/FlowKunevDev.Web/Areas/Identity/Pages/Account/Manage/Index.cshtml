@@ -23,8 +23,9 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
                     <div class="form-floating mb-3">
-                        <input asp-for="Username" class="form-control" placeholder="Изберете потребителско име." disabled />
-                        <label asp-for="Username" class="form-label">Потребителско име</label>
+                        <input asp-for="Input.Username" class="form-control" placeholder="Изберете потребителско име." />
+                        <label asp-for="Input.Username" class="form-label">Потребителско име</label>
+                        <span asp-validation-for="Input.Username" class="text-danger"></span>
                     </div>
 
                     <div class="form-floating mb-3">

@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FlowKunevDev.Data.Models;
+using FlowKunevDev.Services.DTOs;
+using FlowKunevDev.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using FlowKunevDev.Services.Interfaces;
-using FlowKunevDev.Services.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FlowKunevDev.Web.Controllers
 {
@@ -10,9 +11,9 @@ namespace FlowKunevDev.Web.Controllers
     public class AccountsController : Controller
     {
         private readonly IAccountService _accountService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AccountsController(IAccountService accountService, UserManager<IdentityUser> userManager)
+        public AccountsController(IAccountService accountService, UserManager<ApplicationUser> userManager)
         {
             _accountService = accountService;
             _userManager = userManager;
