@@ -39,7 +39,7 @@ namespace FlowKunevDev.Data.Models
         public string Color { get; set; } = "#007bff";
 
         [Required]
-        [StringLength(450)] // Identity UserId максимална дължина
+        [StringLength(450)]
         [ForeignKey("User")]
         public string UserId { get; set; } = null!;
 
