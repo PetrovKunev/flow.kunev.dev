@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using FlowKunevDev.Services.Interfaces;
 using FlowKunevDev.Web.ViewModels;
 using FlowKunevDev.Services.DTOs;
+using FlowKunevDev.Data.Models;
 
 namespace FlowKunevDev.Web.Controllers
 {
@@ -13,13 +14,13 @@ namespace FlowKunevDev.Web.Controllers
         private readonly IAccountService _accountService;
         private readonly ITransactionService _transactionService;
         private readonly IPlannedTransactionService _plannedTransactionService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public DashboardController(
             IAccountService accountService,
             ITransactionService transactionService,
             IPlannedTransactionService plannedTransactionService,
-            UserManager<IdentityUser> userManager)
+            UserManager<ApplicationUser> userManager)
         {
             _accountService = accountService;
             _transactionService = transactionService;

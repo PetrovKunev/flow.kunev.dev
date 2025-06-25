@@ -1,4 +1,5 @@
-﻿using FlowKunevDev.Services.DTOs;
+﻿using FlowKunevDev.Data.Models;
+using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,12 +12,12 @@ namespace FlowKunevDev.Web.Controllers
     {
         private readonly IAccountTransferService _transferService;
         private readonly IAccountService _accountService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public AccountTransfersController(
             IAccountTransferService transferService,
             IAccountService accountService,
-            UserManager<IdentityUser> userManager)
+            UserManager<ApplicationUser> userManager)
         {
             _transferService = transferService;
             _accountService = accountService;

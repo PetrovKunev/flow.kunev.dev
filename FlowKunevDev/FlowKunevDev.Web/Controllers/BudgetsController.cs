@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FlowKunevDev.Data.Models;
+using FlowKunevDev.Services.DTOs;
+using FlowKunevDev.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using FlowKunevDev.Services.Interfaces;
-using FlowKunevDev.Services.DTOs;
 
 namespace FlowKunevDev.Web.Controllers
 {
@@ -11,9 +12,9 @@ namespace FlowKunevDev.Web.Controllers
     {
         private readonly IBudgetService _budgetService;
         private readonly ICategoryService _categoryService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public BudgetsController(IBudgetService budgetService, ICategoryService categoryService, UserManager<IdentityUser> userManager)
+        public BudgetsController(IBudgetService budgetService, ICategoryService categoryService, UserManager<ApplicationUser> userManager)
         {
             _budgetService = budgetService;
             _categoryService = categoryService;
