@@ -6,6 +6,7 @@ using FlowKunevDev.Web.Mapping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FlowKunevDev.Data.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAccountTransferService, AccountTransferService>();
 builder.Services.AddScoped<IPlannedTransactionService, PlannedTransactionService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 builder.Services.AddHostedService<PlannedTransactionBackgroundService>();
 
