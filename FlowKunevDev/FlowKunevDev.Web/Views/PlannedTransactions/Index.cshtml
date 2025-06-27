@@ -235,12 +235,9 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         }
-                                        @if (planned.Status != FlowKunevDev.Common.PlannedTransactionStatus.Executed)
-                                        {
-                                            <a asp-action="Delete" asp-route-id="@planned.Id" class="btn btn-outline-danger" title="Изтрий">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        }
+                                        <a asp-action="Delete" asp-route-id="@planned.Id" class="btn btn-outline-danger" title="Изтрий">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
