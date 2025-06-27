@@ -26,10 +26,10 @@
                                 <i class="fas fa-exchange-alt"></i> Тип транзакция
                             </label>
                             <select asp-for="Type" class="form-select" id="transactionType" onchange="updateCategoriesAndStyles()">
-                                <option value="@FlowKunevDev.Common.TransactionType.Income">
+                                <option value="@((int)FlowKunevDev.Common.TransactionType.Income)">
                                     <i class="fas fa-arrow-up"></i> Приход
                                 </option>
-                                <option value="@FlowKunevDev.Common.TransactionType.Expense">
+                                <option value="@((int)FlowKunevDev.Common.TransactionType.Expense)">
                                     <i class="fas fa-arrow-down"></i> Разход
                                 </option>
                             </select>
@@ -96,7 +96,7 @@
                                 @foreach (var category in categories)
                                 {
                                     <option value="@category.Id"
-                                            data-type="@category.Type"
+                                            data-type="@((int)category.Type)"
                                             data-color="@category.Color"
                                             data-icon="@category.Icon">
                                         @category.Name
@@ -135,16 +135,16 @@
                                     </label>
                                     <select asp-for="RecurrenceType" class="form-select">
                                         <option value="">Изберете честота</option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Daily">
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Daily)">
                                             <i class="fas fa-sun"></i> Дневно
                                         </option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Weekly">
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Weekly)">
                                             <i class="fas fa-calendar-week"></i> Седмично
                                         </option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Monthly">
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Monthly)">
                                             <i class="fas fa-calendar"></i> Месечно
                                         </option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Yearly">
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Yearly)">
                                             <i class="fas fa-calendar-alt"></i> Годишно
                                         </option>
                                     </select>

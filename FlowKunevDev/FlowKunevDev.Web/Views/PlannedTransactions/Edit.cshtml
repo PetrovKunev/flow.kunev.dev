@@ -34,8 +34,8 @@
                                 <i class="fas fa-exchange-alt"></i> Тип транзакция
                             </label>
                             <select asp-for="Type" class="form-select" id="transactionType" onchange="updateCategoriesAndStyles()">
-                                <option value="@FlowKunevDev.Common.TransactionType.Income">Приход</option>
-                                <option value="@FlowKunevDev.Common.TransactionType.Expense">Разход</option>
+                                <option value="@((int)FlowKunevDev.Common.TransactionType.Income)">Приход</option>
+                                <option value="@((int)FlowKunevDev.Common.TransactionType.Expense)">Разход</option>
                             </select>
                             <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
@@ -122,7 +122,7 @@
                                 @foreach (var category in categories)
                                 {
                                     <option value="@category.Id"
-                                            data-type="@category.Type"
+                                            data-type="@((int)category.Type)"
                                             data-color="@category.Color"
                                             data-icon="@category.Icon">
                                         @category.Name
@@ -161,10 +161,10 @@
                                     </label>
                                     <select asp-for="RecurrenceType" class="form-select">
                                         <option value="">Изберете честота</option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Daily">Дневно</option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Weekly">Седмично</option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Monthly">Месечно</option>
-                                        <option value="@FlowKunevDev.Common.RecurrenceType.Yearly">Годишно</option>
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Daily)">Дневно</option>
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Weekly)">Седмично</option>
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Monthly)">Месечно</option>
+                                        <option value="@((int)FlowKunevDev.Common.RecurrenceType.Yearly)">Годишно</option>
                                     </select>
                                     <span asp-validation-for="RecurrenceType" class="text-danger"></span>
                                 </div>
