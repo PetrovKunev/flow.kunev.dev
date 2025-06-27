@@ -120,6 +120,19 @@ namespace FlowKunevDev.Services.Implementations
             if (planned == null || !await CanDeleteAsync(id, userId))
                 return false;
 
+            if (planned.Status == PlannedTransactionStatus.Executed && planned.ExecutedTransactionId.HasValue)
+            {
+                // Можем да изтрием и свързаната реална транзакция или да я оставим
+                // За безопасност, ще оставим реалната транзакция и само ще изтрием планираната
+
+                // Опционално: Изтриване на свързаната реална транзакция
+                // var realTransaction = await _context.Transactions
+                //     .FirstOrDefaultAsync(t => t.Id == planned.ExecutedTransactionId.Value && t.UserId == userId);
+                // if (realTransaction != null)
+                // {
+                //     _context.Transactions.Remove(realTransaction);
+                // }
+            }
             _context.PlannedTransactions.Remove(planned);
             await _context.SaveChangesAsync();
             return true;
@@ -418,7 +431,7 @@ namespace FlowKunevDev.Services.Implementations
             var planned = await _context.PlannedTransactions
                 .FirstOrDefaultAsync(pt => pt.Id == id && pt.UserId == userId);
 
-            return planned != null && planned.Status != PlannedTransactionStatus.Executed;
+            return planned != null;
         }
 
         public async Task<bool> CanExecuteAsync(int id, string userId)
