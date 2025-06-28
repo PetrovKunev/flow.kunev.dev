@@ -15,17 +15,22 @@ namespace FlowKunevDev.Web.Controllers
 
         public IActionResult Index()
         {
-            // Ако потребителят е вписан, го пренасочваме към Dashboard
+            // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ Dashboard
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            // Ако не е вписан, показваме landing страницата
+            // пїЅпїЅпїЅ пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ landing пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             return View();
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult Contacts()
         {
             return View();
         }

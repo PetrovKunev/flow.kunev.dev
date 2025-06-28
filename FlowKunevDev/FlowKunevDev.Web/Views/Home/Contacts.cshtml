@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Контакти";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-envelope me-2"></i>@ViewData["Title"]
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Свържете се с нас
+                            </h4>
+                            <p class="text-muted mb-4">
+                                Имате въпроси или нужда от помощ с Flow? Не се колебайте да се свържете с нас.
+                            </p>
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <strong>Имейл:</strong><br>
+                                    <a href="mailto:yavor@kunev.dev" class="text-decoration-none">
+                                        <i class="fas fa-envelope me-1"></i>yavor@kunev.dev
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <div>
+                                    <strong>Уебсайт:</strong><br>
+                                    <a href="https://kunev.dev" target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-external-link-alt me-1"></i>kunev.dev
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-clock me-2"></i>Време за отговор
+                            </h4>
+                            <div class="bg-light p-3 rounded">
+                                <p class="mb-2">
+                                    <i class="fas fa-calendar-check text-success me-2"></i>
+                                    <strong>Работно време:</strong> Понеделник - Петък
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-clock text-info me-2"></i>
+                                    <strong>Часове:</strong> 9:00 - 18:00 (EET)
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-reply text-warning me-2"></i>
+                                    <strong>Време за отговор:</strong> До 24 часа
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-question-circle me-2"></i>Често задавани въпроси
+                            </h4>
+                            <div class="accordion" id="faqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faq1">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                                            Как да започна да използвам Flow?
+                                        </button>
+                                    </h2>
+                                    <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Регистрирайте се за безплатен акаунт и започнете да добавяте вашите сметки и транзакции. Flow ще ви помогне да проследявате финансите си и да правите по-добри финансови решения.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faq2">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                            Моите данни ли са сигурни?
+                                        </button>
+                                    </h2>
+                                    <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Да, вашите данни са напълно защитени. Използваме най-новите технологии за криптиране и сигурност, за да гарантираме, че вашата финансова информация остава частна и сигурна.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faq3">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                            Има ли мобилно приложение?
+                                        </button>
+                                    </h2>
+                                    <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            В момента работим върху мобилно приложение. Междувременно можете да използвате Flow от всеки уеб браузър на вашия мобилен телефон или таблет.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
