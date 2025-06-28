@@ -147,7 +147,6 @@
             if (!$('#Date').val()) {
                 var now = new Date();
                 $('#Date').val(new Date().toLocaleString("sv-SE"));
-                $('#Date').val(now.toISOString().slice(0, 16));
             }
 
             // Обновяване на категориите при промяна на типа

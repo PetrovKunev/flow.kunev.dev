@@ -143,9 +143,9 @@
     <script>
         $(document).ready(function() {
             // Задаваме стойността на Date input
-            var now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            $('#Date').val(now.toISOString().slice(0, 16));
+            
+            $('#Date').val(new Date().toLocaleString("sv-SE"));
+            
 
             // Обновяваме preview при промяна на сметките
             $('#fromAccount, #toAccount').change(updatePreview);
