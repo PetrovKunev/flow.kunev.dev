@@ -81,7 +81,7 @@ namespace FlowKunevDev.Services.Implementations
                 UserId = userId,
                 Type = createDto.Type,
                 Notes = createDto.Notes,
-                CreatedDate = DateTime.Now
+                CreatedDate = TimeHelper.UtcNow
             };
 
             _context.Transactions.Add(transaction);
@@ -288,7 +288,7 @@ namespace FlowKunevDev.Services.Implementations
         public async Task<Dictionary<string, decimal>> GetMonthlyComparisonAsync(string userId, int months = 6)
         {
             var result = new Dictionary<string, decimal>();
-            var currentDate = DateTime.Now;
+            var currentDate = TimeHelper.LocalNow;
 
             for (int i = 0; i < months; i++)
             {
@@ -304,7 +304,7 @@ namespace FlowKunevDev.Services.Implementations
         public async Task<Dictionary<string, decimal>> GetCategoryTrendsAsync(string userId, int categoryId, int months = 12)
         {
             var result = new Dictionary<string, decimal>();
-            var currentDate = DateTime.Now;
+            var currentDate = TimeHelper.LocalNow;
 
             for (int i = 0; i < months; i++)
             {
@@ -392,8 +392,8 @@ namespace FlowKunevDev.Services.Implementations
         public async Task<decimal> GetDailyAvailableAmountAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, List<int>? accountIds = null)
         {
             // Ако не са подадени дати, използваме от днес до края на месеца
-            var startDate = fromDate ?? DateTime.Now.Date;
-            var endDate = toDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            var startDate = fromDate ?? TimeHelper.LocalNow.Date;
+            var endDate = toDate ?? new DateTime(TimeHelper.LocalNow.Year, TimeHelper.LocalNow.Month, DateTime.DaysInMonth(TimeHelper.LocalNow.Year, TimeHelper.LocalNow.Month));
 
             // Изчисляваме броя дни (включително днешния ден)
             var days = Math.Max(1, (endDate - startDate).Days + 1);
@@ -458,14 +458,14 @@ namespace FlowKunevDev.Services.Implementations
             if (lastDays.HasValue)
             {
                 // Ако е зададен брой дни, използваме последните X дни
-                endDate = DateTime.Now.Date;
+                endDate = TimeHelper.LocalNow.Date;
                 startDate = endDate.AddDays(-lastDays.Value + 1);
             }
             else
             {
                 // Ако не са подадени дати, използваме текущия месец
-                startDate = fromDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                endDate = toDate ?? DateTime.Now.Date;
+                startDate = fromDate ?? new DateTime(TimeHelper.LocalNow.Year, TimeHelper.LocalNow.Month, 1);
+                endDate = toDate ?? TimeHelper.LocalNow.Date;
             }
 
             var days = Math.Max(1, (endDate - startDate).Days + 1);
@@ -488,8 +488,8 @@ namespace FlowKunevDev.Services.Implementations
 
         public async Task<DailyBudgetInfoDto> GetDailyBudgetInfoAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, List<int>? accountIds = null)
         {
-            var startDate = fromDate ?? DateTime.Now.Date;
-            var endDate = toDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            var startDate = fromDate ?? TimeHelper.LocalNow.Date;
+            var endDate = toDate ?? new DateTime(TimeHelper.LocalNow.Year, TimeHelper.LocalNow.Month, DateTime.DaysInMonth(TimeHelper.LocalNow.Year, TimeHelper.LocalNow.Month));
             var days = Math.Max(1, (endDate - startDate).Days + 1);
 
             // Текущ баланс от избраните сметки
@@ -805,7 +805,7 @@ namespace FlowKunevDev.Services.Implementations
             var plannedQuery = _context.PlannedTransactions
                 .Where(pt => pt.UserId == userId &&
                            pt.Status == PlannedTransactionStatus.Planned &&
-                           pt.PlannedDate >= DateTime.Now.Date &&
+                               pt.PlannedDate >= TimeHelper.LocalNow.Date &&
                            pt.PlannedDate <= targetDate);
 
             if (accountIds != null && accountIds.Any())

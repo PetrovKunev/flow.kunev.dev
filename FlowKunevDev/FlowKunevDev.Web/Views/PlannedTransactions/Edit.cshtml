@@ -68,14 +68,14 @@
                             </label>
                             <input asp-for="PlannedDate" type="date" class="form-control" />
                             <small class="form-text text-muted">
-                                @if (Model.PlannedDate < DateTime.Now.Date)
+                                @if (Model.PlannedDate < FlowKunevDev.Common.TimeHelper.LocalNow.Date)
                                 {
                                     <span class="text-warning">
                                         <i class="fas fa-exclamation-triangle"></i>
                                         Тази дата е в миналото
                                     </span>
                                 }
-                                else if (Model.PlannedDate.Date == DateTime.Now.Date)
+                                else if (Model.PlannedDate.Date == FlowKunevDev.Common.TimeHelper.LocalNow.Date)
                                 {
                                     <span class="text-info">
                                         <i class="fas fa-clock"></i>

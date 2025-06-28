@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using FlowKunevDev.Common;
+using FlowKunevDev.Data.Models;
+using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
 using FlowKunevDev.Web.ViewModels;
-using FlowKunevDev.Services.DTOs;
-using FlowKunevDev.Data.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FlowKunevDev.Web.Controllers
 {
@@ -42,7 +43,7 @@ namespace FlowKunevDev.Web.Controllers
                 var recentTransactions = await _transactionService.GetRecentAsync(userId, 5);
 
                 // Получаваме месечни данни
-                var currentDate = DateTime.Now;
+                var currentDate = TimeHelper.LocalNow;
                 var monthlySummary = await _transactionService.GetMonthlySummaryAsync(userId, currentDate.Year, currentDate.Month);
 
                 // Изчисляваме дневно разполагаемите средства (вече отчита планираните транзакции)

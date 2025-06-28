@@ -136,18 +136,18 @@
     @foreach (var group in Model.GroupBy(p => p.PlannedDate.Date).OrderBy(g => g.Key))
     {
         <div class="card mb-4">
-            <div class="card-header @(group.Key == DateTime.Now.Date ? "bg-info text-white" : group.Key < DateTime.Now.Date ? "bg-warning text-dark" : "")">
+            <div class="card-header @(group.Key == FlowKunevDev.Common.TimeHelper.LocalNow.Date ? "bg-info text-white" : group.Key < FlowKunevDev.Common.TimeHelper.LocalNow.Date ? "bg-warning text-dark" : "")">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
                         <i class="fas fa-calendar-day"></i>
                         @group.Key.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("bg-BG"))
-                        @if (group.Key == DateTime.Now.Date)
+                        @if (group.Key == FlowKunevDev.Common.TimeHelper.LocalNow.Date)
                         {
                             <span class="badge bg-light text-dark ms-2">
                                 <i class="fas fa-clock"></i> Днес
                             </span>
                         }
-                        else if (group.Key < DateTime.Now.Date)
+                        else if (group.Key < FlowKunevDev.Common.TimeHelper.LocalNow.Date)
                         {
                             <span class="badge bg-danger ms-2">
                                 <i class="fas fa-exclamation-triangle"></i> Просрочени
@@ -302,7 +302,7 @@ else
 
                     <div class="mb-3">
                         <label for="actualDate" class="form-label">Дата на изпълнение</label>
-                        <input type="date" class="form-control" id="executeActualDate" name="actualDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        <input type="date" class="form-control" id="executeActualDate" name="actualDate" value="@FlowKunevDev.Common.TimeHelper.LocalNow.ToString("yyyy-MM-dd")" />
                     </div>
 
                     <div class="mb-3">

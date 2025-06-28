@@ -62,7 +62,7 @@
                             <label asp-for="PlannedDate" class="form-label">
                                 <i class="fas fa-calendar-day"></i> Планирана дата
                             </label>
-                            <input asp-for="PlannedDate" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <input asp-for="PlannedDate" type="date" class="form-control" min="@FlowKunevDev.Common.TimeHelper.LocalNow.ToString("yyyy-MM-dd")" />
                             <small class="form-text text-muted">Най-ранната дата е утре</small>
                             <span asp-validation-for="PlannedDate" class="text-danger"></span>
                         </div>

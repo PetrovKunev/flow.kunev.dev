@@ -45,7 +45,7 @@ namespace FlowKunevDev.Data.Models
 
         [Required]
         [Display(Name = "Дата на създаване")]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = TimeHelper.UtcNow;
 
         [Display(Name = "Активна")]
         public bool IsActive { get; set; } = true;

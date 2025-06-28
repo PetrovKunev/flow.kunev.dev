@@ -4,6 +4,12 @@
     ViewData["Title"] = "Месечен отчет";
     Layout = "_Layout";
     var months = new[] { "", "Януари", "Февруари", "Март", "Април", "Май", "Юни", "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември" };
+    // Подготовяме JSON-а извън <script>
+    var breakdownData = Model.Summary?
+        .CategoryBreakdown
+        .Select(c => new { c.CategoryName, c.Amount, c.CategoryColor })
+        ?? Enumerable.Empty<object>();
+    var breakdownJson = Json.Serialize(breakdownData);
 }
 <div class="container-fluid">
     <div class="row mb-4">
@@ -33,7 +39,7 @@
                         <div class="col-md-3">
                             <label for="year" class="form-label">Година:</label>
                             <select id="year" name="year" class="form-select" onchange="this.form.submit()">
-                                @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 5; y--)
+                                  @for (int y = FlowKunevDev.Common.TimeHelper.LocalNow.Year; y >= FlowKunevDev.Common.TimeHelper.LocalNow.Year - 5; y--)
                                 {
                                     <option value="@y" selected="@(Model.Year == y ? "selected" : null)">@y</option>
                                 }
@@ -163,9 +169,18 @@
     <script>
         document.addEventListener('DOMContentLoaded', initializeChart);
         let catChart;
+
         function initializeChart() {
-            const ctx = document.getElementById('catChart').getContext('2d');
-            const data = @Html.Raw(Json.Serialize(Model.Summary?.CategoryBreakdown.Select(c => new { c.CategoryName, c.Amount, c.CategoryColor }) ?? Enumerable.Empty<object>()));
+            const canvas = document.getElementById('catChart');
+            const ctx = canvas.getContext('2d');
+            // Взимаме JSON-а от data-breakdown и нормализираме към camelCase
+            const raw = JSON.parse(canvas.dataset.breakdown);
+            const data = raw.map(({ CategoryName, Amount, CategoryColor }) => ({
+                categoryName: CategoryName,
+                amount: Amount,
+                categoryColor: CategoryColor
+            }));
+
             if (catChart) catChart.destroy();
             catChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -176,6 +191,7 @@
                 options: { responsive: true, plugins: { legend: { position: 'right' } } }
             });
         }
+
         function refreshChart() {
             const year = document.getElementById('year').value;
             const month = document.getElementById('month').value;
@@ -184,6 +200,7 @@
                 .then(d => d.success ? updateChart(d.data.categoryBreakdown) : console.error(d.message))
                 .catch(console.error);
         }
+
         function updateChart(breakdown) {
             if (!catChart) return;
             catChart.data.labels = breakdown.map(c => c.categoryName);

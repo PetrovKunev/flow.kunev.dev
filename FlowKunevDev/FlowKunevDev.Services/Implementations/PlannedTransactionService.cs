@@ -196,7 +196,7 @@ namespace FlowKunevDev.Services.Implementations
 
         public async Task<IEnumerable<PlannedTransactionDto>> GetDueForExecutionAsync(DateTime? targetDate = null)
         {
-            var date = targetDate ?? DateTime.Now.Date;
+            var date = targetDate ?? TimeHelper.LocalNow.Date;
 
             var dueTransactions = await _context.PlannedTransactions
                 .Include(pt => pt.Category)
@@ -267,14 +267,14 @@ namespace FlowKunevDev.Services.Implementations
 
         public async Task<IEnumerable<PlannedTransactionSummaryDto>> GetUpcomingAsync(string userId, int days = 30)
         {
-            var endDate = DateTime.Now.AddDays(days);
+            var endDate = TimeHelper.LocalNow.AddDays(days);
 
             var upcoming = await _context.PlannedTransactions
                 .Include(pt => pt.Category)
                 .Include(pt => pt.Account)
                 .Where(pt => pt.UserId == userId &&
                            pt.Status == PlannedTransactionStatus.Planned &&
-                           pt.PlannedDate.Date >= DateTime.Now.Date &&
+                            pt.PlannedDate.Date >= TimeHelper.LocalNow.Date &&
                            pt.PlannedDate.Date <= endDate)
                 .OrderBy(pt => pt.PlannedDate)
                 .ToListAsync();
@@ -289,7 +289,7 @@ namespace FlowKunevDev.Services.Implementations
                 .Include(pt => pt.Account)
                 .Where(pt => pt.UserId == userId &&
                            pt.Status == PlannedTransactionStatus.Planned &&
-                           pt.PlannedDate.Date < DateTime.Now.Date)
+                         pt.PlannedDate.Date < TimeHelper.LocalNow.Date)
                 .OrderBy(pt => pt.PlannedDate)
                 .ToListAsync();
 
@@ -322,8 +322,8 @@ namespace FlowKunevDev.Services.Implementations
 
         public async Task<decimal> GetTotalPlannedExpensesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
         {
-            var start = startDate ?? DateTime.Now.Date;
-            var end = endDate ?? DateTime.Now.AddDays(30).Date;
+            var start = startDate ?? TimeHelper.LocalNow.Date;
+            var end = endDate ?? TimeHelper.LocalNow.AddDays(30).Date;
 
             return await _context.PlannedTransactions
                 .Where(pt => pt.UserId == userId &&
@@ -335,8 +335,8 @@ namespace FlowKunevDev.Services.Implementations
 
         public async Task<decimal> GetTotalPlannedIncomeAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
         {
-            var start = startDate ?? DateTime.Now.Date;
-            var end = endDate ?? DateTime.Now.AddDays(30).Date;
+            var start = startDate ?? TimeHelper.LocalNow.Date;
+            var end = endDate ?? TimeHelper.LocalNow.AddDays(30).Date;
 
             return await _context.PlannedTransactions
                 .Where(pt => pt.UserId == userId &&
@@ -348,7 +348,7 @@ namespace FlowKunevDev.Services.Implementations
 
         public async Task<Dictionary<string, object>> GetPlannedTransactionStatsAsync(string userId)
         {
-            var today = DateTime.Now.Date;
+            var today = TimeHelper.LocalNow.Date;
             var endOfMonth = new DateTime(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
 
             var totalPlanned = await _context.PlannedTransactions
@@ -497,7 +497,7 @@ namespace FlowKunevDev.Services.Implementations
                 IsRecurring = originalPlanned.IsRecurring,
                 RecurrenceType = originalPlanned.RecurrenceType,
                 Status = PlannedTransactionStatus.Planned,
-                CreatedDate = DateTime.Now
+                CreatedDate = TimeHelper.UtcNow
             };
 
             _context.PlannedTransactions.Add(nextPlanned);

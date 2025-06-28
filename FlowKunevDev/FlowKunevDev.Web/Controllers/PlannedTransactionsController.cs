@@ -90,7 +90,7 @@ namespace FlowKunevDev.Web.Controllers
 
             var model = new CreatePlannedTransactionDto
             {
-                PlannedDate = DateTime.Now.Date.AddDays(1), // По подразбиране утре
+                PlannedDate = TimeHelper.LocalNow.Date.AddDays(1), // По подразбиране утре
                 AccountId = accountId ?? accounts.First().Id,
                 Type = type ?? TransactionType.Expense
             };

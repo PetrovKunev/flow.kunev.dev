@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FlowKunevDev.Common;
 
 namespace FlowKunevDev.Data.Models
 {
@@ -42,7 +43,7 @@ namespace FlowKunevDev.Data.Models
         public bool IsActive { get; set; } = true;
 
         [Display(Name = "Дата на създаване")]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = TimeHelper.UtcNow;
 
         // Navigation properties
         public virtual Category Category { get; set; } = null!;

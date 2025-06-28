@@ -155,7 +155,7 @@
                         </div>
                     }
                     <div class="col-12">
-                        <h6 class="text-success">@((DateTime.Now - Model.CreatedDate).Days) дни</h6>
+                        <h6 class="text-success">@((FlowKunevDev.Common.TimeHelper.LocalNow - Model.CreatedDate).Days) дни</h6>
                         <small class="text-muted">Възраст на сметката</small>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
         });
 
         function loadAccountStats() {
-            $.get('@Url.Action("GetStats")', { id: @Model.Id })
+            $.get('@Url.Action("GetStats", "Accounts")', { id: '@Model.Id' })
                 .done(function(response) {
                     if (response.success) {
                         displayStats(response.stats);
@@ -206,7 +206,6 @@
                     }
                 })
                 .fail(function() {
-                    // Показваме статични статистики ако AJAX не работи
                     displayFallbackStats();
                 });
         }

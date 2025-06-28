@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FlowKunevDev.Common;
 
 namespace FlowKunevDev.Services.DTOs
 {
@@ -19,7 +20,7 @@ namespace FlowKunevDev.Services.DTOs
 
         [Required(ErrorMessage = "Датата е задължителна")]
         [Display(Name = "Дата")]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = TimeHelper.UtcNow;
 
         [StringLength(500, ErrorMessage = "Описанието не може да бъде по-дълго от 500 символа")]
         [Display(Name = "Описание")]

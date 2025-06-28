@@ -340,7 +340,7 @@ namespace FlowKunevDev.Services.Implementations
                 ["averageTransactionAmount"] = avgTransactionAmount,
                 ["lastTransactionDate"] = lastTransaction?.Date.ToString("yyyy-MM-ddTHH") ?? (object)DBNull.Value,
                 ["lastTransactionAmount"] = lastTransaction?.Amount ?? 0,
-                ["accountAge"] = DateTime.Now.Subtract(account.CreatedDate).Days
+                ["accountAge"] = TimeHelper.LocalNow.Subtract(account.CreatedDate).Days
             };
         }
 

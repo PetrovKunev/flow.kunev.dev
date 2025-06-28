@@ -23,9 +23,9 @@ namespace FlowKunevDev.Services.DTOs
         public DateTime CreatedDate { get; set; }
 
         // Computed properties
-        public bool IsOverdue => Status == PlannedTransactionStatus.Planned && PlannedDate < DateTime.Now.Date;
-        public bool IsDueToday => Status == PlannedTransactionStatus.Planned && PlannedDate.Date == DateTime.Now.Date;
-        public bool IsDueSoon => Status == PlannedTransactionStatus.Planned && PlannedDate.Date <= DateTime.Now.AddDays(7).Date && PlannedDate.Date > DateTime.Now.Date;
-        public int DaysUntilDue => Status == PlannedTransactionStatus.Planned ? (PlannedDate.Date - DateTime.Now.Date).Days : 0;
+        public bool IsOverdue => Status == PlannedTransactionStatus.Planned && PlannedDate < TimeHelper.LocalNow.Date;
+        public bool IsDueToday => Status == PlannedTransactionStatus.Planned && PlannedDate.Date == TimeHelper.LocalNow.Date;
+        public bool IsDueSoon => Status == PlannedTransactionStatus.Planned && PlannedDate.Date <= TimeHelper.LocalNow.AddDays(7).Date && PlannedDate.Date > TimeHelper.LocalNow.Date;
+        public int DaysUntilDue => Status == PlannedTransactionStatus.Planned ? (PlannedDate.Date - TimeHelper.LocalNow.Date).Days : 0;
     }
 }

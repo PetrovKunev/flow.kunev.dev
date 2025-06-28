@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FlowKunevDev.Common;
 using FlowKunevDev.Data.Models;
 
 namespace FlowKunevDev.Web.ViewModels
@@ -20,7 +21,7 @@ namespace FlowKunevDev.Web.ViewModels
 
         [Required(ErrorMessage = "Датата е задължителна")]
         [Display(Name = "Дата")]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = TimeHelper.LocalNow;
 
         [StringLength(500, ErrorMessage = "Описанието не може да бъде по-дълго от 500 символа")]
         [Display(Name = "Описание")]

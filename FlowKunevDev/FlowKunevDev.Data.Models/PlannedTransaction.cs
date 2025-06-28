@@ -64,7 +64,7 @@ namespace FlowKunevDev.Data.Models
         public int? ExecutedTransactionId { get; set; }
 
         [Display(Name = "Дата на създаване")]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = TimeHelper.UtcNow;
 
         // Navigation properties
         public virtual Category Category { get; set; } = null!;

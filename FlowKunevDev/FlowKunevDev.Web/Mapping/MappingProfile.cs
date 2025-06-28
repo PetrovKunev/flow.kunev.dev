@@ -17,7 +17,7 @@ namespace FlowKunevDev.Web.Mapping
 
             CreateMap<CreateAccountDto, Account>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => TimeHelper.UtcNow))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
 
             CreateMap<UpdateAccountDto, Account>()
@@ -37,7 +37,7 @@ namespace FlowKunevDev.Web.Mapping
 
             CreateMap<CreateTransactionDto, Transaction>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => TimeHelper.UtcNow))
                 .ForMember(dest => dest.Category, opt => opt.Ignore())
                 .ForMember(dest => dest.Account, opt => opt.Ignore());
 
@@ -69,7 +69,7 @@ namespace FlowKunevDev.Web.Mapping
 
             CreateMap<CreateAccountTransferDto, AccountTransfer>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => TimeHelper.UtcNow))
                 .ForMember(dest => dest.FromAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.ToAccount, opt => opt.Ignore());
 
@@ -86,7 +86,7 @@ namespace FlowKunevDev.Web.Mapping
 
             CreateMap<CreateBudgetDto, Budget>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => TimeHelper.UtcNow))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
 
             CreateMap<UpdateBudgetDto, Budget>()
@@ -103,15 +103,15 @@ namespace FlowKunevDev.Web.Mapping
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : ""))
                 .ForMember(dest => dest.CategoryColor, opt => opt.MapFrom(src => src.Category != null ? src.Category.Color : "#007bff"))
                 .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account != null ? src.Account.Name : ""))
-                .ForMember(dest => dest.IsOverdue, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned && src.PlannedDate.Date < DateTime.Now.Date))
-                .ForMember(dest => dest.IsDueToday, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned && src.PlannedDate.Date == DateTime.Now.Date))
-                .ForMember(dest => dest.DaysUntilDue, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned ? (src.PlannedDate.Date - DateTime.Now.Date).Days : 0));
+                .ForMember(dest => dest.IsOverdue, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned && src.PlannedDate.Date < TimeHelper.LocalNow.Date))
+                .ForMember(dest => dest.IsDueToday, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned && src.PlannedDate.Date == TimeHelper.LocalNow.Date))
+                .ForMember(dest => dest.DaysUntilDue, opt => opt.MapFrom(src => src.Status == PlannedTransactionStatus.Planned ? (src.PlannedDate.Date - TimeHelper.LocalNow.Date).Days : 0));
 
             CreateMap<CreatePlannedTransactionDto, PlannedTransaction>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => PlannedTransactionStatus.Planned))
-                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => TimeHelper.UtcNow))
                 .ForMember(dest => dest.Category, opt => opt.Ignore())
                 .ForMember(dest => dest.Account, opt => opt.Ignore())
                 .ForMember(dest => dest.ExecutedTransactionId, opt => opt.Ignore())

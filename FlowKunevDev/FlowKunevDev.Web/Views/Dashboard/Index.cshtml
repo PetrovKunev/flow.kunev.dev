@@ -11,9 +11,9 @@
         "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември"
     };
 
-    var currentMonth = bulgarianMonths[DateTime.Now.Month];
-    var currentYear = DateTime.Now.Year;
-    var endOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+    var currentMonth = bulgarianMonths[FlowKunevDev.Common.TimeHelper.LocalNow.Month];
+    var currentYear = FlowKunevDev.Common.TimeHelper.LocalNow.Year;
+    var endOfMonth = new DateTime(FlowKunevDev.Common.TimeHelper.LocalNow.Year, FlowKunevDev.Common.TimeHelper.LocalNow.Month, DateTime.DaysInMonth(FlowKunevDev.Common.TimeHelper.LocalNow.Year, FlowKunevDev.Common.TimeHelper.LocalNow.Month));
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -604,7 +604,7 @@
                 <div class="row mb-4">
                     <div class="col-md-4">
                         <label for="customFromDate" class="form-label">От дата:</label>
-                        <input type="date" class="form-control" id="customFromDate" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                        <input type="date" class="form-control" id="customFromDate" value="@FlowKunevDev.Common.TimeHelper.LocalNow.ToString("yyyy-MM-dd")">
                     </div>
                     <div class="col-md-4">
                         <label for="customToDate" class="form-label">До дата:</label>
@@ -813,7 +813,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="quickActualDate" class="form-label small">Дата:</label>
-                        <input type="date" class="form-control form-control-sm" id="quickActualDate" name="actualDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        <input type="date" class="form-control form-control-sm" id="quickActualDate" name="actualDate" value="@FlowKunevDev.Common.TimeHelper.LocalNow.ToString("yyyy-MM-dd")" />
                     </div>
                 </div>
                 <div class="modal-footer">

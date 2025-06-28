@@ -52,7 +52,7 @@ namespace FlowKunevDev.Data.Models
         public string? Notes { get; set; }
 
         [Display(Name = "Дата на създаване")]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = TimeHelper.UtcNow;
 
         // Navigation properties
         public virtual Category Category { get; set; } = null!;

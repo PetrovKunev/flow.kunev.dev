@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FlowKunevDev.Common;
 using FlowKunevDev.Data;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlowKunevDev.Services.Implementations
 {
@@ -59,7 +60,7 @@ namespace FlowKunevDev.Services.Implementations
                 Description = createDto.Description,
                 Notes = createDto.Notes,
                 UserId = userId,
-                CreatedDate = DateTime.Now
+                CreatedDate = TimeHelper.UtcNow
             };
 
             _context.AccountTransfers.Add(transfer);
@@ -249,8 +250,8 @@ namespace FlowKunevDev.Services.Implementations
                 ["totalTransfers"] = transfers.Count,
                 ["totalAmount"] = totalAmount,
                 ["averageAmount"] = averageAmount,
-                ["thisMonthTransfers"] = transfers.Count(t => t.Date.Month == DateTime.Now.Month && t.Date.Year == DateTime.Now.Year),
-                ["thisMonthAmount"] = transfers.Where(t => t.Date.Month == DateTime.Now.Month && t.Date.Year == DateTime.Now.Year).Sum(t => t.Amount),
+                ["thisMonthTransfers"] = transfers.Count(t => t.Date.Month == TimeHelper.LocalNow.Month && t.Date.Year == TimeHelper.LocalNow.Year),
+                ["thisMonthAmount"] = transfers.Where(t => t.Date.Month == TimeHelper.LocalNow.Month && t.Date.Year == TimeHelper.LocalNow.Year).Sum(t => t.Amount),
                 ["mostActiveFromAccountId"] = mostActiveFromAccount?.Key ?? 0,
                 ["mostActiveFromAccountCount"] = mostActiveFromAccount?.Count() ?? 0,
                 ["mostActiveToAccountId"] = mostActiveToAccount?.Key ?? 0,

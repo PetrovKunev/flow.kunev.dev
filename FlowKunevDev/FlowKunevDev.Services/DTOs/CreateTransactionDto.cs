@@ -1,10 +1,5 @@
-﻿using FlowKunevDev.Common;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using FlowKunevDev.Common;
 
 namespace FlowKunevDev.Services.DTOs
 {
@@ -19,7 +14,7 @@ namespace FlowKunevDev.Services.DTOs
         public decimal Amount { get; set; }
 
         [Required(ErrorMessage = "Датата е задължителна")]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = TimeHelper.UtcNow;
 
         [Required(ErrorMessage = "Категорията е задължителна")]
         public int CategoryId { get; set; }

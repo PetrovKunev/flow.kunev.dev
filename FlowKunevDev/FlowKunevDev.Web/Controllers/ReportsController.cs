@@ -39,8 +39,8 @@ namespace FlowKunevDev.Web.Controllers
 
             try
             {
-                var currentYear = year ?? DateTime.Now.Year;
-                var currentMonth = month ?? DateTime.Now.Month;
+                var currentYear = year ?? TimeHelper.LocalNow.Year;
+                var currentMonth = month ?? TimeHelper.LocalNow.Month;
 
                 var summary = await _transactionService.GetMonthlySummaryAsync(userId, currentYear, currentMonth);
                 var accounts = await _accountService.GetSummariesAsync(userId);
@@ -73,8 +73,8 @@ namespace FlowKunevDev.Web.Controllers
 
             try
             {
-                var start = startDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                var end = endDate ?? DateTime.Now.Date;
+                var start = startDate ?? new DateTime(TimeHelper.LocalNow.Year, TimeHelper.LocalNow.Month, 1);
+                var end = endDate ?? TimeHelper.LocalNow.Date;
 
                 var categorySummary = await _transactionService.GetCategorySummaryAsync(userId, start, end, type);
                 var categories = await _categoryService.GetAllAsync();
@@ -109,7 +109,7 @@ namespace FlowKunevDev.Web.Controllers
             try
             {
                 var monthlyComparison = await _transactionService.GetMonthlyComparisonAsync(userId, months);
-                var yearlyData = await _transactionService.GetYearlySummaryAsync(userId, DateTime.Now.Year);
+                var yearlyData = await _transactionService.GetYearlySummaryAsync(userId, TimeHelper.LocalNow.Year);
 
                 var viewModel = new TrendsReportViewModel
                 {
@@ -138,7 +138,7 @@ namespace FlowKunevDev.Web.Controllers
 
             try
             {
-                var selectedDate = baseDate ?? DateTime.Now;
+                var selectedDate = baseDate ?? TimeHelper.LocalNow;
 
                 // Получаваме сравнението по периоди
                 var periods = await _transactionService.GetPeriodComparisonAsync(userId, type, selectedDate, periodsCount);

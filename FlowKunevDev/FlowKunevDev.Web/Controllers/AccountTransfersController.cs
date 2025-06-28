@@ -1,4 +1,5 @@
-﻿using FlowKunevDev.Data.Models;
+﻿using FlowKunevDev.Common;
+using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -76,7 +77,7 @@ namespace FlowKunevDev.Web.Controllers
 
             var createDto = new CreateAccountTransferDto
             {
-                Date = DateTime.Now
+                Date = TimeHelper.LocalNow
             };
 
             // Ако са подадени предварително избрани сметки

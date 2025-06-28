@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FlowKunevDev.Common;
 
 namespace FlowKunevDev.Data.Models
 {
@@ -48,7 +44,7 @@ namespace FlowKunevDev.Data.Models
         public string UserId { get; set; } = null!;
 
         [Display(Name = "Дата на създаване")]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = TimeHelper.UtcNow;
 
         // Navigation properties
         public virtual Account FromAccount { get; set; } = null!;
