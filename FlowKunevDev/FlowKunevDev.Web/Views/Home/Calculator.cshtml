@@ -1,0 +1,341 @@
+@{
+    ViewData["Title"] = "Калкулатор";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-calculator me-2"></i>@ViewData["Title"]
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Приходи секция -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-plus-circle me-2"></i>Приходи
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="incomeItems">
+                                        <div class="income-item mb-3">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control income-description" placeholder="Описание на прихода" value="Приход 1">
+                                                <input type="number" class="form-control income-amount" placeholder="0.00" step="0.01" min="0" value="0">
+                                                <button class="btn btn-outline-danger remove-income" type="button">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success btn-sm" id="addIncome">
+                                        <i class="fas fa-plus me-1"></i>Добави приход
+                                    </button>
+                                    <div class="mt-3">
+                                        <strong>Общо приходи: <span id="totalIncome" class="text-success">0.00 лв.</span></strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Разходи секция -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-minus-circle me-2"></i>Разходи
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="expenseItems">
+                                        <div class="expense-item mb-3">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control expense-description" placeholder="Описание на разхода" value="Разход 1">
+                                                <input type="number" class="form-control expense-amount" placeholder="0.00" step="0.01" min="0" value="0">
+                                                <button class="btn btn-outline-danger remove-expense" type="button">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-danger btn-sm" id="addExpense">
+                                        <i class="fas fa-plus me-1"></i>Добави разход
+                                    </button>
+                                    <div class="mt-3">
+                                        <strong>Общо разходи: <span id="totalExpenses" class="text-danger">0.00 лв.</span></strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Резултати -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-line me-2"></i>Резултати
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h6 class="text-muted">Нетен резултат</h6>
+                                                <h3 id="netResult" class="text-primary">0.00 лв.</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h6 class="text-muted">Общо приходи</h6>
+                                                <h4 id="summaryIncome" class="text-success">0.00 лв.</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h6 class="text-muted">Общо разходи</h6>
+                                                <h4 id="summaryExpenses" class="text-danger">0.00 лв.</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr>
+                                    
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <button class="btn btn-outline-secondary" id="clearAll">
+                                                        <i class="fas fa-eraser me-1"></i>Изчисти всичко
+                                                    </button>
+                                                    <button class="btn btn-outline-info ms-2" id="copyResults">
+                                                        <i class="fas fa-copy me-1"></i>Копирай резултати
+                                                    </button>
+                                                </div>
+                                                <div>
+                                                    <button class="btn btn-success" id="saveToFlow">
+                                                        <i class="fas fa-save me-1"></i>Запази в Flow
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- История на изчисленията -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-history me-2"></i>История на изчисленията
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="calculationHistory">
+                                        <p class="text-muted text-center">Няма запазени изчисления</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            let incomeCounter = 1;
+            let expenseCounter = 1;
+
+            // Добавяне на приход
+            $('#addIncome').click(function() {
+                incomeCounter++;
+                const newItem = `
+                    <div class="income-item mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control income-description" placeholder="Описание на прихода" value="Приход ${incomeCounter}">
+                            <input type="number" class="form-control income-amount" placeholder="0.00" step="0.01" min="0" value="0">
+                            <button class="btn btn-outline-danger remove-income" type="button">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                $('#incomeItems').append(newItem);
+                calculateTotals();
+            });
+
+            // Добавяне на разход
+            $('#addExpense').click(function() {
+                expenseCounter++;
+                const newItem = `
+                    <div class="expense-item mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control expense-description" placeholder="Описание на разхода" value="Разход ${expenseCounter}">
+                            <input type="number" class="form-control expense-amount" placeholder="0.00" step="0.01" min="0" value="0">
+                            <button class="btn btn-outline-danger remove-expense" type="button">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                $('#expenseItems').append(newItem);
+                calculateTotals();
+            });
+
+            // Премахване на приход
+            $(document).on('click', '.remove-income', function() {
+                if ($('.income-item').length > 1) {
+                    $(this).closest('.income-item').remove();
+                    calculateTotals();
+                }
+            });
+
+            // Премахване на разход
+            $(document).on('click', '.remove-expense', function() {
+                if ($('.expense-item').length > 1) {
+                    $(this).closest('.expense-item').remove();
+                    calculateTotals();
+                }
+            });
+
+            // Изчисляване на общите суми
+            function calculateTotals() {
+                let totalIncome = 0;
+                let totalExpenses = 0;
+
+                // Сумиране на приходите
+                $('.income-amount').each(function() {
+                    totalIncome += parseFloat($(this).val()) || 0;
+                });
+
+                // Сумиране на разходите
+                $('.expense-amount').each(function() {
+                    totalExpenses += parseFloat($(this).val()) || 0;
+                });
+
+                const netResult = totalIncome - totalExpenses;
+
+                // Обновяване на дисплея
+                $('#totalIncome').text(totalIncome.toFixed(2) + ' лв.');
+                $('#totalExpenses').text(totalExpenses.toFixed(2) + ' лв.');
+                $('#summaryIncome').text(totalIncome.toFixed(2) + ' лв.');
+                $('#summaryExpenses').text(totalExpenses.toFixed(2) + ' лв.');
+
+                // Обновяване на нетния резултат
+                if (netResult >= 0) {
+                    $('#netResult').removeClass('text-danger').addClass('text-success').text('+' + netResult.toFixed(2) + ' лв.');
+                } else {
+                    $('#netResult').removeClass('text-success').addClass('text-danger').text(netResult.toFixed(2) + ' лв.');
+                }
+            }
+
+            // Слушане за промени в сумите
+            $(document).on('input', '.income-amount, .expense-amount', function() {
+                calculateTotals();
+            });
+
+            // Изчистване на всичко
+            $('#clearAll').click(function() {
+                if (confirm('Сигурни ли сте, че искате да изчистите всички данни?')) {
+                    $('.income-amount, .expense-amount').val(0);
+                    $('.income-description').val('Приход 1');
+                    $('.expense-description').val('Разход 1');
+                    
+                    // Премахване на допълнителни елементи
+                    $('.income-item:not(:first)').remove();
+                    $('.expense-item:not(:first)').remove();
+                    
+                    incomeCounter = 1;
+                    expenseCounter = 1;
+                    
+                    calculateTotals();
+                }
+            });
+
+            // Копиране на резултати
+            $('#copyResults').click(function() {
+                const totalIncome = $('#totalIncome').text();
+                const totalExpenses = $('#totalExpenses').text();
+                const netResult = $('#netResult').text();
+                
+                const textToCopy = `Резултати от калкулатора:
+Общо приходи: ${totalIncome}
+Общо разходи: ${totalExpenses}
+Нетен резултат: ${netResult}`;
+                
+                navigator.clipboard.writeText(textToCopy).then(function() {
+                    alert('Резултатите са копирани в клипборда!');
+                });
+            });
+
+            // Запазване в Flow (placeholder функция)
+            $('#saveToFlow').click(function() {
+                const totalIncome = parseFloat($('#totalIncome').text()) || 0;
+                const totalExpenses = parseFloat($('#totalExpenses').text()) || 0;
+                
+                if (totalIncome === 0 && totalExpenses === 0) {
+                    alert('Моля, въведете поне една сума преди да запазите в Flow.');
+                    return;
+                }
+                
+                alert('Функцията за запазване в Flow ще бъде добавена скоро!');
+            });
+
+            // Запазване в историята
+            function saveToHistory() {
+                const totalIncome = $('#totalIncome').text();
+                const totalExpenses = $('#totalExpenses').text();
+                const netResult = $('#netResult').text();
+                const timestamp = new Date().toLocaleString('bg-BG');
+                
+                const historyItem = `
+                    <div class="border rounded p-3 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${timestamp}</strong><br>
+                                <small class="text-muted">
+                                    Приходи: ${totalIncome} | Разходи: ${totalExpenses} | Нетен: ${netResult}
+                                </small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger remove-history">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                if ($('#calculationHistory p').length > 0) {
+                    $('#calculationHistory').empty();
+                }
+                
+                $('#calculationHistory').prepend(historyItem);
+            }
+
+            // Премахване от историята
+            $(document).on('click', '.remove-history', function() {
+                $(this).closest('.border').remove();
+                
+                if ($('#calculationHistory .border').length === 0) {
+                    $('#calculationHistory').html('<p class="text-muted text-center">Няма запазени изчисления</p>');
+                }
+            });
+
+            // Инициализиране
+            calculateTotals();
+        });
+    </script>
+} 
