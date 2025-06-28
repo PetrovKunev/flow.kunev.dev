@@ -146,7 +146,7 @@
             // Задаваме днешната дата и час по подразбиране
             if (!$('#Date').val()) {
                 var now = new Date();
-                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                $('#Date').val(new Date().toLocaleString("sv-SE"));
                 $('#Date').val(now.toISOString().slice(0, 16));
             }
 
