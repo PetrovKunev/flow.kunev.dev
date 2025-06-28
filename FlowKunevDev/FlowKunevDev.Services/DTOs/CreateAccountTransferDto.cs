@@ -20,7 +20,7 @@ namespace FlowKunevDev.Services.DTOs
 
         [Required(ErrorMessage = "Датата е задължителна")]
         [Display(Name = "Дата")]
-        public DateTime Date { get; set; } = TimeHelper.UtcNow;
+        public DateTime Date { get; set; } = TimeHelper.LocalNow;
 
         [StringLength(500, ErrorMessage = "Описанието не може да бъде по-дълго от 500 символа")]
         [Display(Name = "Описание")]

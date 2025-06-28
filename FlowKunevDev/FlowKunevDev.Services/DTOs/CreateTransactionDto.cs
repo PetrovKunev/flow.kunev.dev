@@ -14,7 +14,7 @@ namespace FlowKunevDev.Services.DTOs
         public decimal Amount { get; set; }
 
         [Required(ErrorMessage = "Датата е задължителна")]
-        public DateTime Date { get; set; } = TimeHelper.UtcNow;
+        public DateTime Date { get; set; } = TimeHelper.LocalNow;
 
         [Required(ErrorMessage = "Категорията е задължителна")]
         public int CategoryId { get; set; }
