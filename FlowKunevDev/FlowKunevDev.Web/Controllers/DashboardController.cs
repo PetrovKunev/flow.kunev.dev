@@ -15,17 +15,20 @@ namespace FlowKunevDev.Web.Controllers
         private readonly IAccountService _accountService;
         private readonly ITransactionService _transactionService;
         private readonly IPlannedTransactionService _plannedTransactionService;
+        private readonly ISavingsTargetService _savingsTargetService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public DashboardController(
             IAccountService accountService,
             ITransactionService transactionService,
             IPlannedTransactionService plannedTransactionService,
+            ISavingsTargetService savingsTargetService,
             UserManager<ApplicationUser> userManager)
         {
             _accountService = accountService;
             _transactionService = transactionService;
             _plannedTransactionService = plannedTransactionService;
+            _savingsTargetService = savingsTargetService;
             _userManager = userManager;
         }
 
@@ -63,6 +66,9 @@ namespace FlowKunevDev.Web.Controllers
                 var totalPlannedExpenses = await _plannedTransactionService.GetTotalPlannedExpensesAsync(userId, startOfMonth, endOfMonth);
                 var plannedIncome = await _plannedTransactionService.GetTotalPlannedIncomeAsync(userId, startOfMonth, endOfMonth);
 
+                // Цел за спестяване (текущ месец)
+                var savingsTarget = await _savingsTargetService.GetCurrentMonthTargetAsync(userId);
+
                 var viewModel = new DashboardViewModel
                 {
                     // Основни данни
@@ -88,6 +94,9 @@ namespace FlowKunevDev.Web.Controllers
                     // Периоди за анализ
                     AnalysisPeriodStart = startOfMonth,
                     AnalysisPeriodEnd = endOfMonth,
+
+                    // Цел за спестяване
+                    SavingsTarget = savingsTarget,
 
                     // Мапваме данните
                     Accounts = accounts.Select(a => new AccountSummary

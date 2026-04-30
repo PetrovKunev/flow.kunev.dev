@@ -81,5 +81,8 @@ namespace FlowKunevDev.Web.ViewModels
         // Свойства за контрол на избраните сметки (опционални)
         public List<int> SelectedAccountIds { get; set; } = new List<int>();
         public bool IncludeAllAccountsInCalculation { get; set; } = true;
+
+        // Цел за спестяване (10% и т.н.)
+        public SavingsTargetDto SavingsTarget { get; set; } = new SavingsTargetDto();
     }
 }

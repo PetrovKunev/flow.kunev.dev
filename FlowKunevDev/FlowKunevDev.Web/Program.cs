@@ -42,6 +42,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAccountTransferService, AccountTransferService>();
 builder.Services.AddScoped<IPlannedTransactionService, PlannedTransactionService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddScoped<ISavingsTargetService, SavingsTargetService>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 builder.Services.AddHostedService<PlannedTransactionBackgroundService>();

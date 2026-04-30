@@ -162,6 +162,111 @@
     </div>
 </div>
 
+<!-- Цел за спестяване -->
+<div class="row mb-4">
+    <div class="col-12">
+        @if (!Model.SavingsTarget.IsConfigured)
+        {
+            <div class="card border-success">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">
+                            <i class="fas fa-piggy-bank text-success me-2"></i>
+                            Задайте месечна цел за спестяване
+                        </h6>
+                        <small class="text-muted">
+                            Изберете сметка за заплата, сметка за спестявания и процент. Виджетът ще показва прогреса всеки месец.
+                        </small>
+                    </div>
+                    <a asp-area="Identity" asp-page="/Account/Manage/SavingsSettings" class="btn btn-outline-success">
+                        <i class="fas fa-cog me-1"></i> Настрой
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            var st = Model.SavingsTarget;
+            var hasIncome = st.HasIncomeYet;
+            var displayedTarget = hasIncome ? st.Target : st.ForecastTarget;
+            var progressPercent = displayedTarget > 0
+                ? (decimal)Math.Min(100, (double)(st.Transferred / displayedTarget) * 100)
+                : 0;
+            var barColor = st.IsTargetReached ? "bg-success"
+                : (progressPercent >= 50 ? "bg-info" : "bg-warning");
+
+            <div class="card border-success">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-piggy-bank me-2"></i>
+                        Цел за спестяване — @currentMonth @currentYear (@st.Percent.ToString("0.##")%)
+                    </h6>
+                    <a asp-area="Identity" asp-page="/Account/Manage/SavingsSettings" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-md-3">
+                            <h5 class="text-primary mb-0">@st.RealizedIncome.ToString("F2") лв.</h5>
+                            <small class="text-muted">
+                                Реализиран приход
+                                @if (!hasIncome && st.ExpectedMonthlyIncome > 0)
+                                {
+                                    <br><span class="text-info">(очакван ~@st.ExpectedMonthlyIncome.ToString("F0") лв.)</span>
+                                }
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 class="text-success mb-0">@displayedTarget.ToString("F2") лв.</h5>
+                            <small class="text-muted">
+                                @(hasIncome ? "Цел" : "Прогноза при очаквания приход")
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 class="text-info mb-0">@st.Transferred.ToString("F2") лв.</h5>
+                            <small class="text-muted">Прехвърлено в спестявания</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 class="@(st.IsTargetReached ? "text-success" : "text-warning") mb-0">
+                                @if (st.IsTargetReached)
+                                {
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    <text>Постигната</text>
+                                }
+                                else
+                                {
+                                    <text>@st.Gap.ToString("F2") лв.</text>
+                                }
+                            </h5>
+                            <small class="text-muted">
+                                @(st.IsTargetReached ? "Цел" : "Недостиг")
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="progress" style="height: 24px;">
+                        <div class="progress-bar @barColor" role="progressbar"
+                             style="width: @progressPercent.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)%;"
+                             aria-valuenow="@progressPercent.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)"
+                             aria-valuemin="0" aria-valuemax="100">
+                            @progressPercent.ToString("F0")%
+                        </div>
+                    </div>
+
+                    @if (st.SalaryAccountName != null && st.SavingsAccountName != null)
+                    {
+                        <div class="mt-3 text-muted small">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            От <strong>@st.SalaryAccountName</strong> към <strong>@st.SavingsAccountName</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
 <!-- Месечен баланс с планирани -->
 <div class="row mb-4">
     <div class="col-12">
