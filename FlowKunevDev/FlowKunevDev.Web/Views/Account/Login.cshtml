@@ -1,0 +1,55 @@
+@model FlowKunevDev.Web.ViewModels.Account.LoginViewModel
+@{
+    ViewData["Title"] = "Вход";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-primary">
+            <div class="card-header text-center">
+                <h1 class="card-title mb-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="card-body">
+                <form asp-action="Login" asp-controller="Account" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <h4 class="text-center mb-4">Влезте в профила си</h4>
+                    <hr />
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="UserNameOrEmail" class="form-control" autocomplete="username" placeholder="Потребителско име или имейл" />
+                        <label asp-for="UserNameOrEmail"></label>
+                        <span asp-validation-for="UserNameOrEmail" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" placeholder="Парола" />
+                        <label asp-for="Password"></label>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" asp-for="RememberMe" />
+                        <label class="form-check-label" asp-for="RememberMe"></label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-lg btn-primary">Влизане</button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <p class="mb-0">
+                            <a asp-action="Register" asp-controller="Account" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none">
+                                Регистриране като нов потребител
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

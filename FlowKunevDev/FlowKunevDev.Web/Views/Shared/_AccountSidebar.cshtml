@@ -1,0 +1,21 @@
+@{
+    var active = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string Cls(string a) => string.Equals(active, a, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
+<ul class="nav nav-pills flex-column">
+    <li class="nav-item">
+        <a class="nav-link @Cls("Profile")" asp-action="Profile" asp-controller="Account">
+            <i class="fas fa-user me-2"></i>Профил
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @Cls("ChangePassword")" asp-action="ChangePassword" asp-controller="Account">
+            <i class="fas fa-key me-2"></i>Парола
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @Cls("SavingsSettings")" asp-action="SavingsSettings" asp-controller="Account">
+            <i class="fas fa-piggy-bank me-2"></i>Цел за спестяване
+        </a>
+    </li>
+</ul>

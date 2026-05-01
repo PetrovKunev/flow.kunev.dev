@@ -32,7 +32,7 @@ namespace FlowKunevDev.Web.ViewModels
         public string Notes { get; set; } = string.Empty;
 
         // За dropdown списъците
-        public List<Account> AvailableAccounts { get; set; } = new List<Account>();
+        public List<FlowKunevDev.Data.Models.Account> AvailableAccounts { get; set; } = new List<FlowKunevDev.Data.Models.Account>();
 
         // За валидация
         public decimal FromAccountBalance { get; set; }

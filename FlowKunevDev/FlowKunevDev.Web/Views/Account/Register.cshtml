@@ -1,0 +1,63 @@
+@model FlowKunevDev.Web.ViewModels.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-success">
+            <div class="card-header text-center">
+                <h1 class="card-title mb-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="card-body">
+                <form asp-action="Register" asp-controller="Account" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <h4 class="text-center mb-4">Създайте нов акаунт</h4>
+                    <hr />
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="UserName" class="form-control" autocomplete="username" placeholder="Потребителско име" />
+                        <label asp-for="UserName"></label>
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" class="form-control" autocomplete="email" placeholder="име@пример.com" />
+                        <label asp-for="Email"></label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Password" class="form-control" autocomplete="new-password" placeholder="Парола" />
+                        <label asp-for="Password"></label>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Потвърди паролата" />
+                        <label asp-for="ConfirmPassword"></label>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-lg btn-success">Регистрирай се</button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <p class="mb-0">
+                            Вече имате акаунт?
+                            <a asp-action="Login" asp-controller="Account" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none">
+                                Влезте тук
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

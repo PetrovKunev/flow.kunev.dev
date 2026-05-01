@@ -36,7 +36,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             try
             {

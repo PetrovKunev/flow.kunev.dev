@@ -24,7 +24,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var accounts = await _accountService.GetAllAsync(userId);
             return View(accounts);
@@ -35,7 +35,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var account = await _accountService.GetByIdAsync(id, userId);
             if (account == null)
@@ -64,7 +64,7 @@ namespace FlowKunevDev.Web.Controllers
 
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             try
             {
@@ -84,7 +84,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var account = await _accountService.GetByIdAsync(id, userId);
             if (account == null)
@@ -123,7 +123,7 @@ namespace FlowKunevDev.Web.Controllers
 
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             try
             {
@@ -148,7 +148,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var account = await _accountService.GetByIdAsync(id, userId);
             if (account == null)
@@ -166,7 +166,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var canDelete = await _accountService.CanDeleteAsync(id, userId);
             if (!canDelete)

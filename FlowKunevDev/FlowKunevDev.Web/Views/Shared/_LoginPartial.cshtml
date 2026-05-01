@@ -32,18 +32,23 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
                         <i class="fas fa-cog me-2"></i>Настройки на профила
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+                    <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
                         <i class="fas fa-key me-2"></i>Смяна на парола
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Account" asp-action="SavingsSettings">
+                        <i class="fas fa-piggy-bank me-2"></i>Цел за спестяване
                     </a>
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="d-inline">
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                         <button type="submit" class="dropdown-item text-danger">
                             <i class="fas fa-sign-out-alt me-2"></i>Изход
                         </button>
@@ -55,15 +60,13 @@
     else
     {
         <li class="nav-item">
-            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
+            <a class="nav-link" asp-controller="Account" asp-action="Register">
                 <i class="fas fa-user-plus me-1"></i>
-                <!-- Показваме текста само на по-големи екрани за да спестим място -->
                 <span class="d-md-inline">Регистрация</span>
             </a>
         </li>
         <li class="nav-item">
-            <!-- Направихме бутона по-компактен на малки екрани -->
-            <a class="nav-link btn btn-outline-warning btn-sm ms-md-2" asp-area="Identity" asp-page="/Account/Login">
+            <a class="nav-link btn btn-outline-warning btn-sm ms-md-2" asp-controller="Account" asp-action="Login">
                 <i class="fas fa-sign-in-alt me-1"></i>
                 <span class="login-text">Вход</span>
             </a>

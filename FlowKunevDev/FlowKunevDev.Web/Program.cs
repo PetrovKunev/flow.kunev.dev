@@ -6,7 +6,6 @@ using FlowKunevDev.Web.Mapping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FlowKunevDev.Data.Models;
-using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,21 +18,37 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
     options.SignIn.RequireConfirmedAccount = false;
-    // Конфигурация на паролите
+
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequiredLength = 6;
     options.Password.RequiredUniqueChars = 1;
-    // Allow usernames with Bulgarian characters in addition to the default set
+
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    options.User.RequireUniqueEmail = true;
     options.User.AllowedUserNameCharacters =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+" +
         "абвгдежзийклмнопрстуфхцчшщъьюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ";
 })
-.AddEntityFrameworkStores<ApplicationDbContext>();
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(14);
+    options.SlidingExpiration = true;
+});
 
 // Регистриране на Services
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -43,7 +58,6 @@ builder.Services.AddScoped<IAccountTransferService, AccountTransferService>();
 builder.Services.AddScoped<IPlannedTransactionService, PlannedTransactionService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ISavingsTargetService, SavingsTargetService>();
-builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 builder.Services.AddHostedService<PlannedTransactionBackgroundService>();
 
@@ -83,7 +97,5 @@ app.MapControllerRoute(
     name: "dashboard",
     pattern: "dashboard",
     defaults: new { controller = "Dashboard", action = "Index" });
-
-app.MapRazorPages();
 
 app.Run();

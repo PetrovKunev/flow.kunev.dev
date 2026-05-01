@@ -26,7 +26,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var budgets = await _budgetService.GetAllAsync(userId);
             return View(budgets);
@@ -37,7 +37,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var budget = await _budgetService.GetByIdAsync(id, userId);
             if (budget == null)
@@ -62,7 +62,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
@@ -89,7 +89,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var budget = await _budgetService.GetByIdAsync(id, userId);
             if (budget == null)
@@ -121,7 +121,7 @@ namespace FlowKunevDev.Web.Controllers
 
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
@@ -152,7 +152,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var budget = await _budgetService.GetByIdAsync(id, userId);
             if (budget == null)
@@ -169,7 +169,7 @@ namespace FlowKunevDev.Web.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
+                return RedirectToAction("Login", "Account");
 
             var success = await _budgetService.DeleteAsync(id, userId);
             if (success)

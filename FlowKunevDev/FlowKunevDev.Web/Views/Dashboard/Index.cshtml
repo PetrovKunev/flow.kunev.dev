@@ -178,7 +178,7 @@
                             Изберете сметка за заплата, сметка за спестявания и процент. Виджетът ще показва прогреса всеки месец.
                         </small>
                     </div>
-                    <a asp-area="Identity" asp-page="/Account/Manage/SavingsSettings" class="btn btn-outline-success">
+                    <a asp-controller="Account" asp-action="SavingsSettings" class="btn btn-outline-success">
                         <i class="fas fa-cog me-1"></i> Настрой
                     </a>
                 </div>
@@ -201,7 +201,7 @@
                         <i class="fas fa-piggy-bank me-2"></i>
                         Цел за спестяване — @currentMonth @currentYear (@st.Percent.ToString("0.##")%)
                     </h6>
-                    <a asp-area="Identity" asp-page="/Account/Manage/SavingsSettings" class="btn btn-sm btn-outline-light">
+                    <a asp-controller="Account" asp-action="SavingsSettings" class="btn btn-sm btn-outline-light">
                         <i class="fas fa-cog"></i>
                     </a>
                 </div>
