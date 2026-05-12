@@ -15,7 +15,6 @@ namespace FlowKunevDev.Services.DTOs
         public decimal InitialBalance { get; set; }
         public decimal CurrentBalance { get; set; }
         public AccountType Type { get; set; }
-        public string Currency { get; set; } = "BGN";
         public string Color { get; set; } = "#007bff";
         public string UserId { get; set; } = null!;
         public DateTime CreatedDate { get; set; }

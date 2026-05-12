@@ -29,11 +29,6 @@ namespace FlowKunevDev.Data.Models
         [Display(Name = "Тип сметка")]
         public AccountType Type { get; set; }
 
-        [Required(ErrorMessage = "Валутата е задължителна")]
-        [StringLength(3)]
-        [Display(Name = "Валута")]
-        public string Currency { get; set; } = "BGN";
-
         [StringLength(7, ErrorMessage = "Цветът трябва да бъде в hex формат")]
         [Display(Name = "Цвят")]
         public string Color { get; set; } = "#007bff";

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FlowKunevDev.Services.DTOs.TransactionDto>
+@model IEnumerable<FlowKunevDev.Services.DTOs.TransactionDto>
 
 @{
     ViewData["Title"] = "Моите Транзакции";
@@ -133,7 +133,7 @@
         <div class="col-md-3">
             <div class="card border-success">
                 <div class="card-body text-center">
-                    <h6 class="text-success">+@totalIncome.ToString("F2") лв.</h6>
+                    <h6 class="text-success">+@totalIncome.ToString("F2") €</h6>
                     <small class="text-muted">Общо приходи</small>
                 </div>
             </div>
@@ -141,7 +141,7 @@
         <div class="col-md-3">
             <div class="card border-danger">
                 <div class="card-body text-center">
-                    <h6 class="text-danger">-@totalExpenses.ToString("F2") лв.</h6>
+                    <h6 class="text-danger">-@totalExpenses.ToString("F2") €</h6>
                     <small class="text-muted">Общо разходи</small>
                 </div>
             </div>
@@ -150,7 +150,7 @@
             <div class="card border-info">
                 <div class="card-body text-center">
                     <h6 class="text-@(netAmount >= 0 ? "success" : "danger")">
-                        @(netAmount >= 0 ? "+" : "")@netAmount.ToString("F2") лв.
+                        @(netAmount >= 0 ? "+" : "")@netAmount.ToString("F2") €
                     </h6>
                     <small class="text-muted">Нетен баланс</small>
                 </div>
@@ -232,7 +232,7 @@ else
                                 </td>
                                 <td>
                                     <span class="fw-bold text-@(transaction.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger")">
-                                        @(transaction.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@transaction.Amount.ToString("F2") лв.
+                                        @(transaction.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@transaction.Amount.ToString("F2") €
                                     </span>
                                 </td>
                                 <td>

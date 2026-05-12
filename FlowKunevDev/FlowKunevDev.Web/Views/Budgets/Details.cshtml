@@ -1,4 +1,4 @@
-﻿@model FlowKunevDev.Services.DTOs.BudgetDto
+@model FlowKunevDev.Services.DTOs.BudgetDto
 @{
     ViewData["Title"] = "Детайли";
 }
@@ -14,11 +14,11 @@
             <dt class="col-sm-3">Период</dt>
             <dd class="col-sm-9">@Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")</dd>
             <dt class="col-sm-3">Сума</dt>
-            <dd class="col-sm-9">@Model.Amount.ToString("F2") лв.</dd>
+            <dd class="col-sm-9">@Model.Amount.ToString("F2") €</dd>
             <dt class="col-sm-3">Изразходвано</dt>
-            <dd class="col-sm-9">@Model.SpentAmount.ToString("F2") лв.</dd>
+            <dd class="col-sm-9">@Model.SpentAmount.ToString("F2") €</dd>
             <dt class="col-sm-3">Оставащо</dt>
-            <dd class="col-sm-9">@Model.RemainingAmount.ToString("F2") лв.</dd>
+            <dd class="col-sm-9">@Model.RemainingAmount.ToString("F2") €</dd>
             <dt class="col-sm-3">Активен</dt>
             <dd class="col-sm-9">@(Model.IsActive ? "Да" : "Не")</dd>
         </dl>

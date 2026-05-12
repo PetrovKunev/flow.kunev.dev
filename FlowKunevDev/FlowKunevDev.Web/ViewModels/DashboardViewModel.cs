@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 
@@ -64,8 +64,8 @@ namespace FlowKunevDev.Web.ViewModels
         public List<PlannedTransactionSummaryDto> OverduePlannedTransactions { get; set; } = new List<PlannedTransactionSummaryDto>();
 
         // Помощни свойства за UI
-        public string DailyAvailableFormatted => $"{DailyAvailableAmount:F2} лв.";
-        public string AverageDailyExpensesFormatted => $"{AverageDailyExpenses:F2} лв.";
+        public string DailyAvailableFormatted => $"{DailyAvailableAmount:F2} €";
+        public string AverageDailyExpensesFormatted => $"{AverageDailyExpenses:F2} €";
         public bool HasSufficientFunds => DailyAvailableAmount > 0;
         public bool IsAboveAverage => DailyAvailableAmount > AverageDailyExpenses;
         

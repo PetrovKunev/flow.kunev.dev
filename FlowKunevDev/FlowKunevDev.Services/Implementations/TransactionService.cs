@@ -582,7 +582,6 @@ namespace FlowKunevDev.Services.Implementations
                     Name = a.Name,
                     CurrentBalance = 0, // ще се изчисли по-късно
                     Color = a.Color,
-                    Currency = a.Currency,
                     IsIncluded = request.IncludeAllAccounts || (request.SelectedAccountIds != null && request.SelectedAccountIds.Contains(a.Id))
                 })
                 .ToListAsync();

@@ -1,4 +1,4 @@
-﻿@model FlowKunevDev.Services.DTOs.UpdateTransactionDto
+@model FlowKunevDev.Services.DTOs.UpdateTransactionDto
 
 @{
     ViewData["Title"] = "Редактиране на Транзакция";
@@ -43,7 +43,7 @@
                         <div class="col-md-6">
                             <div class="form-floating mb-3">
                                 <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
-                                <label asp-for="Amount">Сума (лв.)</label>
+                                <label asp-for="Amount">Сума (€)</label>
                                 <span asp-validation-for="Amount" class="text-danger"></span>
                             </div>
                         </div>
@@ -63,8 +63,8 @@
                                     <option value="">Изберете сметка</option>
                                     @foreach (var account in accounts)
                                     {
-                                        <option value="@account.Id" data-balance="@account.CurrentBalance" data-currency="@account.Currency" style="background-color:@account.Color; color:white;" selected="@(account.Id == Model.AccountId)">
-                                            @account.Name (@account.CurrentBalance.ToString("F2") @account.Currency)
+                                        <option value="@account.Id" data-balance="@account.CurrentBalance" style="background-color:@account.Color; color:white;" selected="@(account.Id == Model.AccountId)">
+                                            @account.Name (@account.CurrentBalance.ToString("F2") €)
                                         </option>
                                     }
                                 </select>
@@ -108,7 +108,7 @@
                                         <span class="badge" id="previewCategory">Категория</span>
                                     </div>
                                     <div class="text-end">
-                                        <h5 class="mb-0" id="previewAmount">0.00 лв.</h5>
+                                        <h5 class="mb-0" id="previewAmount">0.00 €</h5>
                                         <small class="text-muted" id="previewAccount">Сметка</small>
                                     </div>
                                 </div>
@@ -205,7 +205,7 @@
 
                     var amountClass = type == '@((int)FlowKunevDev.Common.TransactionType.Income)' ? 'text-success' : 'text-danger';
                     var amountPrefix = type == '@((int)FlowKunevDev.Common.TransactionType.Income)' ? '+' : '-';
-                    $('#previewAmount').html(`<span class="${amountClass}">${amountPrefix}${amount.toFixed(2)} лв.</span>`);
+                    $('#previewAmount').html(`<span class="${amountClass}">${amountPrefix}${amount.toFixed(2)} €</span>`);
 
                     $('#previewAccount').text(accountText.split('(')[0].trim());
                     $('#previewCategory').text(categoryText).css('background-color', categoryColor).css('color', 'white');

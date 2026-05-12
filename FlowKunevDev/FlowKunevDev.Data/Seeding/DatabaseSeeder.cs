@@ -1,4 +1,4 @@
-﻿using FlowKunevDev.Common;
+using FlowKunevDev.Common;
 using FlowKunevDev.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -265,7 +265,6 @@ namespace FlowKunevDev.Data.Seeding
                     Name = "Основна сметка",
                     Type = AccountType.Current,
                     InitialBalance = 0,
-                    Currency = "BGN",
                     Color = "#007bff",
                     UserId = "TEMPLATE", // Ще се замести при създаване на потребител
                     IsActive = true
@@ -279,7 +278,7 @@ namespace FlowKunevDev.Data.Seeding
             // За бъдещо разширение - поддържани валути
             /*
             builder.Entity<Currency>().HasData(
-                new Currency { Code = "BGN", Name = "Български лев", Symbol = "лв." },
+                new Currency { Code = "BGN", Name = "Български лев", Symbol = "€" },
                 new Currency { Code = "EUR", Name = "Евро", Symbol = "€" },
                 new Currency { Code = "USD", Name = "Американски долар", Symbol = "$" }
             );

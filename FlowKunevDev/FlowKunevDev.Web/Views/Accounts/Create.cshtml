@@ -58,17 +58,6 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <select asp-for="Currency" class="form-select">
-                                    <option value="BGN">BGN - Български лев</option>
-                                    <option value="EUR">EUR - Евро</option>
-                                    <option value="USD">USD - Американски долар</option>
-                                </select>
-                                <label asp-for="Currency">Валута</label>
-                                <span asp-validation-for="Currency" class="text-danger"></span>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -112,7 +101,7 @@
                                 <span class="badge bg-light text-dark" id="preview-type">Тип</span>
                             </div>
                             <div class="card-body text-center">
-                                <h5 class="text-success" id="preview-balance">0.00 BGN</h5>
+                                <h5 class="text-success" id="preview-balance">0.00 €</h5>
                                 <small class="text-muted">Текущ баланс</small>
                             </div>
                         </div>
@@ -141,7 +130,7 @@
             });
 
             // Обновяване на предварителния преглед
-            $('#Name, #Type, #InitialBalance, #Currency, #Color').on('input change', updatePreview);
+            $('#Name, #Type, #InitialBalance, #Color').on('input change', updatePreview);
 
             function updatePreview() {
                 var name = $('#Name').val() || 'Име на сметката';
@@ -160,12 +149,11 @@
                 }
 
                 var balance = $('#InitialBalance').val() || '0.00';
-                var currency = $('#Currency').val() || 'BGN';
                 var color = $('#Color').val() || '#007bff';
 
                 $('#preview-name').text(name);
                 $('#preview-type').text(typeText);
-                $('#preview-balance').text(parseFloat(balance).toFixed(2) + ' ' + currency);
+                $('#preview-balance').text(parseFloat(balance).toFixed(2) + ' €');
                 $('#preview-header').css('background-color', color);
             }
 

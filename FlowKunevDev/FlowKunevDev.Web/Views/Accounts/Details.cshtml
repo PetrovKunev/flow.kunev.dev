@@ -63,7 +63,7 @@
                     <div class="col-md-6">
                         <div class="text-center mb-3">
                             <h3 class="text-@(Model.CurrentBalance >= 0 ? "success" : "danger")">
-                                @Model.CurrentBalance.ToString("F2") @Model.Currency
+                                @Model.CurrentBalance.ToString("F2") €
                             </h3>
                             <p class="text-muted mb-0">Текущ баланс</p>
                         </div>
@@ -71,7 +71,7 @@
                     <div class="col-md-6">
                         <div class="text-center mb-3">
                             <h4 class="text-info">
-                                @((Model.CurrentBalance - Model.InitialBalance).ToString("F2")) @Model.Currency
+                                @((Model.CurrentBalance - Model.InitialBalance).ToString("F2")) €
                             </h4>
                             <p class="text-muted mb-0">
                                 Промяна от създаването
@@ -97,11 +97,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <strong>Начален баланс:</strong>
-                        <p class="mb-1">@Model.InitialBalance.ToString("F2") @Model.Currency</p>
-                    </div>
-                    <div class="col-md-4">
-                        <strong>Валута:</strong>
-                        <p class="mb-1">@Model.Currency</p>
+                        <p class="mb-1">@Model.InitialBalance.ToString("F2") €</p>
                     </div>
                     <div class="col-md-4">
                         <strong>Създадена на:</strong>
@@ -213,19 +209,19 @@
         function displayFallbackStats() {
             var html = '<div class="row text-center">';
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-success">0.00 @Model.Currency</h5>';
+            html += '<h5 class="text-success">0.00 €</h5>';
             html += '<small class="text-muted">Общо приходи</small>';
             html += '</div>';
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-danger">0.00 @Model.Currency</h5>';
+            html += '<h5 class="text-danger">0.00 €</h5>';
             html += '<small class="text-muted">Общо разходи</small>';
             html += '</div>';
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-info">0.00 @Model.Currency</h5>';
+            html += '<h5 class="text-info">0.00 €</h5>';
             html += '<small class="text-muted">Нетна промяна</small>';
             html += '</div>';
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-warning">0.00 @Model.Currency</h5>';
+            html += '<h5 class="text-warning">0.00 €</h5>';
             html += '<small class="text-muted">Средна транзакция</small>';
             html += '</div>';
             html += '</div>';
@@ -236,22 +232,22 @@
             var html = '<div class="row text-center">';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-success">' + stats.totalIncome.toFixed(2) + ' @Model.Currency</h5>';
+            html += '<h5 class="text-success">' + stats.totalIncome.toFixed(2) + ' €</h5>';
             html += '<small class="text-muted">Общо приходи</small>';
             html += '</div>';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-danger">' + stats.totalExpenses.toFixed(2) + ' @Model.Currency</h5>';
+            html += '<h5 class="text-danger">' + stats.totalExpenses.toFixed(2) + ' €</h5>';
             html += '<small class="text-muted">Общо разходи</small>';
             html += '</div>';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-info">' + stats.netChange.toFixed(2) + ' @Model.Currency</h5>';
+            html += '<h5 class="text-info">' + stats.netChange.toFixed(2) + ' €</h5>';
             html += '<small class="text-muted">Нетна промяна</small>';
             html += '</div>';
 
             html += '<div class="col-md-6 mb-3">';
-            html += '<h5 class="text-warning">' + stats.averageTransactionAmount.toFixed(2) + ' @Model.Currency</h5>';
+            html += '<h5 class="text-warning">' + stats.averageTransactionAmount.toFixed(2) + ' €</h5>';
             html += '<small class="text-muted">Средна транзакция</small>';
             html += '</div>';
 
@@ -265,7 +261,7 @@
                 if (!isNaN(date.getTime())) {
                     html += '<div class="col-12">';
                     html += '<p class="text-muted mb-0">Последна транзакция: ';
-                    html += stats.lastTransactionAmount.toFixed(2) + ' @Model.Currency на ';
+                    html += stats.lastTransactionAmount.toFixed(2) + ' € на ';
                     html += date.toLocaleDateString('bg-BG');
                     html += '</p>';
                     html += '</div>';

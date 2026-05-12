@@ -71,7 +71,6 @@ namespace FlowKunevDev.Services.Implementations
                     InitialBalance = account.InitialBalance,
                     CurrentBalance = currentBalance,
                     Type = account.Type,
-                    Currency = account.Currency,
                     Color = account.Color,
                     UserId = account.UserId,
                     CreatedDate = account.CreatedDate,
@@ -101,7 +100,6 @@ namespace FlowKunevDev.Services.Implementations
                     Id = account.Id,
                     Name = account.Name,
                     CurrentBalance = currentBalance,
-                    Currency = account.Currency,
                     Color = account.Color,
                     Type = account.Type,
                     IsActive = account.IsActive

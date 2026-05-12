@@ -105,7 +105,6 @@ namespace FlowKunevDev.Web.Controllers
                         Name = a.Name,
                         CurrentBalance = a.CurrentBalance,
                         Color = a.Color,
-                        Currency = a.Currency,
                         Type = a.Type.ToString(),
                         IsActive = a.IsActive
                     }).ToList(),

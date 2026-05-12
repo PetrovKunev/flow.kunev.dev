@@ -1,4 +1,4 @@
-﻿@model FlowKunevDev.Services.DTOs.BudgetDto
+@model FlowKunevDev.Services.DTOs.BudgetDto
 @{
     ViewData["Title"] = "Изтриване";
 }
@@ -9,7 +9,7 @@
     <strong>Период:</strong> @Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")
 </div>
 <div class="mb-3">
-    <strong>Сума:</strong> @Model.Amount.ToString("F2") лв.
+    <strong>Сума:</strong> @Model.Amount.ToString("F2") €
 </div>
 
 <form asp-action="Delete" method="post">

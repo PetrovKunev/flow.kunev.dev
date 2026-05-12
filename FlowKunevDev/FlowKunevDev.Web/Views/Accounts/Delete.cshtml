@@ -30,14 +30,13 @@
                             <div class="col-md-6">
                                 <div class="text-center">
                                     <h4 class="text-@(Model.CurrentBalance >= 0 ? "success" : "danger")">
-                                        @Model.CurrentBalance.ToString("C") @Model.Currency
+                                        @Model.CurrentBalance.ToString("F2") €
                                     </h4>
                                     <p class="text-muted">Текущ баланс</p>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <p><strong>Тип:</strong> @Model.Type.ToString()</p>
-                                <p><strong>Валута:</strong> @Model.Currency</p>
                                 <p><strong>Транзакции:</strong> @Model.TransactionCount</p>
                                 @if (Model.LastTransactionDate.HasValue)
                                 {

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FlowKunevDev.Services.DTOs.PlannedTransactionDto>
+@model IEnumerable<FlowKunevDev.Services.DTOs.PlannedTransactionDto>
 
 @{
     ViewData["Title"] = "Планирани Транзакции";
@@ -169,7 +169,7 @@
                                 </td>
                                 <td>
                                     <span class="fw-bold text-@(planned.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger")">
-                                        @(planned.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@planned.PlannedAmount.ToString("F2") лв.
+                                        @(planned.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@planned.PlannedAmount.ToString("F2") €
                                     </span>
                                 </td>
                                 <td>

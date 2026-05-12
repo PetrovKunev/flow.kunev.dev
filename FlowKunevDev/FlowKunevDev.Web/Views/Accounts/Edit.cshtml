@@ -50,19 +50,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <select asp-for="Currency" class="form-select">
-                                    <option value="BGN">BGN - Български лев</option>
-                                    <option value="EUR">EUR - Евро</option>
-                                    <option value="USD">USD - Американски долар</option>
-                                </select>
-                                <label asp-for="Currency">Валута</label>
-                                <span asp-validation-for="Currency" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-check form-switch mt-3">
                                 <input asp-for="IsActive" class="form-check-input" type="checkbox" />
                                 <label asp-for="IsActive" class="form-check-label">
@@ -160,12 +148,11 @@
             });
 
             // Обновяване на предварителния преглед
-            $('#Name, #Type, #Currency, #Color, #IsActive').on('input change', updatePreview);
+            $('#Name, #Type, #Color, #IsActive').on('input change', updatePreview);
 
             function updatePreview() {
                 var name = $('#Name').val() || 'Име на сметката';
                 var type = $('#Type option:selected').text() || 'Тип';
-                var currency = $('#Currency').val() || 'BGN';
                 var color = $('#Color').val() || '#007bff';
                 var isActive = $('#IsActive').is(':checked');
 

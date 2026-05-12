@@ -1,4 +1,4 @@
-﻿@model FlowKunevDev.Web.ViewModels.CategoryReportViewModel
+@model FlowKunevDev.Web.ViewModels.CategoryReportViewModel
 @using FlowKunevDev.Common
 @{
     ViewData["Title"] = "Отчети по категории";
@@ -76,7 +76,7 @@
                                             <span class="badge rounded-pill me-1" style="background-color:@cat.CategoryColor;">&nbsp;</span>
                                             @cat.CategoryName
                                         </td>
-                                        <td class="text-end">@($"{cat.Amount:F2} лв.")</td>
+                                        <td class="text-end">@($"{cat.Amount:F2} €")</td>
                                         <td class="text-end">@($"{cat.Percentage:F2}%")</td>
                                     </tr>
                                 }

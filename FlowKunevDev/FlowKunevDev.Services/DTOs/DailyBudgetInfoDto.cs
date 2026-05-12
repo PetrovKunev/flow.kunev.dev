@@ -1,4 +1,4 @@
-﻿namespace FlowKunevDev.Services.DTOs
+namespace FlowKunevDev.Services.DTOs
 {
     public class DailyBudgetInfoDto
     {
@@ -19,9 +19,9 @@
         public bool IsAboveAverage => DailyAvailable > AverageDailyExpenses;
         public decimal DifferenceFromAverage => Math.Abs(DailyAvailable - AverageDailyExpenses);
         public string RecommendationText => IsAboveAverage
-            ? $"Имате {DifferenceFromAverage:F2} лв. повече от обичайното дневно"
+            ? $"Имате {DifferenceFromAverage:F2} € повече от обичайното дневно"
             : DailyAvailable < AverageDailyExpenses
-                ? $"Имате {DifferenceFromAverage:F2} лв. по-малко от обичайното дневно"
+                ? $"Имате {DifferenceFromAverage:F2} € по-малко от обичайното дневно"
                 : "Дневният бюджет съвпада с обичайните разходи";
 
         public List<int> SelectedAccountIds { get; set; } = [];

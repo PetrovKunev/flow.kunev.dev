@@ -16,7 +16,7 @@ namespace FlowKunevDev.Web.ViewModels.Account
         public decimal? MonthlySavingsPercent { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Очакваният приход не може да е отрицателен.")]
-        [Display(Name = "Очакван месечен приход (лв.)")]
+        [Display(Name = "Очакван месечен приход (€)")]
         public decimal? ExpectedMonthlyIncome { get; set; }
 
         public List<SelectListItem> AccountOptions { get; set; } = new();

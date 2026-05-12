@@ -1,4 +1,4 @@
-﻿@using FlowKunevDev.Common;
+@using FlowKunevDev.Common;
 @using FlowKunevDev.Services.DTOs;
 @model FlowKunevDev.Web.ViewModels.PeriodComparisonViewModel
 
@@ -73,7 +73,7 @@
                     <div class="card-body text-center">
                         <h6 class="text-primary">Средни месечни разходи</h6>
                         <h4 class="text-primary">
-                            @($"{Model.Summary.AverageMonthlyExpenses:F2} лв.")
+                            @($"{Model.Summary.AverageMonthlyExpenses:F2} €")
                         </h4>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                     <div class="card-body text-center">
                         <h6 class="text-danger">Най-високи разходи</h6>
                         <h5 class="text-danger">
-                            @($"{Model.Summary.HighestMonthlyExpenses:F2} лв.")
+                            @($"{Model.Summary.HighestMonthlyExpenses:F2} €")
                         </h5>
                         <small class="text-muted">@Model.Summary.HighestExpenseMonth</small>
                     </div>
@@ -94,7 +94,7 @@
                     <div class="card-body text-center">
                         <h6 class="text-success">Най-ниски разходи</h6>
                         <h5 class="text-success">
-                            @($"{Model.Summary.LowestMonthlyExpenses:F2} лв.")
+                            @($"{Model.Summary.LowestMonthlyExpenses:F2} €")
                         </h5>
                         <small class="text-muted">@Model.Summary.LowestExpenseMonth</small>
                     </div>
@@ -170,14 +170,14 @@
                                                     <span class="badge bg-primary ms-2">Текущ</span>
                                                 }
                                         </td>
-                                        <td class="text-success">@($"{period.TotalIncome:F2} лв.")</td>
-                                        <td class="text-danger">@($"{period.TotalExpenses:F2} лв.")</td>
+                                        <td class="text-success">@($"{period.TotalIncome:F2} €")</td>
+                                        <td class="text-danger">@($"{period.TotalExpenses:F2} €")</td>
                                         <td class="@(period.Balance >= 0 ? "text-success" : "text-danger")">
-                                            @($"{period.Balance:F2} лв.")
+                                            @($"{period.Balance:F2} €")
                                         </td>
                                         <td class="@(period.ChangeFromPrevious >= 0 ? "text-danger" : "text-success")">
                                             @(period.ChangeFromPrevious != 0
-                                                                                    ? $"{(period.ChangeFromPrevious >= 0 ? "+" : "")}{period.ChangeFromPrevious:F2} лв."
+                                                                                    ? $"{(period.ChangeFromPrevious >= 0 ? "+" : "")}{period.ChangeFromPrevious:F2} €"
                                                                                     : "-")
                                                                                       </td>
                                                                                       <td class="@(period.PercentageChange >= 0 ? "text-danger" : "text-success")">
@@ -251,11 +251,11 @@
                                             </div>
                                             <div class="mb-2">
                                                 <small class="text-muted">Текущ:</small>
-                                                <strong>@($"{cat.CurrentPeriodAmount:F2} лв.")</strong>
+                                                <strong>@($"{cat.CurrentPeriodAmount:F2} €")</strong>
                                             </div>
                                             <div class="mb-2">
                                                 <small class="text-muted">Предишен:</small>
-                                                <strong>@($"{cat.PreviousPeriodAmount:F2} лв.")</strong>
+                                                <strong>@($"{cat.PreviousPeriodAmount:F2} €")</strong>
                                             </div>
                                             <div class="@(cat.Change >= 0 ? "text-danger" : "text-success")">
                                                 <i class="fas @(cat.PercentageChange > 0
@@ -263,7 +263,7 @@
                                                                                                                : cat.PercentageChange < 0
                                                                                                                    ? "fa-arrow-down text-success"
                                                                                                                    : "fa-minus text-muted")"></i>
-                                        @($"{(cat.Change >= 0 ? "+" : "")}{cat.Change:F2} лв. ({(cat.PercentageChange >= 0 ? "+" : "")}{cat.PercentageChange:F1}%)")
+                                        @($"{(cat.Change >= 0 ? "+" : "")}{cat.Change:F2} € ({(cat.PercentageChange >= 0 ? "+" : "")}{cat.PercentageChange:F1}%)")
                                     </div>
                                 </div>
                             </div>
@@ -292,11 +292,11 @@
                                                     </div>
                                                     <div class="mb-2">
                                                         <small class="text-muted">Текущ:</small>
-                                                        <strong>@($"{cat.CurrentPeriodAmount:F2} лв.")</strong>
+                                                        <strong>@($"{cat.CurrentPeriodAmount:F2} €")</strong>
                                                     </div>
                                                     <div class="mb-2">
                                                         <small class="text-muted">Предишен:</small>
-                                                        <strong>@($"{cat.PreviousPeriodAmount:F2} лв.")</strong>
+                                                        <strong>@($"{cat.PreviousPeriodAmount:F2} €")</strong>
                                                     </div>
                                                     <div class="@(cat.Change >= 0 ? "text-danger" : "text-success")">
                                                         <i class="fas @(cat.PercentageChange > 0
@@ -304,7 +304,7 @@
                                                                                                                                : cat.PercentageChange < 0
                                                                                                                                    ? "fa-arrow-down text-success"
                                                                                                                                    : "fa-minus text-muted")"></i>
-                                            @($"{(cat.Change >= 0 ? "+" : "")}{cat.Change:F2} лв. ({(cat.PercentageChange >= 0 ? "+" : "")}{cat.PercentageChange:F1}%)")
+                                            @($"{(cat.Change >= 0 ? "+" : "")}{cat.Change:F2} € ({(cat.PercentageChange >= 0 ? "+" : "")}{cat.PercentageChange:F1}%)")
                                         </div>
                                     </div>
                                 </div>
@@ -417,7 +417,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { callback: v => v.toFixed(2) + ' лв.' }
+                            ticks: { callback: v => v.toFixed(2) + ' €' }
                         }
                     },
                     elements: { point: { radius: 6, hoverRadius: 8 } }

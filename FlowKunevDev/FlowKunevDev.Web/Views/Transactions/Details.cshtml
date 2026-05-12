@@ -1,4 +1,4 @@
-﻿@model FlowKunevDev.Services.DTOs.TransactionDto
+@model FlowKunevDev.Services.DTOs.TransactionDto
 
 @{
     ViewData["Title"] = "Детайли за транзакция";
@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-md-6 text-md-end">
                         <h4 class="text-@(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "success" : "danger")">
-                            @(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@Model.Amount.ToString("F2") лв.
+                            @(Model.Type == FlowKunevDev.Common.TransactionType.Income ? "+" : "-")@Model.Amount.ToString("F2") €
                         </h4>
                         <p class="text-muted mb-0">@Model.Date.ToString("dd.MM.yyyy HH:mm")</p>
                     </div>

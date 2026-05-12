@@ -1,4 +1,4 @@
-﻿using FlowKunevDev.Common;
+using FlowKunevDev.Common;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
@@ -109,7 +109,7 @@ namespace FlowKunevDev.Web.Controllers
             try
             {
                 var transfer = await _transferService.CreateAsync(createDto, userId);
-                TempData["SuccessMessage"] = $"Трансферът на стойност {transfer.Amount:F2} лв. от {transfer.FromAccountName} към {transfer.ToAccountName} беше създаден успешно!";
+                TempData["SuccessMessage"] = $"Трансферът на стойност {transfer.Amount:F2} € от {transfer.FromAccountName} към {transfer.ToAccountName} беше създаден успешно!";
                 return RedirectToAction(nameof(Index));
             }
             catch (InvalidOperationException ex)
@@ -249,7 +249,6 @@ namespace FlowKunevDev.Web.Controllers
                 {
                     success = true,
                     balance = balance,
-                    currency = account?.Currency ?? "BGN",
                     name = account?.Name ?? ""
                 });
             }

@@ -22,10 +22,6 @@ namespace FlowKunevDev.Services.DTOs
         [Required(ErrorMessage = "Типът на сметката е задължителен")]
         public AccountType Type { get; set; }
 
-        [Required(ErrorMessage = "Валутата е задължителна")]
-        [RegularExpression("^(BGN|EUR|USD)$", ErrorMessage = "Валутата трябва да бъде BGN, EUR или USD")]
-        public string Currency { get; set; } = "BGN";
-
         [StringLength(7, ErrorMessage = "Цветът трябва да бъде в hex формат")]
         public string Color { get; set; } = "#007bff";
 

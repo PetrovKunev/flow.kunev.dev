@@ -98,7 +98,6 @@ namespace FlowKunevDev.Web.Controllers
                 Name = account.Name,
                 Description = account.Description,
                 Type = account.Type,
-                Currency = account.Currency,
                 Color = account.Color,
                 IsActive = account.IsActive
             };

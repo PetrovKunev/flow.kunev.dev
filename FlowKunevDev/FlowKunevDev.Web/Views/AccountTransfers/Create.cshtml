@@ -1,4 +1,4 @@
-﻿@model FlowKunevDev.Services.DTOs.CreateAccountTransferDto
+@model FlowKunevDev.Services.DTOs.CreateAccountTransferDto
 
 @{
     ViewData["Title"] = "Нов трансфер";
@@ -26,9 +26,8 @@
                                         {
                                             <option value="@account.Id"
                                                     data-balance="@account.CurrentBalance"
-                                                    data-currency="@account.Currency"
                                                     data-color="@account.Color">
-                                                @account.Name (@account.CurrentBalance.ToString("F2") @account.Currency)
+                                                @account.Name (@account.CurrentBalance.ToString("F2") €)
                                             </option>
                                         }
                                     }
@@ -48,9 +47,8 @@
                                         {
                                             <option value="@account.Id"
                                                     data-balance="@account.CurrentBalance"
-                                                    data-currency="@account.Currency"
                                                     data-color="@account.Color">
-                                                @account.Name (@account.CurrentBalance.ToString("F2") @account.Currency)
+                                                @account.Name (@account.CurrentBalance.ToString("F2") €)
                                             </option>
                                         }
                                     }
@@ -68,7 +66,7 @@
                                 <div class="card border-warning" id="from-account-preview">
                                     <div class="card-body text-center">
                                         <h6 class="card-title" id="from-account-name">Изберете сметка</h6>
-                                        <p class="card-text" id="from-account-balance">0.00 лв.</p>
+                                        <p class="card-text" id="from-account-balance">0.00 €</p>
                                     </div>
                                 </div>
                             </div>
@@ -79,7 +77,7 @@
                                 <div class="card border-success" id="to-account-preview">
                                     <div class="card-body text-center">
                                         <h6 class="card-title" id="to-account-name">Изберете сметка</h6>
-                                        <p class="card-text" id="to-account-balance">0.00 лв.</p>
+                                        <p class="card-text" id="to-account-balance">0.00 €</p>
                                     </div>
                                 </div>
                             </div>
@@ -162,22 +160,20 @@
                     var fromOption = $('#fromAccount option:selected');
                     var fromName = fromOption.text().split(' (')[0];
                     var fromBalance = fromOption.data('balance');
-                    var fromCurrency = fromOption.data('currency');
                     var fromColor = fromOption.data('color');
 
                     $('#from-account-name').text(fromName);
-                    $('#from-account-balance').text(fromBalance.toFixed(2) + ' ' + fromCurrency);
+                    $('#from-account-balance').text(fromBalance.toFixed(2) + ' €');
                     $('#from-account-preview').css('border-color', fromColor);
 
                     // Към сметка
                     var toOption = $('#toAccount option:selected');
                     var toName = toOption.text().split(' (')[0];
                     var toBalance = toOption.data('balance');
-                    var toCurrency = toOption.data('currency');
                     var toColor = toOption.data('color');
 
                     $('#to-account-name').text(toName);
-                    $('#to-account-balance').text(toBalance.toFixed(2) + ' ' + toCurrency);
+                    $('#to-account-balance').text(toBalance.toFixed(2) + ' €');
                     $('#to-account-preview').css('border-color', toColor);
 
                     // Проверка за еднакви сметки
@@ -200,12 +196,12 @@
 
                 if (amount > 0 && fromBalance > 0) {
                     if (amount > fromBalance) {
-                        $('#balance-warning').show().text('⚠️ Недостатъчни средства! Наличен баланс: ' + fromBalance.toFixed(2) + ' лв.');
+                        $('#balance-warning').show().text('⚠️ Недостатъчни средства! Наличен баланс: ' + fromBalance.toFixed(2) + ' €');
                         $('#balance-warning').addClass('text-danger').removeClass('text-success');
                         $('#submit-btn').prop('disabled', true);
                     } else {
                         var remaining = fromBalance - amount;
-                        $('#balance-warning').show().text('✓ Ще останат: ' + remaining.toFixed(2) + ' лв.');
+                        $('#balance-warning').show().text('✓ Ще останат: ' + remaining.toFixed(2) + ' €');
                         $('#balance-warning').addClass('text-success').removeClass('text-danger');
                         $('#submit-btn').prop('disabled', false);
                     }

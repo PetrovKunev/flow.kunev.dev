@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FlowKunevDev.Services.DTOs.BudgetDto>
+@model IEnumerable<FlowKunevDev.Services.DTOs.BudgetDto>
 
 @{
     ViewData["Title"] = "Бюджети";
@@ -58,14 +58,14 @@ else
                         <td>@budget.Name</td>
                         <td>@budget.CategoryName</td>
                         <td>@budget.StartDate.ToString("dd.MM.yyyy") - @budget.EndDate.ToString("dd.MM.yyyy")</td>
-                        <td>@budget.Amount.ToString("F2") лв.</td>
+                        <td>@budget.Amount.ToString("F2") €</td>
                         <td>
                             <div class="progress" style="height: 20px;">
                                 <div class="progress-bar" role="progressbar" style="width: @budget.SpentPercentage.ToString("F0")%;" aria-valuenow="@budget.SpentPercentage" aria-valuemin="0" aria-valuemax="100">
                                     @budget.SpentPercentage.ToString("F0")%
                                 </div>
                             </div>
-                            <small>@budget.SpentAmount.ToString("F2") / @budget.Amount.ToString("F2") лв.</small>
+                            <small>@budget.SpentAmount.ToString("F2") / @budget.Amount.ToString("F2") €</small>
                         </td>
                         <td class="text-end">
                             <a asp-action="Edit" asp-route-id="@budget.Id" class="btn btn-sm btn-outline-primary">Редакция</a>

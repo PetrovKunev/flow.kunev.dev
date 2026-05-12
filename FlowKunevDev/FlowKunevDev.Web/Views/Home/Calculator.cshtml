@@ -37,7 +37,7 @@
                                         <i class="fas fa-plus me-1"></i>Добави приход
                                     </button>
                                     <div class="mt-3">
-                                        <strong>Общо приходи: <span id="totalIncome" class="text-success">0.00 лв.</span></strong>
+                                        <strong>Общо приходи: <span id="totalIncome" class="text-success">0.00 €</span></strong>
                                     </div>
                                 </div>
                             </div>
@@ -67,7 +67,7 @@
                                         <i class="fas fa-plus me-1"></i>Добави разход
                                     </button>
                                     <div class="mt-3">
-                                        <strong>Общо разходи: <span id="totalExpenses" class="text-danger">0.00 лв.</span></strong>
+                                        <strong>Общо разходи: <span id="totalExpenses" class="text-danger">0.00 €</span></strong>
                                     </div>
                                 </div>
                             </div>
@@ -88,19 +88,19 @@
                                         <div class="col-md-4">
                                             <div class="text-center">
                                                 <h6 class="text-muted">Нетен резултат</h6>
-                                                <h3 id="netResult" class="text-primary">0.00 лв.</h3>
+                                                <h3 id="netResult" class="text-primary">0.00 €</h3>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="text-center">
                                                 <h6 class="text-muted">Общо приходи</h6>
-                                                <h4 id="summaryIncome" class="text-success">0.00 лв.</h4>
+                                                <h4 id="summaryIncome" class="text-success">0.00 €</h4>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="text-center">
                                                 <h6 class="text-muted">Общо разходи</h6>
-                                                <h4 id="summaryExpenses" class="text-danger">0.00 лв.</h4>
+                                                <h4 id="summaryExpenses" class="text-danger">0.00 €</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -230,16 +230,16 @@
                 const netResult = totalIncome - totalExpenses;
 
                 // Обновяване на дисплея
-                $('#totalIncome').text(totalIncome.toFixed(2) + ' лв.');
-                $('#totalExpenses').text(totalExpenses.toFixed(2) + ' лв.');
-                $('#summaryIncome').text(totalIncome.toFixed(2) + ' лв.');
-                $('#summaryExpenses').text(totalExpenses.toFixed(2) + ' лв.');
+                $('#totalIncome').text(totalIncome.toFixed(2) + ' €');
+                $('#totalExpenses').text(totalExpenses.toFixed(2) + ' €');
+                $('#summaryIncome').text(totalIncome.toFixed(2) + ' €');
+                $('#summaryExpenses').text(totalExpenses.toFixed(2) + ' €');
 
                 // Обновяване на нетния резултат
                 if (netResult >= 0) {
-                    $('#netResult').removeClass('text-danger').addClass('text-success').text('+' + netResult.toFixed(2) + ' лв.');
+                    $('#netResult').removeClass('text-danger').addClass('text-success').text('+' + netResult.toFixed(2) + ' €');
                 } else {
-                    $('#netResult').removeClass('text-success').addClass('text-danger').text(netResult.toFixed(2) + ' лв.');
+                    $('#netResult').removeClass('text-success').addClass('text-danger').text(netResult.toFixed(2) + ' €');
                 }
             }
 

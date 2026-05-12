@@ -1,4 +1,4 @@
-﻿@model FlowKunevDev.Services.DTOs.AccountTransferDto
+@model FlowKunevDev.Services.DTOs.AccountTransferDto
 
 @{
     ViewData["Title"] = "Изтриване на трансфер";
@@ -41,7 +41,7 @@
                             <div class="col-md-2 text-center">
                                 <i class="fas fa-arrow-right fa-2x text-danger"></i>
                                 <div class="mt-2">
-                                    <span class="badge bg-danger fs-6">@Model.Amount.ToString("F2") лв.</span>
+                                    <span class="badge bg-danger fs-6">@Model.Amount.ToString("F2") €</span>
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -58,7 +58,7 @@
 
                         <div class="row">
                             <div class="col-md-6">
-                                <strong>Сума:</strong> @Model.Amount.ToString("F2") лв.
+                                <strong>Сума:</strong> @Model.Amount.ToString("F2") €
                             </div>
                             <div class="col-md-6">
                                 <strong>Създаден на:</strong> @Model.Date.ToString("dd.MM.yyyy") в @Model.Date.ToString("HH:mm")
@@ -82,11 +82,11 @@
                     </li>
                     <li class="text-info">
                         <i class="fas fa-undo me-2"></i>
-                        Сметката "@Model.FromAccountName" ще получи обратно <strong>@Model.Amount.ToString("F2") лв.</strong>
+                        Сметката "@Model.FromAccountName" ще получи обратно <strong>@Model.Amount.ToString("F2") €</strong>
                     </li>
                     <li class="text-warning">
                         <i class="fas fa-minus-circle me-2"></i>
-                        Сметката "@Model.ToAccountName" ще загуби <strong>@Model.Amount.ToString("F2") лв.</strong>
+                        Сметката "@Model.ToAccountName" ще загуби <strong>@Model.Amount.ToString("F2") €</strong>
                     </li>
                     <li class="text-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
@@ -98,7 +98,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="confirm-delete">
                         <label class="form-check-label" for="confirm-delete">
-                            Потвърждавам, че искам да изтрия трансфера от <strong>@Model.Date.ToString("dd.MM.yyyy")</strong> на стойност <strong>@Model.Amount.ToString("F2") лв.</strong>
+                            Потвърждавам, че искам да изтрия трансфера от <strong>@Model.Date.ToString("dd.MM.yyyy")</strong> на стойност <strong>@Model.Amount.ToString("F2") €</strong>
                         </label>
                     </div>
                 </div>
