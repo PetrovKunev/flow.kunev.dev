@@ -62,7 +62,7 @@ builder.Services.AddScoped<ISavingsTargetService, SavingsTargetService>();
 builder.Services.AddHostedService<PlannedTransactionBackgroundService>();
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 builder.Services.AddControllersWithViews();
 
