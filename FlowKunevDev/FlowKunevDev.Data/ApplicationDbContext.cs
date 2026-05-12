@@ -1,11 +1,12 @@
 ﻿using FlowKunevDev.Data.Models;
 using FlowKunevDev.Data.Seeding;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlowKunevDev.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -19,6 +20,9 @@ namespace FlowKunevDev.Data
         public DbSet<AccountTransfer> AccountTransfers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Budget> Budgets { get; set; }
+
+        // Persisted DataProtection keys (cookie/antiforgery encryption keys)
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

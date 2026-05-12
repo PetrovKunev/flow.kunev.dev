@@ -2,7 +2,7 @@ using FlowKunevDev.Data;
 using FlowKunevDev.Services.BackgroundServices;
 using FlowKunevDev.Services.Implementations;
 using FlowKunevDev.Services.Interfaces;
-using FlowKunevDev.Web.Mapping;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FlowKunevDev.Data.Models;
@@ -17,6 +17,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// Persist DataProtection keys (cookie/antiforgery encryption) in the database
+// so that they survive app pool recycles on shared hosting where the file
+// system isn't writable.
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<ApplicationDbContext>()
+    .SetApplicationName("flow.kunev.dev");
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -60,9 +67,6 @@ builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ISavingsTargetService, SavingsTargetService>();
 
 builder.Services.AddHostedService<PlannedTransactionBackgroundService>();
-
-// AutoMapper
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 builder.Services.AddControllersWithViews();
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 using FlowKunevDev.Data;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
+using FlowKunevDev.Services.Mapping;
 using FlowKunevDev.Common;
 
 namespace FlowKunevDev.Services.Implementations
@@ -11,12 +11,10 @@ namespace FlowKunevDev.Services.Implementations
     public class AccountService : IAccountService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
 
-        public AccountService(ApplicationDbContext context, IMapper mapper)
+        public AccountService(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task<AccountDto?> GetByIdAsync(int id, string userId)
@@ -27,20 +25,16 @@ namespace FlowKunevDev.Services.Implementations
 
             if (account == null) return null;
 
-            var accountDto = _mapper.Map<AccountDto>(account);
-            accountDto.CurrentBalance = await CalculateCurrentBalanceAsync(account.Id);
-            accountDto.TransactionCount = await _context.Transactions
+            var currentBalance = await CalculateCurrentBalanceAsync(account.Id);
+            var transactionCount = await _context.Transactions
                 .CountAsync(t => t.AccountId == account.Id);
-            accountDto.LastTransactionDate = await _context.Transactions
+            var lastDate = await _context.Transactions
                 .Where(t => t.AccountId == account.Id)
                 .OrderByDescending(t => t.Date)
                 .Select(t => t.Date)
                 .FirstOrDefaultAsync();
 
-            if (accountDto.LastTransactionDate == default)
-                accountDto.LastTransactionDate = null;
-
-            return accountDto;
+            return account.ToDto(currentBalance, transactionCount, lastDate == default ? null : lastDate);
         }
 
         public async Task<IEnumerable<AccountDto>> GetAllAsync(string userId)
@@ -118,18 +112,13 @@ namespace FlowKunevDev.Services.Implementations
                 throw new InvalidOperationException($"Сметка с име '{createDto.Name}' вече съществува.");
             }
 
-            var account = _mapper.Map<Account>(createDto);
+            var account = createDto.ToEntity();
             account.UserId = userId;
 
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
-            var accountDto = _mapper.Map<AccountDto>(account);
-            accountDto.CurrentBalance = account.InitialBalance; // Първоначално баланса е равен на началния
-            accountDto.TransactionCount = 0;
-            accountDto.LastTransactionDate = null;
-
-            return accountDto;
+            return account.ToDto(account.InitialBalance, 0, null);
         }
 
         public async Task<AccountDto?> UpdateAsync(UpdateAccountDto updateDto, string userId)
@@ -146,7 +135,7 @@ namespace FlowKunevDev.Services.Implementations
                 throw new InvalidOperationException($"Сметка с име '{updateDto.Name}' вече съществува.");
             }
 
-            _mapper.Map(updateDto, account);
+            updateDto.ApplyTo(account);
             await _context.SaveChangesAsync();
 
             return await GetByIdAsync(account.Id, userId);

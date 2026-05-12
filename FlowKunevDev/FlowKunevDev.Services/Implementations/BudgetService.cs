@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using FlowKunevDev.Common;
+﻿using FlowKunevDev.Common;
 using FlowKunevDev.Data;
 using FlowKunevDev.Data.Models;
 using FlowKunevDev.Services.DTOs;
 using FlowKunevDev.Services.Interfaces;
+using FlowKunevDev.Services.Mapping;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlowKunevDev.Services.Implementations
@@ -11,12 +11,10 @@ namespace FlowKunevDev.Services.Implementations
     public class BudgetService : IBudgetService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
 
-        public BudgetService(ApplicationDbContext context, IMapper mapper)
+        public BudgetService(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task<BudgetDto?> GetByIdAsync(int id, string userId)
@@ -27,8 +25,7 @@ namespace FlowKunevDev.Services.Implementations
 
             if (budget == null) return null;
 
-            var dto = _mapper.Map<BudgetDto>(budget);
-            dto.CategoryName = budget.Category.Name;
+            var dto = budget.ToDto();
             dto.SpentAmount = await CalculateSpentAmountAsync(budget);
             return dto;
         }
@@ -49,8 +46,7 @@ namespace FlowKunevDev.Services.Implementations
             var result = new List<BudgetDto>();
             foreach (var b in budgets)
             {
-                var dto = _mapper.Map<BudgetDto>(b);
-                dto.CategoryName = b.Category.Name;
+                var dto = b.ToDto();
                 dto.SpentAmount = await CalculateSpentAmountAsync(b);
                 result.Add(dto);
             }
@@ -62,7 +58,7 @@ namespace FlowKunevDev.Services.Implementations
             if (await NameExistsAsync(createDto.Name, userId))
                 throw new InvalidOperationException($"Бюджет с име '{createDto.Name}' вече съществува.");
 
-            var budget = _mapper.Map<Budget>(createDto);
+            var budget = createDto.ToEntity();
             budget.UserId = userId;
             _context.Budgets.Add(budget);
             await _context.SaveChangesAsync();
@@ -78,7 +74,7 @@ namespace FlowKunevDev.Services.Implementations
             if (await NameExistsAsync(updateDto.Name, userId, updateDto.Id))
                 throw new InvalidOperationException($"Бюджет с име '{updateDto.Name}' вече съществува.");
 
-            _mapper.Map(updateDto, budget);
+            updateDto.ApplyTo(budget);
             await _context.SaveChangesAsync();
 
             return await GetByIdAsync(budget.Id, userId);

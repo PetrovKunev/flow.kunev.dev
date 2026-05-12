@@ -864,3 +864,33 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260512192315_AddDataProtectionKeys'
+)
+BEGIN
+    CREATE TABLE [DataProtectionKeys] (
+        [Id] int NOT NULL IDENTITY,
+        [FriendlyName] nvarchar(max) NULL,
+        [Xml] nvarchar(max) NULL,
+        CONSTRAINT [PK_DataProtectionKeys] PRIMARY KEY ([Id])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260512192315_AddDataProtectionKeys'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260512192315_AddDataProtectionKeys', N'8.0.17');
+END;
+GO
+
+COMMIT;
+GO
+
