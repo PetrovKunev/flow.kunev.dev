@@ -114,14 +114,25 @@
                     <small id="remaining-days-text">(@Model.RemainingDays дни)</small>
                 </p>
                 <!-- Нова информация за избраните сметки и дати -->
-                <div id="calculation-info" class="mt-2" style="display: none;">
+                @{
+                    var totalAccountCount = Model.Accounts.Count;
+                    var savedSelectedCount = Model.SavedDailyBudgetAccountIds.Count;
+                    var showCalcInfo = Model.HasSavedDailyBudgetSelection || Model.HasSavedDailyBudgetPeriod;
+                    var savedPeriodLabel = Model.HasSavedDailyBudgetPeriod
+                        ? $"{Model.SavedDailyBudgetFromDate!.Value:dd.MM} - {Model.SavedDailyBudgetToDate!.Value:dd.MM}"
+                        : "Стандартен период";
+                    var savedAccountsLabel = Model.HasSavedDailyBudgetSelection
+                        ? $"{savedSelectedCount}/{totalAccountCount} сметки"
+                        : "Всички сметки";
+                }
+                <div id="calculation-info" class="mt-2" style="display: @(showCalcInfo ? "block" : "none");">
                     <small class="text-info d-block" id="accounts-info">
                         <i class="fas fa-wallet me-1"></i>
-                        <span id="selected-accounts-count">Всички сметки</span>
+                        <span id="selected-accounts-count">@savedAccountsLabel</span>
                     </small>
                     <small class="text-muted d-block" id="period-info">
                         <i class="fas fa-calendar me-1"></i>
-                        <span id="period-dates">Стандартен период</span>
+                        <span id="period-dates">@savedPeriodLabel</span>
                     </small>
                 </div>
                 <button type="button" class="btn btn-outline-warning btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#dailyBudgetModal">
@@ -707,24 +718,31 @@
             <div class="modal-body">
                 <!-- Форма за период и избор на сметки -->
                 <div class="row mb-4">
+                    @{
+                        var savedFromValue = Model.SavedDailyBudgetFromDate?.ToString("yyyy-MM-dd")
+                            ?? FlowKunevDev.Common.TimeHelper.LocalNow.ToString("yyyy-MM-dd");
+                        var savedToValue = Model.SavedDailyBudgetToDate?.ToString("yyyy-MM-dd")
+                            ?? endOfMonth.ToString("yyyy-MM-dd");
+                        var useSelectedMode = Model.HasSavedDailyBudgetSelection;
+                    }
                     <div class="col-md-4">
                         <label for="customFromDate" class="form-label">От дата:</label>
-                        <input type="date" class="form-control" id="customFromDate" value="@FlowKunevDev.Common.TimeHelper.LocalNow.ToString("yyyy-MM-dd")">
+                        <input type="date" class="form-control" id="customFromDate" value="@savedFromValue">
                     </div>
                     <div class="col-md-4">
                         <label for="customToDate" class="form-label">До дата:</label>
-                        <input type="date" class="form-control" id="customToDate" value="@endOfMonth.ToString("yyyy-MM-dd")">
+                        <input type="date" class="form-control" id="customToDate" value="@savedToValue">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Режим на изчисление:</label>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="calculationMode" id="allAccountsMode" value="all" checked>
+                            <input class="form-check-input" type="radio" name="calculationMode" id="allAccountsMode" value="all" @(useSelectedMode ? "" : "checked")>
                             <label class="form-check-label" for="allAccountsMode">
                                 Всички сметки
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="calculationMode" id="selectedAccountsMode" value="selected">
+                            <input class="form-check-input" type="radio" name="calculationMode" id="selectedAccountsMode" value="selected" @(useSelectedMode ? "checked" : "")>
                             <label class="form-check-label" for="selectedAccountsMode">
                                 Избрани сметки
                             </label>
@@ -733,7 +751,7 @@
                 </div>
 
                 <!-- Избор на сметки -->
-                <div id="accountSelectionPanel" class="row mb-4" style="display: none;">
+                <div id="accountSelectionPanel" class="row mb-4" style="display: @(useSelectedMode ? "flex" : "none");">
                     <div class="col-12">
                         <label class="form-label">Изберете сметки за включване в изчислението:</label>
                         <div class="card">
@@ -741,10 +759,11 @@
                                 <div class="row" id="accountCheckboxes">
                                     @foreach (var account in Model.Accounts)
                                     {
+                                        var isChecked = !useSelectedMode || Model.SavedDailyBudgetAccountIds.Contains(account.Id);
                                         <div class="col-md-6 col-lg-4 mb-2">
                                             <div class="form-check">
-                                                <input class="form-check-input account-checkbox" type="checkbox" 
-                                                       value="@account.Id" id="account-@account.Id" checked>
+                                                <input class="form-check-input account-checkbox" type="checkbox"
+                                                       value="@account.Id" id="account-@account.Id" @(isChecked ? "checked" : "")>
                                                 <label class="form-check-label d-flex align-items-center" for="account-@account.Id">
                                                     <span class="badge me-2" style="background-color: @account.Color; color: white;">
                                                         @account.Name
@@ -1014,53 +1033,8 @@
                 });
             });
 
-            // Възстановяваме филтрите от URL-а (ако има такива от предишен apply)
-            applyFiltersFromUrl();
+            // Запазените филтри се пре-попълват server-side в DOM-а — нищо за инициализиране тук.
         });
-
-        // Записва текущите филтри в URL-а само ако са различни от default-ите.
-        function persistFiltersToUrl(fromDate, toDate, calculationMode, selectedIds) {
-            const params = new URLSearchParams();
-            if (!checkIfStandardPeriod()) {
-                params.set('from', fromDate);
-                params.set('to', toDate);
-            }
-            if (calculationMode === 'selected') {
-                params.set('mode', 'selected');
-                if (selectedIds && selectedIds.length > 0) {
-                    params.set('accounts', selectedIds.join(','));
-                }
-            }
-            const qs = params.toString();
-            const newUrl = qs ? (window.location.pathname + '?' + qs) : window.location.pathname;
-            history.replaceState(null, '', newUrl);
-        }
-
-        // При зареждане на страницата чете URL params и възстановява филтрите.
-        function applyFiltersFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            const from = params.get('from');
-            const to = params.get('to');
-            const mode = params.get('mode');
-            const accounts = params.get('accounts');
-
-            if (!from && !to && !mode && !accounts) return;
-
-            if (from) $('#customFromDate').val(from);
-            if (to) $('#customToDate').val(to);
-
-            if (mode === 'selected') {
-                $('#selectedAccountsMode').prop('checked', true);
-                $('#accountSelectionPanel').show();
-                const ids = accounts ? accounts.split(',').map(s => parseInt(s, 10)).filter(n => !isNaN(n)) : [];
-                $('.account-checkbox').each(function() {
-                    const id = parseInt($(this).val(), 10);
-                    $(this).prop('checked', ids.includes(id));
-                });
-            }
-
-            updateDailyBudget();
-        }
 
         function quickExecute(id, description, plannedAmount) {
             document.getElementById('quickExecuteId').value = id;
@@ -1184,9 +1158,6 @@
                     return;
                 }
             }
-
-            // Запазваме текущия филтър в URL-а, за да оцелее refresh.
-            persistFiltersToUrl(fromDate, toDate, calculationMode, requestData.selectedAccountIds);
 
             // Показваме loading индикатор
             $('#budget-details').html(`

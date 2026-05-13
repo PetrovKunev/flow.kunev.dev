@@ -21,5 +21,14 @@ namespace FlowKunevDev.Data.Models
         [Range(0, double.MaxValue, ErrorMessage = "Очакваният приход не може да е отрицателен.")]
         [Display(Name = "Очакван месечен приход")]
         public decimal? ExpectedMonthlyIncome { get; set; }
+
+        // Запазени филтри за дневния бюджет — null означава "стандартен период / всички сметки".
+        // Ако DailyBudgetAccountIds е null/empty -> "всички сметки", иначе CSV от Id-та -> "избрани сметки".
+        public DateTime? DailyBudgetFromDate { get; set; }
+
+        public DateTime? DailyBudgetToDate { get; set; }
+
+        [MaxLength(512)]
+        public string? DailyBudgetAccountIds { get; set; }
     }
 }

@@ -34,9 +34,11 @@ namespace FlowKunevDev.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrEmpty(userId))
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
                 return RedirectToAction("Login", "Account");
+
+            var userId = user.Id;
 
             try
             {
@@ -49,8 +51,14 @@ namespace FlowKunevDev.Web.Controllers
                 var currentDate = TimeHelper.LocalNow;
                 var monthlySummary = await _transactionService.GetMonthlySummaryAsync(userId, currentDate.Year, currentDate.Month);
 
-                // Изчисляваме дневно разполагаемите средства (вече отчита планираните транзакции)
-                var dailyBudgetInfo = await _transactionService.GetDailyBudgetInfoAsync(userId);
+                // Прилагаме запазените филтри за дневния бюджет (ако има такива).
+                // Невалидни запазени Id-та (изтрита сметка) се игнорират автоматично от service-а.
+                var savedAccountIds = ParseSavedAccountIds(user.DailyBudgetAccountIds);
+                var dailyBudgetInfo = await _transactionService.GetDailyBudgetInfoAsync(
+                    userId,
+                    user.DailyBudgetFromDate,
+                    user.DailyBudgetToDate,
+                    savedAccountIds.Count > 0 ? savedAccountIds : null);
 
                 // Получаваме планирани транзакции
                 var startOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
@@ -94,6 +102,11 @@ namespace FlowKunevDev.Web.Controllers
                     // Периоди за анализ
                     AnalysisPeriodStart = startOfMonth,
                     AnalysisPeriodEnd = endOfMonth,
+
+                    // Запазени филтри за дневния бюджет (за пре-попълване на модала)
+                    SavedDailyBudgetFromDate = user.DailyBudgetFromDate,
+                    SavedDailyBudgetToDate = user.DailyBudgetToDate,
+                    SavedDailyBudgetAccountIds = savedAccountIds,
 
                     // Цел за спестяване
                     SavingsTarget = savingsTarget,
@@ -143,8 +156,8 @@ namespace FlowKunevDev.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetDailyBudgetInfo(DateTime? fromDate, DateTime? toDate, string? accountIds = null)
         {
-            var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrEmpty(userId))
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
                 return Json(new { success = false, message = "Unauthorized" });
             }
@@ -163,7 +176,11 @@ namespace FlowKunevDev.Web.Controllers
                         .ToList();
                 }
 
-                var info = await _transactionService.GetDailyBudgetInfoAsync(userId, fromDate, toDate, selectedAccountIds);
+                var info = await _transactionService.GetDailyBudgetInfoAsync(user.Id, fromDate, toDate, selectedAccountIds);
+
+                // Запазваме филтрите, за да оцелеят навигация / logout / refresh.
+                await PersistDailyBudgetPreferencesAsync(user, fromDate, toDate, selectedAccountIds);
+
                 return Json(new { success = true, data = info });
             }
             catch (Exception)
@@ -175,15 +192,20 @@ namespace FlowKunevDev.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GetDailyBudgetInfoWithAccounts([FromBody] DailyBudgetCalculationRequest request)
         {
-            var userId = _userManager.GetUserId(User);
-            if (string.IsNullOrEmpty(userId))
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
                 return Json(new { success = false, message = "Unauthorized" });
             }
 
             try
             {
-                var info = await _transactionService.GetDailyBudgetInfoWithAccountsAsync(userId, request);
+                var info = await _transactionService.GetDailyBudgetInfoWithAccountsAsync(user.Id, request);
+
+                // "Всички сметки" => запазваме null; "Избрани" => запазваме конкретните Id-та.
+                var idsToPersist = request.IncludeAllAccounts ? null : request.SelectedAccountIds;
+                await PersistDailyBudgetPreferencesAsync(user, request.FromDate, request.ToDate, idsToPersist);
+
                 return Json(new { success = true, data = info });
             }
             catch (Exception ex)
@@ -248,6 +270,28 @@ namespace FlowKunevDev.Web.Controllers
             {
                 return Json(new { success = false, message = $"Грешка при изпълнението: {ex.Message}" });
             }
+        }
+
+        private static List<int> ParseSavedAccountIds(string? csv)
+        {
+            if (string.IsNullOrWhiteSpace(csv)) return new List<int>();
+            return csv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => int.TryParse(s.Trim(), out var id) ? id : (int?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+        }
+
+        private async Task PersistDailyBudgetPreferencesAsync(
+            ApplicationUser user, DateTime? fromDate, DateTime? toDate, List<int>? accountIds)
+        {
+            user.DailyBudgetFromDate = fromDate;
+            user.DailyBudgetToDate = toDate;
+            user.DailyBudgetAccountIds = (accountIds == null || accountIds.Count == 0)
+                ? null
+                : string.Join(",", accountIds);
+
+            await _userManager.UpdateAsync(user);
         }
     }
 }

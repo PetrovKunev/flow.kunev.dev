@@ -82,6 +82,14 @@ namespace FlowKunevDev.Web.ViewModels
         public List<int> SelectedAccountIds { get; set; } = new List<int>();
         public bool IncludeAllAccountsInCalculation { get; set; } = true;
 
+        // Запазени филтри за дневния бюджет — използват се за пре-попълване на модала и за
+        // показване на бадж "X/Y сметки / период" в основната карта при първоначално зареждане.
+        public DateTime? SavedDailyBudgetFromDate { get; set; }
+        public DateTime? SavedDailyBudgetToDate { get; set; }
+        public List<int> SavedDailyBudgetAccountIds { get; set; } = new List<int>();
+        public bool HasSavedDailyBudgetSelection => SavedDailyBudgetAccountIds.Any();
+        public bool HasSavedDailyBudgetPeriod => SavedDailyBudgetFromDate.HasValue && SavedDailyBudgetToDate.HasValue;
+
         // Цел за спестяване (10% и т.н.)
         public SavingsTargetDto SavingsTarget { get; set; } = new SavingsTargetDto();
     }
