@@ -705,10 +705,13 @@ namespace FlowKunevDev.Services.Implementations
             if (filter == null) return query;
 
             if (filter.StartDate.HasValue)
-                query = query.Where(t => t.Date >= filter.StartDate.Value);
+                query = query.Where(t => t.Date >= filter.StartDate.Value.Date);
 
             if (filter.EndDate.HasValue)
-                query = query.Where(t => t.Date <= filter.EndDate.Value);
+            {
+                var endExclusive = filter.EndDate.Value.Date.AddDays(1);
+                query = query.Where(t => t.Date < endExclusive);
+            }
 
             if (filter.CategoryId.HasValue)
                 query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
